@@ -132,16 +132,19 @@ creditworthiness or lending.
 
 ### 3f. Privacy policy URL (required, field takes up to 2048 characters)
 
-The FAQ makes this mandatory even for local-only storage. Host `store/privacy-policy.html`
-somewhere public and paste the URL. Any of these work and take about two minutes:
+The FAQ makes this mandatory even for local-only storage.
 
-- GitHub Pages: push the file to a repo, Settings -> Pages, deploy from branch
-- A public GitHub Gist containing the same text (the gist page URL is fine)
-- Any static host or existing website you control
+**Live URL, ready to paste into the dashboard field:**
 
-The policy must be reachable without a login. Once published, do not let it drift from
-what the dashboard declares: discrepancies between the two are treated as a policy
-violation.
+```
+https://forsigh.github.io/lil-bro-history-wipe/privacy.html
+```
+
+Served by GitHub Pages from `docs/` on `main` of the public repo
+`https://github.com/Forsigh/lil-bro-history-wipe`. It is already published and returning 200.
+If you ever change the policy, edit `docs/privacy.html`, commit and push: Pages rebuilds in
+about a minute. Once published, do not let the hosted policy drift from what the dashboard
+declares, since discrepancies between the two are treated as a policy violation.
 
 ---
 
