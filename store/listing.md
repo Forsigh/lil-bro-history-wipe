@@ -51,10 +51,16 @@ would remove and which rule caught each one, and deletes nothing. When you do pr
 Wipe now it tells you what it removed, and the wipe everything option makes you confirm
 twice before it touches anything.
 
+Prefer it the other way round? One checkbox turns the list into a keep list: the bank,
+your webmail and the work wiki stay, everything else goes. Off by default, and it will
+not switch on while the list is empty.
+
 What it does not touch: cookies, cache, passwords, downloads and site data. The
 extension never asks for those permissions, so it cannot reach them.
 
-Everything stays on your computer. No account, no server, no network requests.
+No account and no server, and the extension makes no network requests of its own. Your
+rules are kept in the browser's synced storage, which is how a rule added on one computer
+shows up on your other ones; your history itself never leaves the machine.
 
 Two things worth knowing before you install. Chrome only hands over browsing history
 after you accept a warning about reading and changing it, and that warning cannot be
@@ -83,7 +89,7 @@ Required to read browsing history so the extension can find the entries matching
 **storage**
 
 ```
-Stores the user's rules, their settings and an optional local log of wiped entries on the user's own device. Nothing stored here is transmitted or shared.
+Keeps the user's rules, their settings and an optional local log of wiped entries in browser storage. Settings and the log stay on the device. The rule list is stored in the browser's synced extension storage so it follows the user to their other signed-in devices; that transfer is performed by the browser's own sync, is never seen by the extension, and carries nothing but the rule list.
 ```
 
 **notifications**
@@ -124,6 +130,11 @@ Unticked and correct: identification, health, financial and payment, authenticat
 personal communications, location, user activity, website content. The extension never
 touches any of them.
 
+One nuance to be aware of: the rule list lives in the browser's synced storage, so a user
+with sync switched on has it carried between their own signed-in devices by the browser.
+That is the user's own browser sync rather than a transfer by the extension, and rules are
+not browsing history. The policy at 3f says so explicitly, and the two must agree.
+
 ### 3e. Certifications
 
 Tick all three. All are true: nothing is sold or transferred to third parties, nothing is
@@ -157,7 +168,7 @@ declares, since discrepancies between the two are treated as a policy violation.
    mandatory.
 4. **128x128 icon.** Already in `icons/icon128.png` and referenced in the manifest.
 5. **Category and language.** "Privacy & Security" is the closest fit.
-6. **Package.** `lil-bro-history-wipe-1.0.4.zip`: manifest.json sits at the root of the
+6. **Package.** `lil-bro-history-wipe-1.0.5.zip`: manifest.json sits at the root of the
    zip, the manifest has no comments, and every file it references is present. Each
    future upload needs a higher version number.
 7. **Privacy policy URL** from 3f, hosted somewhere public.

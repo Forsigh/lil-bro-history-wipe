@@ -34,22 +34,34 @@ function render() {
   const s = state.settings;
   const armed = !!s.wipeAllHistory;
   $('dot').className = 'dot' + (s.enabled ? '' : ' off') + (armed ? ' danger' : '');
+  const keep = s.listMode === 'allow';
   $('status').textContent = !s.enabled
     ? 'Paused'
     : armed
       ? 'Armed: wiping ALL history'
-      : 'Active';
+      : keep
+        ? 'Wiping all but your keep list'
+        : 'Active';
   $('toggleBtn').textContent = s.enabled ? 'Pause' : 'Resume';
   $('wipeBtn').textContent = armed ? 'Wipe ALL history now' : 'Wipe now';
+  $('addDomainBtn').textContent = keep ? 'Keep this site' : 'Wipe this site';
+  $('addUrlBtn').textContent = keep ? 'Keep this exact page' : 'Wipe this exact page only';
   $('wipeAllWarn').textContent = armed
     ? 'Wipe-all is ON: the entire history goes, not just your rules. Cookies and cache are never touched.'
-    : '';
+    : keep
+      ? 'Everything you have not listed is being wiped. Cookies and cache are never touched.'
+      : '';
   const modes = {
     realtime: armed ? 'Every visit is erased the moment it happens.' : 'Wiping instantly, as you browse.',
     onclose: armed ? 'Everything goes when you close the browser.' : 'Matches go when you close the browser.',
     startup: armed ? 'Everything goes at the start of your next session.' : 'Matches go at the start of your next session.',
   };
-  $('modeText').textContent = modes[s.mode] || '';
+  const keepModes = {
+    realtime: 'Every other site is erased as you visit it.',
+    onclose: 'Everything else goes when you close the browser.',
+    startup: 'Everything else goes at your next start.',
+  };
+  $('modeText').textContent = (keep ? keepModes[s.mode] : modes[s.mode]) || '';
   $('statTotal').textContent = state.stats.wipedTotal || 0;
   $('statLast').textContent = state.stats.lastRunCount || 0;
   $('subdomains').checked = !!state.settings.includeSubdomainsDefault;
@@ -80,7 +92,10 @@ async function loadCurrentTab() {
 function addRule(rule) {
   state.rules.push(rule);
   saveState({ rules: state.rules }).then(() => {
-    setMsg(`Added ${describeRule(rule)}.`, 'ok');
+    setMsg(
+      state.settings.listMode === 'allow' ? `Keeping ${describeRule(rule)}.` : `Added ${describeRule(rule)}.`,
+      'ok'
+    );
   });
 }
 
@@ -192,7 +207,9 @@ function runAction(type) {
         res.matched
           ? res.wipeAll
             ? `Wipe-all is armed: all ${res.scanned} entries would be erased.`
-            : `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} would be wiped (scanned ${res.scanned}).`
+            : state.settings.listMode === 'allow'
+              ? `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} not on your keep list would be wiped.`
+              : `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} would be wiped (scanned ${res.scanned}).`
           : `Nothing would be wiped after scanning ${res.scanned} entries.`,
         res.matched ? 'ok' : 'mini'
       );

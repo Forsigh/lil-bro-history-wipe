@@ -71,6 +71,12 @@ export const MESSAGES = {
     'Wipe the history entries that match your rules now?\n\n' +
     'This cannot be undone. Nothing outside your rules is touched, and cookies and cache are never touched.',
 
+  keepListConfirm:
+    'Turn the keep list on?\n\n' +
+    'Every site you have not listed gets erased from history, instead of only the sites you listed.\n\n' +
+    'Cookies, cache, passwords and site data are not touched.',
+  keepListEmpty: 'Add at least one site to keep before switching this on.',
+
   armWipeNow: 'Click again to wipe',
   wipeNowHint: 'Click the button once more to wipe the entries that match your rules.',
   wipeNowTimeout: 'Timed out - nothing was wiped. Click Wipe now to start again.',

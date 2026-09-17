@@ -53,6 +53,18 @@
       <h2>What to wipe</h2>
       <div class="card">
         <div class="row">
+          <label class="pill">
+            <input type="checkbox" id="keepOnly" />
+            Keep only the sites I list, wipe everything else
+          </label>
+        </div>
+        <div class="row mini">
+          Off by default. With this on your rules are a keep list: a site is wiped from history when it is
+          <i>not</i> on the list. Nothing is wiped while the list is empty. Cookies, cache and passwords stay
+          untouched either way.
+        </div>
+        <div class="row mini" id="keepWarn"></div>
+        <div class="row" style="margin-top: 14px">
           <select id="ruleType">
             <option value="domain">Site / domain</option>
             <option value="url">URL or URL prefix</option>
@@ -129,6 +141,10 @@
 
       <h2>Backup</h2>
       <div class="card">
+        <div class="row mini">
+          Your rules live in the browser's synced storage, so they follow you to your other computers. Everything
+          else, including the switches above, stays on this device.
+        </div>
         <div class="row">
           <button id="exportBtn" class="ghost">Export rules</button>
           <label class="ghost" style="display: inline-block; padding: 9px 14px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer">

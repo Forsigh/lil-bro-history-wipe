@@ -4,6 +4,40 @@
 
 const WIPEABLE_SCHEME = /^(?:https?|ftp|file):/i;
 
+// A regex rule is written by the user but tested against text the visited page
+// controls (its title, its URL), inside a worker Chrome kills after 30s idle.
+// A pattern like (a+)+ costs 133ms on a 26-character title and roughly 4x more
+// for every 2 characters after that, so both sides of the test are bounded.
+export const REGEX_MAX_PATTERN = 200;
+export const REGEX_MAX_TEXT = 300;
+
+/**
+ * True when a group that repeats is itself repeated: (a+)+, (a*)*, (\w+\s?)*.
+ * That is the shape that backtracks exponentially. Plain alternation such as
+ * (foo|bar)+ is linear and passes.
+ */
+export function hasNestedQuantifier(source) {
+  return /\((?:\\.|[^()\\])*[*+](?:\\.|[^()\\])*\)\s*[*+{]/.test(String(source == null ? '' : source));
+}
+
+/** A pattern worth running at all: bounded length, no exponential backtracking. */
+export function isRunnableRegex(source) {
+  const src = String(source == null ? '' : source);
+  return src.length > 0 && src.length <= REGEX_MAX_PATTERN && !hasNestedQuantifier(src);
+}
+
+// Patterns refused at match time, so a caller can explain why nothing was wiped.
+const skippedPatterns = new Set();
+
+export function skippedRegexes() {
+  return [...skippedPatterns];
+}
+
+export function resetSkippedRegexes() {
+  skippedPatterns.clear();
+}
+
+
 export function isWipeableUrl(url) {
   return typeof url === 'string' && WIPEABLE_SCHEME.test(url);
 }
@@ -76,8 +110,14 @@ export function keywordMatches(text, keyword, wholeWord) {
 }
 
 function regexMatches(text, source) {
+  const src = String(source == null ? '' : source);
+  if (!isRunnableRegex(src)) {
+    skippedPatterns.add(src.slice(0, 60));
+    return false;
+  }
   try {
-    return new RegExp(source, 'iu').test(String(text || ''));
+    // Truncated: the tail of a very long title or URL is not worth a stalled sweep.
+    return new RegExp(src, 'iu').test(String(text || '').slice(0, REGEX_MAX_TEXT));
   } catch {
     return false;
   }

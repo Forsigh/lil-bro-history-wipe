@@ -39,7 +39,7 @@ async function load() {
   renderLog();
   runTest();
   $('version').textContent =
-    'Lil Bro v' + chrome.runtime.getManifest().version + ': rules and settings are stored on this device only.';
+    'Lil Bro v' + chrome.runtime.getManifest().version + ': rules sync between your computers, the switches stay on this one.';
 }
 
 function renderSettings() {
@@ -51,6 +51,9 @@ function renderSettings() {
   $('notify').checked = !!s.notifyOnWipe;
   $('logEnabled').checked = !!s.logEnabled;
   $('wipeAll').checked = !!s.wipeAllHistory;
+  $('keepOnly').checked = s.listMode === 'allow';
+  $('keepWarn').textContent =
+    s.listMode === 'allow' ? 'On: everything not on your list is being wiped. Cookies and cache aside.' : '';
   $('wipeNowBtn').textContent = s.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
   $('wipeAllWarn').textContent = s.wipeAllHistory
     ? 'ARMED: the entire history is erased on every trigger above, and "Wipe now" empties it immediately.'
@@ -67,9 +70,11 @@ function renderSettings() {
     ? enabled
       ? 'ARMED: wiping ALL history'
       : 'Paused'
-    : enabled
-      ? `Active: ${modeText}`
-      : 'Paused';
+    : !enabled
+      ? 'Paused'
+      : s.listMode === 'allow'
+        ? 'Active: wiping all but your keep list'
+        : `Active: ${modeText}`;
 }
 
 function renderRules() {
@@ -180,11 +185,24 @@ function runTest() {
     return;
   }
   const live = activeRules(state.rules);
+  const keep = state.settings.listMode === 'allow';
   if (!live.length) {
-    setMsg($('testOut'), 'No active rules, so nothing would be wiped.', 'warn');
+    setMsg(
+      $('testOut'),
+      keep ? 'The keep list is empty, so nothing is wiped.' : 'No active rules, so nothing would be wiped.',
+      'warn'
+    );
     return;
   }
   const rule = findMatch({ url, title }, live);
+  if (keep) {
+    setMsg(
+      $('testOut'),
+      rule ? 'Kept: this page is on your keep list.' : 'Not on your keep list, so this would be wiped.',
+      rule ? 'ok' : 'warn'
+    );
+    return;
+  }
   if (rule) {
     setMsg($('testOut'), `Would be wiped by: ${RULE_TYPES[rule.type]} → ${describeRule(rule)}`, 'ok');
   } else {
@@ -248,6 +266,25 @@ $('wipeAll').addEventListener('change', async () => {
   state.settings.wipeAllHistory = wantsOn;
   await saveState({ settings: state.settings });
   renderSettings();
+});
+
+$('keepOnly').addEventListener('change', async () => {
+  const wantsOn = $('keepOnly').checked;
+  if (wantsOn) {
+    if (!activeRules(state.rules).length) {
+      $('keepOnly').checked = false;
+      setMsg($('keepWarn'), MESSAGES.keepListEmpty, 'warn');
+      return;
+    }
+    if (!window.confirm(MESSAGES.keepListConfirm)) {
+      $('keepOnly').checked = false;
+      return;
+    }
+  }
+  state.settings.listMode = wantsOn ? 'allow' : 'block';
+  await saveState({ settings: state.settings });
+  renderSettings();
+  runTest();
 });
 
 $('addBtn').addEventListener('click', async () => {
@@ -333,7 +370,9 @@ async function runAction(type) {
         res.matched
           ? res.wipeAll
             ? `Wipe-all is armed: all ${res.scanned} entries would be erased.`
-            : `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} would be wiped (scanned ${res.scanned}).`
+            : state.settings.listMode === 'allow'
+              ? `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} not on your keep list would be wiped.`
+              : `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} would be wiped (scanned ${res.scanned}).`
           : `Nothing would be wiped after scanning ${res.scanned} entries.`,
         res.matched ? 'ok' : 'mini'
       );

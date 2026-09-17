@@ -1,8 +1,13 @@
 # Lil Bro - History Wipe
 
 A Manifest V3 extension for Chrome and Brave. You tell it what to forget, and it takes those
-entries out of the browser's history. Nothing is collected and nothing leaves the machine. The
-extension makes no network requests at all.
+entries out of the browser's history. The extension makes no network requests of its own: no
+telemetry, no account, nothing phoning home.
+
+One thing does leave the machine, and only if you have browser sync switched on: the rule list
+itself. Rules are kept in Chrome's synced storage so they follow you to your other computers, which
+means the browser's own sync service carries them between the devices you are signed in to. Your
+history, the log and every switch stay on the device.
 
 ## Install (unpacked, 30 seconds)
 
@@ -34,10 +39,21 @@ database with a paginated scan, so entries that predate a rule get cleaned too.
 | **Site / domain** | `example.com` matches `example.com` and `www.example.com`; tick *include all subdomains* to catch `shop.example.com` and `a.b.example.com` too. |
 | **URL or URL prefix** | `https://example.com/private` matches that exact URL and anything under it (`/private/1`, `/private?x=1`), but not `/privateering`. |
 | **Keyword in URL or title** | `shoes` hits `google.com/search?q=shoes` and `shoes - Google Search`, because matching covers the page title as well. *Whole words only* stops `shoes` from catching `shoesupply.com`. |
-| **Regular expression** | Full control, e.g. `^https://translate\.google\.[^/]+/` to clear out Google Translate history. |
+| **Regular expression** | Full control, e.g. `^https://translate\.google\.[^/]+/` to clear out Google Translate history. Capped at 200 characters, and a repeated group inside another repeated group (`(a+)+`) is refused: page titles are written by the pages you visit, and that shape makes the matcher crawl. Text handed to a pattern is truncated at 300 characters. |
 
-Rules are a plain list. Switch one off, delete it, or export the whole set to JSON and import it on
-another machine.
+Rules are a plain list. Switch one off, delete it, or export the whole set to JSON and import it
+somewhere else. They live in the browser's synced storage, so a rule added on one machine is there
+on the next one you sign in to.
+
+## The other way round: a keep list
+
+One checkbox on the options page, `Keep only the sites I list, wipe everything else`, inverts the
+rules: a page is wiped when it is *not* on your list. Off by default, behind a confirmation, and it
+will not switch on while the list is empty, because an empty keep list inverted would mean "wipe
+everything" and nobody asked for that. The popup switches its wording with it (`Keep this site`
+instead of `Wipe this site`), and the tester reads the other way round too.
+
+Typical use: keep the bank, the work wiki and webmail, let everything else go.
 
 Before you trust a rule, paste a URL (and a page title if you like) into **Test a URL against your
 rules** on the options page. It tells you which rule would catch it, or that nothing would.
@@ -47,7 +63,7 @@ rules** on the options page. It tells you which rule would catch it, or that not
 ```
 manifest.json      MV3 manifest. Permissions: history, storage, notifications, contextMenus, activeTab
 matcher.js         pure matching engine (domains, subdomains, URL prefixes, keywords, regex)
-store.js           state schema, defaults, rule validation
+store.js           state schema, defaults, rule validation, synced rule storage
 confirm-gate.js    the confirmation ordering, as pure functions
 service-worker.js  the only component that deletes anything
 options.html/js    rule list, timing modes, tester, log, import/export
@@ -120,18 +136,21 @@ No build step, no dependencies. Run:
 
 ```
 npm test                      # or the four node commands below
-node tests/matcher.test.mjs   # matching engine: 43 cases
+node tests/matcher.test.mjs   # matching engine, including the regex guards: 68 cases
 node tests/gate.test.mjs      # confirmation gates and their wording: 31 cases
-node tests/worker.test.mjs    # the worker against a fake chrome.* API and a fake history DB: 82 cases
+node tests/worker.test.mjs    # the worker against a fake chrome.* API and a fake history DB: 118 cases
 node tests/pages.test.mjs     # element ids, manifest sanity, settings/rule-type consistency, deletion scope, gate wiring
 ```
 
 The worker suite runs the real `service-worker.js`: instant deletion on visit, the deferred queue,
 the last-window flush, full-database pagination (2 500 fake entries across several `history.search`
 pages), the `startTime: 0` guard, the paused state, the notification and log switches, log caps, the
-read-only preview, right-click rule creation, 20 simultaneous visits, and the whole wipe-all matrix
-including "cookies and cache were never touched" and "off by default". The 20-visit case is worth
-keeping: without the queue lock, 19 of those 20 entries are silently lost.
+read-only preview, right-click rule creation, 20 simultaneous visits, the keep-list matrix (listed
+sites stay, unlisted sites go, an empty keep list wipes nothing, `chrome://` is never a candidate),
+rule sync (chunking under the 8 KB per-item cap, a list that only exists locally migrating up, a
+switched-off sync still wiping from the local mirror, and settings never synced), and the whole
+wipe-all matrix including "cookies and cache were never touched" and "off by default". The 20-visit
+case is worth keeping: without the queue lock, 19 of those 20 entries are silently lost.
 
 The suite I trust most is the blast-radius one. With two rules and 210 history entries it asserts
 that exactly the 5 matching URLs were deleted, that every lookalike (`nottarget.example`,
@@ -149,14 +168,16 @@ that exactly the 5 matching URLs were deleted, that every lookalike (`nottarget.
    shipping extension has closed that gap.
 3. Deletion scope. `history.deleteUrl` removes every visit to a URL, not just the matching visit, so
    a keyword rule deletes the whole page rather than one visit.
-4. Sync. With history sync on, Chrome propagates the deletion to your other signed-in devices. A
-   too-broad keyword rule travels with it. Use the tester.
+4. Sync cuts both ways. With history sync on, Chrome propagates a deletion to your other signed-in
+   devices, and the rule list itself syncs as well. A too-broad keyword rule therefore travels. Use
+   the tester before you trust a rule.
 5. Timing. A deep scan is budgeted to about four minutes per run to stay inside Chrome's per-request
    limit. A very large history finishes across successive runs.
 
 ## Permission notes
 
-Only `history` produces an install warning. `storage` keeps your rules on the device, `notifications`
+Only `history` produces an install warning. `storage` keeps your rules (in synced storage, as above)
+and every switch (locally), `notifications`
 reports the wipe count, `contextMenus` powers the right-click item "Lil Bro: wipe this site", and
 `activeTab` is what lets the popup read the current tab's URL when you click the toolbar icon. No
 host permissions, no content scripts, no network access.

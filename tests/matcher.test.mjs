@@ -6,6 +6,12 @@ import {
   keywordMatches,
   isWipeableUrl,
   hostOf,
+  hasNestedQuantifier,
+  isRunnableRegex,
+  skippedRegexes,
+  resetSkippedRegexes,
+  REGEX_MAX_PATTERN,
+  REGEX_MAX_TEXT,
 } from '../matcher.js';
 import { buildRule, normalizeDomain } from '../store.js';
 
@@ -80,6 +86,48 @@ ok('keyword rule min length', buildRule({ type: 'keyword', value: 'a' }).ok, fal
 ok('short keyword warns', !!buildRule({ type: 'keyword', value: 'sho' }).warning, true);
 ok('bad regex rejected', buildRule({ type: 'regex', value: '(' }).ok, false);
 ok('good regex accepted', buildRule({ type: 'regex', value: '^https://a\\.com' }).ok, true);
+
+console.log('regex guards (a user pattern runs against page-controlled text)');
+ok('nested quantifier: (a+)+', hasNestedQuantifier('(a+)+'), true);
+ok('nested quantifier: (a*)*', hasNestedQuantifier('(a*)*'), true);
+ok('nested quantifier: (\\w+\\s?)*', hasNestedQuantifier('(\\w+\\s?)*'), true);
+ok('nested quantifier: (a+)+$ anchored', hasNestedQuantifier('(a+)+$'), true);
+ok('plain repeated group (ab)+ passes', hasNestedQuantifier('(ab)+'), false);
+ok('alternation (foo|bar)+ passes', hasNestedQuantifier('(foo|bar)+'), false);
+ok('non-capturing (?:ab)+ passes', hasNestedQuantifier('(?:ab)+'), false);
+ok('translate pattern passes', hasNestedQuantifier('^https://translate\\.google\\.[^/]+/'), false);
+ok('no parentheses at all', hasNestedQuantifier('a+b'), false);
+ok('runnable: normal pattern', isRunnableRegex('^https://a\\.com'), true);
+ok('runnable: empty pattern refused', isRunnableRegex(''), false);
+ok('runnable: over-long pattern refused', isRunnableRegex('a'.repeat(REGEX_MAX_PATTERN + 1)), false);
+ok('runnable: exactly at the cap allowed', isRunnableRegex('a'.repeat(REGEX_MAX_PATTERN)), true);
+
+ok('buildRule refuses a nested quantifier', buildRule({ type: 'regex', value: '(a+)+$' }).ok, false);
+ok('buildRule says why', /repeats inside another repeated group/.test(buildRule({ type: 'regex', value: '(a+)+$' }).error), true);
+ok('buildRule refuses an over-long pattern', buildRule({ type: 'regex', value: 'a'.repeat(REGEX_MAX_PATTERN + 1) }).ok, false);
+ok('buildRule still accepts a normal pattern', buildRule({ type: 'regex', value: '^https://translate\\.google\\.[^/]+/' }).ok, true);
+
+resetSkippedRegexes();
+const started = Date.now();
+ok('catastrophic pattern matches nothing', findMatch({ url: 'https://ok.example/', title: 'a'.repeat(60) + '!' }, [regex('(a+)+$')]), null);
+const elapsed = Date.now() - started;
+ok(`catastrophic pattern returns in under 50ms (took ${elapsed}ms)`, elapsed < 50, true);
+ok('and the skipped pattern is reported', skippedRegexes(), ['(a+)+$']);
+
+resetSkippedRegexes();
+ok('regex still matches normal text after a skip', !!findMatch({ url: 'https://translate.google.com/?text=hi', title: '' }, [regex('^https://translate\\.google\\.[^/]+/')]), true);
+ok('nothing wrongly reported as skipped', skippedRegexes(), []);
+
+// A stored pattern that predates the guard is skipped, not run.
+const legacy = 'legacy-rules-skip';
+resetSkippedRegexes();
+ok('legacy nested pattern is skipped, not run', findMatch({ url: 'https://ok.example/', title: 'a'.repeat(30) + '!' }, [regex('(a+)+$')]), null);
+resetSkippedRegexes();
+
+console.log('regex input truncation');
+const longTail = 'x'.repeat(REGEX_MAX_TEXT) + 'needle';
+ok('match beyond the cap is not seen', findMatch({ url: 'https://ok.example/', title: longTail }, [regex('needle')]), null);
+ok('match inside the cap is seen', !!findMatch({ url: 'https://ok.example/', title: 'x'.repeat(20) + 'needle' }, [regex('needle')]), true);
 
 console.log(`\nmatcher: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

@@ -26,7 +26,7 @@
 
       <p>
         Lil Bro - History Wipe is a browser extension that deletes chosen entries from your
-        browsing history. It runs entirely on your device.
+        browsing history. It does its work on your device and has no server of its own.
       </p>
 
       <h2>What it accesses</h2>
@@ -44,10 +44,9 @@
 
       <h2>What it does not do</h2>
       <ul>
-        <li>It does not collect, transmit, sell or share any data.</li>
+        <li>It does not collect, sell or share any data. There is no analytics, no account and no third-party service.</li>
         <li>
-          It makes no network requests. There is no server, no analytics, no account, and no
-          third-party service of any kind.
+          It makes no network requests of its own. There is no server behind it.
         </li>
         <li>
           It does not read page content, and it has no access to cookies, cache, passwords,
@@ -55,11 +54,20 @@
         </li>
       </ul>
 
-      <h2>Data stored on your device</h2>
+      <h2>Where your data lives</h2>
       <p>
-        Your rules, your settings and the optional wipe log stay in your browser's extension
-        storage on your machine. They are never uploaded anywhere. The log can be cleared at any
-        time from the extension's options page, and removing the extension deletes all of it.
+        Your settings and the optional wipe log stay on your machine, in your browser's local
+        extension storage. They are never uploaded anywhere. The log can be cleared at any time
+        from the extension's options page, and removing the extension deletes all of it.
+      </p>
+      <p>
+        <b>Your rule list is stored in the browser's synced extension storage.</b> That is what lets
+        a rule you add on one computer apply on your other computers. If you have browser sync
+        switched on, your browser sends that list to the browser vendor's sync service so it can
+        reach the devices you are signed in to. That transfer is made by the browser itself, under
+        your browser account settings: the extension transmits nothing and never talks to a server.
+        With sync switched off, or while you are signed out, the list stays a local file like
+        everything else.
       </p>
 
       <h2>Changes to this policy</h2>

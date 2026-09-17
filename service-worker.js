@@ -9,6 +9,7 @@ import {
   describeRule,
   buildRule,
   normalizeDomain,
+  isKeepMode,
 } from './store.js';
 
 const SWEEP_TIME_BUDGET_MS = 4 * 60 * 1000; // stay well inside the 5 min per-request cap
@@ -104,6 +105,25 @@ async function ensureMenus() {
 // deletion
 // ---------------------------------------------------------------------------
 
+/** Log label for an entry removed because it was not on the keep list. */
+const KEEP_LIST_RULE = { type: 'domain', value: 'not on your keep list', includeSubdomains: false };
+
+/**
+ * The one place that decides whether an entry gets wiped, for all three modes.
+ * 'block' (the default): wipe it when a rule matches.
+ * 'allow': the rules are a keep list, so wipe it when nothing matches.
+ * An empty keep list wipes nothing, because inverting an empty list would empty
+ * the database and the user would have asked for the opposite.
+ * Returns the rule to record in the log, or null to leave the entry alone.
+ */
+function decideWipe(item, live, allow) {
+  if (!isWipeableUrl(item && item.url)) return null;
+  const hit = findMatch(item, live);
+  if (!allow) return hit;
+  if (!live.length || hit) return null;
+  return KEEP_LIST_RULE;
+}
+
 /**
  * Delete already-matched items. targets: [{ url, title, rule }]
  * Returns the number actually deleted.
@@ -138,10 +158,12 @@ async function wipeTargets(targets, phase) {
 
 /**
  * Full scan of the local history database, newest first, paginated by
- * lastVisitTime. Deletes everything matching `rules`, unless dryRun, in which
- * case it only reports what it found.
+ * lastVisitTime. Deletes everything decideWipe() selects — unless dryRun, in
+ * which case it only reports what it found.
  */
-async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dryRun = false } = {}) {
+async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dryRun = false, allow = false } = {}) {
+  // In keep mode an empty list means nothing is kept, so an empty rule set must
+  // stop here rather than wipe the database.
   if (!rules.length) return { scanned: 0, deleted: 0, matched: 0, sample: [] };
 
   const started = Date.now();
@@ -184,7 +206,7 @@ async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dry
       const t = item.lastVisitTime || 0;
       if (t && (oldest === null || t < oldest)) oldest = t;
       if (!isWipeableUrl(item.url)) continue;
-      const rule = findMatch(item, rules);
+      const rule = decideWipe(item, rules, allow);
       if (!rule) continue;
       matched++;
       if (sample.length < PREVIEW_SAMPLE) {
@@ -338,7 +360,7 @@ async function runSessionStart(phase = 'startup') {
 
     // 2. Optional deep scan (catches entries that predate the rules).
     if (settings.sweepExistingOnStartup && live.length) {
-      const res = await sweepHistory(live, phase);
+      const res = await sweepHistory(live, phase, { allow: isKeepMode(settings) });
       deleted += res.deleted;
     }
 
@@ -389,9 +411,7 @@ async function handleVisit(item) {
   }
 
   const live = activeRules(rules);
-  if (!live.length) return;
-
-  const rule = findMatch(item, live);
+  const rule = decideWipe(item, live, isKeepMode(settings));
   if (!rule) return;
 
   if (settings.mode === 'realtime') {
@@ -470,9 +490,15 @@ async function manualRun(dryRun) {
   }
 
   const live = activeRules(rules);
-  if (!live.length) return { ok: false, error: 'No active rules yet.' };
+  const allow = isKeepMode(settings);
+  if (!live.length) {
+    return {
+      ok: false,
+      error: allow ? 'Add at least one site to keep first.' : 'No active rules yet.',
+    };
+  }
 
-  const res = await sweepHistory(live, dryRun ? 'preview' : 'manual', { dryRun });
+  const res = await sweepHistory(live, dryRun ? 'preview' : 'manual', { dryRun, allow });
   if (!dryRun) await bumpStats(res.deleted, 'manual');
   return { ok: true, dryRun: !!dryRun, ...res };
 }

@@ -7,7 +7,7 @@ let pass = 0;
 let fail = 0;
 let importCounter = 0;
 
-function makeFakeChrome(seed = []) {
+function makeFakeChrome(seed = [], opts = {}) {
   const db = {
     items: seed.map((i) => ({ ...i })),
     deleted: [],
@@ -26,11 +26,14 @@ function makeFakeChrome(seed = []) {
     winCreated: [],
     winRemoved: [],
   };
-  const store = { local: {}, session: {} };
+  const store = { local: {}, session: {}, sync: {} };
   const notifications = [];
 
-  const area = (bag) => ({
+  // opts.syncFails  -> simulate a browser with sync switched off / quota blown
+  // opts.syncItemLimit -> simulate QUOTA_BYTES_PER_ITEM (8 KB in Chrome)
+  const area = (bag, name) => ({
     async get(keys) {
+      if (name === 'sync' && opts.syncFails) throw new Error('sync unavailable');
       if (keys === undefined || keys === null) return structuredClone(bag);
       if (typeof keys === 'string') return keys in bag ? { [keys]: structuredClone(bag[keys]) } : {};
       const out = {};
@@ -40,15 +43,30 @@ function makeFakeChrome(seed = []) {
       return out;
     },
     async set(patch) {
+      if (name === 'sync') {
+        if (opts.syncFails) throw new Error('sync unavailable');
+        if (opts.syncItemLimit) {
+          for (const [k, v] of Object.entries(patch)) {
+            if (JSON.stringify(v).length > opts.syncItemLimit) {
+              throw new Error(`QUOTA_BYTES_PER_ITEM exceeded for ${k}`);
+            }
+          }
+        }
+      }
       for (const [k, v] of Object.entries(patch)) bag[k] = structuredClone(v);
     },
     async remove(key) {
-      delete bag[key];
+      if (name === 'sync' && opts.syncFails) throw new Error('sync unavailable');
+      for (const k of Array.isArray(key) ? key : [key]) delete bag[k];
     },
   });
 
   const chrome = {
-    storage: { local: area(store.local), session: area(store.session) },
+    storage: {
+      local: area(store.local, 'local'),
+      session: area(store.session, 'session'),
+      sync: area(store.sync, 'sync'),
+    },
     history: {
       async search({ startTime = 0, endTime = Number.MAX_SAFE_INTEGER, maxResults = 100 } = {}) {
         db.searchCalls.push({ startTime, endTime, maxResults });
@@ -763,6 +781,218 @@ function check(label, fn) {
   check('wipe-all + wipe now: reports the count', () => assert.equal(wipe.deleted, 5));
   check('wipe-all + wipe now: cookies and cache still untouched', () =>
     assert.deepEqual(j.db.forbidden, ['history.deleteAll']));
+}
+
+// ---------------------------------------------------------------------------
+// 15. keep-list mode (rules inverted)
+// ---------------------------------------------------------------------------
+{
+  const { DEFAULT_SETTINGS, readRules, writeRules, chunkRules, saveState } = await import('../store.js');
+  check('keep list: off by default', () => assert.equal(DEFAULT_SETTINGS.listMode, 'block'));
+
+  // Instant mode: listed sites stay, everything else dies on visit.
+  const f = makeFakeChrome([]);
+  f.store.local.rules = [{ id: 'k1', type: 'domain', value: 'bank.example', enabled: true }];
+  f.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    listMode: 'allow',
+  };
+  await boot(f.chrome, f.store);
+
+  f.listeners.onVisited[0]({ url: 'https://bank.example/account', title: 'a', lastVisitTime: Date.now() });
+  f.listeners.onVisited[0]({ url: 'https://shopping.example/cart', title: 'b', lastVisitTime: Date.now() });
+  await waitFor('keep-list instant wipe', () => f.db.deleted.includes('https://shopping.example/cart'));
+  await sleep(60);
+
+  check('keep list: an unlisted visit is wiped', () =>
+    assert.ok(f.db.deleted.includes('https://shopping.example/cart')));
+  check('keep list: a listed visit is kept', () =>
+    assert.ok(!f.db.deleted.includes('https://bank.example/account')));
+  check('keep list: the log explains why', () =>
+    assert.equal(f.store.local.log[0].rule, 'not on your keep list'));
+  check('keep list: no whole-history API was called', () => assert.deepEqual(f.db.forbidden, []));
+
+  // An empty keep list must wipe nothing: inverting it would empty the database.
+  const g = makeFakeChrome([]);
+  g.store.local.rules = [];
+  g.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    listMode: 'allow',
+  };
+  await boot(g.chrome, g.store);
+  g.listeners.onVisited[0]({ url: 'https://anything.example/x', title: 'x', lastVisitTime: Date.now() });
+  await sleep(120);
+  check('keep list: an empty keep list wipes nothing', () => assert.equal(g.db.deleted.length, 0));
+  const noKeep = await new Promise((r) => g.listeners.onMessage[0]({ type: 'wipeNow' }, {}, r));
+  check('keep list: wipe-now refuses while the keep list is empty', () =>
+    assert.equal(noKeep.ok, false));
+  check('keep list: and says what to do about it', () =>
+    assert.match(String(noKeep.error), /at least one site to keep/));
+
+  // Deep scan at start, keep mode: only unlisted entries go.
+  const keepStart = [
+    { id: 'k1', url: 'https://bank.example/1', title: 'a', lastVisitTime: NOW },
+    { id: 'k2', url: 'https://mail.example/1', title: 'b', lastVisitTime: NOW - 1000 },
+    { id: 'k3', url: 'https://shop.example/1', title: 'c', lastVisitTime: NOW - 2000 },
+    { id: 'k4', url: 'https://news.example/1', title: 'd', lastVisitTime: NOW - 3000 },
+    { id: 'k5', url: 'chrome://settings', title: 'e', lastVisitTime: NOW - 4000 },
+  ];
+  const h = makeFakeChrome(keepStart);
+  h.store.local.rules = [
+    { id: 'k1', type: 'domain', value: 'bank.example', enabled: true },
+    { id: 'k2', type: 'domain', value: 'mail.example', enabled: true },
+  ];
+  h.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: true,
+    notifyOnWipe: false,
+    listMode: 'allow',
+  };
+  await boot(h.chrome, h.store);
+  await waitFor('keep-list deep scan', () => h.db.deleted.length >= 2);
+  await sleep(60);
+
+  check('keep list + deep scan: listed basics survive', () =>
+    assert.ok(h.db.items.some((i) => i.url === 'https://bank.example/1')));
+  check('keep list + deep scan: the other listed site survives', () =>
+    assert.ok(h.db.items.some((i) => i.url === 'https://mail.example/1')));
+  check('keep list + deep scan: unlisted entries go', () => {
+    assert.ok(!h.db.items.some((i) => i.url === 'https://shop.example/1'));
+    assert.ok(!h.db.items.some((i) => i.url === 'https://news.example/1'));
+  });
+  check('keep list + deep scan: chrome:// is never touched', () =>
+    assert.ok(h.db.items.some((i) => i.url === 'chrome://settings')));
+  check('keep list + deep scan: still nothing but deleteUrl', () =>
+    assert.deepEqual(h.db.forbidden, []));
+
+  // Preview stays read-only, and counts what would go. Only bank.example is on
+  // the keep list here, so mail, shop and news would go; chrome:// is not a
+  // candidate at all.
+  const previewKeep = makeFakeChrome(keepStart);
+  previewKeep.store.local.rules = [{ id: 'k1', type: 'domain', value: 'bank.example', enabled: true }];
+  previewKeep.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    listMode: 'allow',
+  };
+  await boot(previewKeep.chrome, previewKeep.store);
+  const keepPreview = await new Promise((r) =>
+    previewKeep.listeners.onMessage[0]({ type: 'preview' }, {}, r)
+  );
+  check('keep list + preview: reports the entries that would go', () =>
+    assert.equal(keepPreview.matched, 3));
+  check('keep list + preview: deletes nothing', () =>
+    assert.equal(previewKeep.db.deleted.length, 0));
+  check('keep list + preview: history intact', () => assert.equal(previewKeep.db.items.length, 5));
+
+  // Block mode must still behave exactly as before with the same rules.
+  const blockAgain = makeFakeChrome(keepStart);
+  blockAgain.store.local.rules = [{ id: 'k1', type: 'domain', value: 'bank.example', enabled: true }];
+  blockAgain.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: true,
+    notifyOnWipe: false,
+  };
+  await boot(blockAgain.chrome, blockAgain.store);
+  await waitFor('block-mode deep scan', () => blockAgain.db.deleted.length >= 1);
+  await sleep(60);
+  check('block mode: only the listed site is wiped', () =>
+    assert.deepEqual(blockAgain.db.deleted, ['https://bank.example/1']));
+
+  // --- rules sync ---------------------------------------------------------
+  const many = Array.from({ length: 300 }, (_, i) => ({
+    id: 'r' + i,
+    type: 'domain',
+    value: `site${i}.example`,
+    includeSubdomains: i % 2 === 0,
+    wholeWord: false,
+    enabled: true,
+    createdAt: 1_700_000_000_000 + i,
+  }));
+  check('sync: a large list is split across items', () => assert.ok(chunkRules(many).length > 1));
+  check('sync: no chunk gets near the 8 KB item cap', () =>
+    assert.ok(chunkRules(many).every((c) => JSON.stringify(c).length <= 8000)));
+
+  const s = makeFakeChrome([], { syncItemLimit: 8192 });
+  globalThis.chrome = s.chrome;
+  const wrote = await writeRules(many);
+  check('sync: the write reports success', () => assert.equal(wrote, true));
+  check('sync: the list landed in sync, chunked', () => {
+    const keys = Object.keys(s.store.sync).filter((k) => k.startsWith('rulesChunk'));
+    assert.ok(keys.length > 1, `only ${keys.length} chunk(s)`);
+    assert.equal(s.store.sync.rulesMeta.count, 300);
+  });
+  check('sync: every chunk is under the per-item cap', () =>
+    assert.ok(
+      Object.entries(s.store.sync)
+        .filter(([k]) => k.startsWith('rulesChunk'))
+        .every(([, v]) => JSON.stringify(v).length <= 8192)
+    ));
+  const readBack = await readRules();
+  check('sync: the whole list reads back in order', () => {
+    assert.equal(readBack.length, 300);
+    assert.equal(readBack[0].value, 'site0.example');
+    assert.equal(readBack[299].value, 'site299.example');
+  });
+  check('sync: the local mirror matches', () => {
+    assert.equal(s.store.local.rulesMirror.length, 300);
+    assert.equal(s.store.local.rules.length, 300);
+  });
+
+  // Settings must never travel: a synced danger switch would arm itself on every device.
+  await saveState({ settings: { ...DEFAULT_SETTINGS, wipeAllHistory: true, listMode: 'allow' } });
+  check('settings: never written to sync', () =>
+    assert.ok(!('settings' in s.store.sync)));
+  check('settings: the whole-history switch never leaves the device', () =>
+    assert.ok(!JSON.stringify(s.store.sync).includes('wipeAllHistory')));
+  check('settings: the keep-list mode never leaves the device', () =>
+    assert.ok(!JSON.stringify(s.store.sync).includes('listMode')));
+  check('settings: they are still stored locally', () => {
+    assert.equal(s.store.local.settings.wipeAllHistory, true);
+    assert.equal(s.store.local.settings.listMode, 'allow');
+  });
+
+  // Deleting every rule must survive a round trip, not resurrect the old list.
+  await writeRules([]);
+  const emptied = await readRules();
+  check('sync: an emptied list stays empty', () => assert.equal(emptied.length, 0));
+  check('sync: the meta says the list is empty on purpose', () =>
+    assert.equal(s.store.sync.rulesMeta.count, 0));
+
+  // A list that only exists locally (pre-sync, or sync switched off) is copied up.
+  const legacy = makeFakeChrome([]);
+  legacy.store.local.rules = [{ id: 'old1', type: 'domain', value: 'legacy.example', enabled: true }];
+  globalThis.chrome = legacy.chrome;
+  const migrated = await readRules();
+  check('sync: a local-only list is read', () => assert.equal(migrated[0].value, 'legacy.example'));
+  check('sync: and copied up to sync', () =>
+    assert.equal(legacy.store.sync.rulesMeta.count, 1));
+
+  // Sync unavailable: wiping still works from the local mirror.
+  const offline = makeFakeChrome([
+    { id: 'o1', url: 'https://bad.example/x', title: 'x', lastVisitTime: NOW },
+    { id: 'o2', url: 'https://good.example/y', title: 'y', lastVisitTime: NOW - 1000 },
+  ], { syncFails: true });
+  offline.store.local.rules = [{ id: 'r1', type: 'domain', value: 'bad.example', enabled: true }];
+  offline.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: true,
+    notifyOnWipe: false,
+  };
+  await boot(offline.chrome, offline.store);
+  await waitFor('offline wipe from the local mirror', () => offline.db.deleted.length >= 1);
+  await sleep(60);
+  check('sync off: the rules still load', () => assert.ok(offline.db.deleted.includes('https://bad.example/x')));
+  check('sync off: only the match went', () => assert.deepEqual(offline.db.deleted, ['https://bad.example/x']));
+  check('sync off: the local mirror still holds the list', () =>
+    assert.equal(offline.store.local.rulesMirror[0].value, 'bad.example'));
+  const offlineRead = await readRules();
+  check('sync off: reading falls back to the mirror', () => assert.equal(offlineRead.length, 1));
 }
 
 console.log(`\nworker: ${pass} passed, ${fail} failed`);
