@@ -100,7 +100,7 @@ options.html/js    rule list, timing modes, tester, log, import/export
 popup.html/js      pause/resume, quick-add the current site, wipe now
 styles.css         UI
 icons/             16 / 32 / 48 / 128 px
-tools/             icon generator
+tools/             icon generator, packager, live browser probe
 tests/             node test suites (see below)
 ```
 
@@ -188,6 +188,18 @@ The suite I trust most is the blast-radius one. With two rules and 210 history e
 that exactly the 5 matching URLs were deleted, that every lookalike (`nottarget.example`,
 `target.example.evil.io`, `example.com/target`) survived, and that no whole-history or
 `browsingData` call happened at all.
+
+The last check is the browser itself. `node tools/live_probe.mjs` stages a copy of this folder,
+loads it into a throwaway profile of the Chromium browser you point it at, and drives the real
+extension against a real history database: 60 checks covering the manifest the browser actually
+loaded, the permission surface, exact-match deletion, keep-list mode, the regex guard, the armed
+wipe-all, the two-click gate, the typed phrase, and the PIN lock including the forgotten-PIN reset.
+It never touches your own profile and it works on a temporary copy, so it can run while your loaded
+copy is in use.
+
+Two of those checks are the honest answer to "does it really leave cookies alone": in the real
+browser `chrome.cookies` and `chrome.browsingData` are `undefined`, because the manifest never asks
+for those permissions. That is enforced by the browser, not by my word.
 
 ## Known limits
 
