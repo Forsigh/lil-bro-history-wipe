@@ -6,6 +6,8 @@ export const MIN_PIN_LENGTH = 4;
 export const PIN_ITERATIONS = 150000;
 export const MAX_ATTEMPTS = 5;
 export const LOCKOUT_MS = 30000;
+// There is no server, so there is no reset email. This word is the way out.
+export const RECOVERY_WORD = 'lilbro';
 
 export const LOCK_MESSAGES = {
   empty: 'Type a PIN first.',
@@ -18,6 +20,11 @@ export const LOCK_MESSAGES = {
   removed: 'PIN removed. Nothing is hidden any more.',
   open: 'Unlocked for now. Reloading this page hides the list again.',
   listHidden: 'Your list is hidden while the lock is on.',
+  forgot: 'Forgot the PIN?',
+  recoveryLead:
+    'There is no internet connection here, so no reset link can be sent. Type lilbro instead: the PIN goes, and so does everything the extension has saved. Every site and word on your list, every switch, the log, the count. None of it comes back.',
+  recoveryWrong: 'That is not the word.',
+  recoveryDone: 'PIN removed, and everything saved is gone. The extension is back to square one.',
   honest:
     'This keeps the list off the screen when someone else opens these pages. It does not encrypt anything, and anyone who can reach your browser settings can still take the extension out.',
 };
@@ -81,6 +88,11 @@ export function pinProblem(pin, repeat) {
   if (value.length < MIN_PIN_LENGTH) return LOCK_MESSAGES.tooShort;
   if (repeat !== undefined && value !== String(repeat == null ? '' : repeat)) return LOCK_MESSAGES.mismatch;
   return '';
+}
+
+/** The way in when the PIN is gone. Case and stray spaces do not matter. */
+export function checkRecovery(value) {
+  return String(value == null ? '' : value).trim().toLowerCase() === RECOVERY_WORD;
 }
 
 /**

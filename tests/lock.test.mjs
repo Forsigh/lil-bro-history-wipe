@@ -6,11 +6,13 @@ import {
   isLockConfigured,
   pinProblem,
   attemptState,
+  checkRecovery,
   LOCK_MESSAGES,
   MIN_PIN_LENGTH,
   PIN_ITERATIONS,
   MAX_ATTEMPTS,
   LOCKOUT_MS,
+  RECOVERY_WORD,
 } from '../lock.js';
 import { DEFAULT_SETTINGS } from '../store.js';
 
@@ -140,6 +142,22 @@ check('the cooldown expires', () => {
   const s = attemptState(MAX_ATTEMPTS, NOW, NOW + LOCKOUT_MS + 1);
   assert.deepEqual([s.blocked, s.waitMs], [false, 0]);
 });
+
+console.log('the way out when the PIN is forgotten');
+check('the recovery word is lilbro', () => assert.equal(RECOVERY_WORD, 'lilbro'));
+check('the word works', () => assert.equal(checkRecovery('lilbro'), true));
+check('case does not matter', () => assert.equal(checkRecovery('LilBro'), true));
+check('stray spaces do not matter', () => assert.equal(checkRecovery('  lilbro '), true));
+check('nothing near it works', () =>
+  assert.deepEqual(
+    [checkRecovery('lil bro'), checkRecovery('lilbroo'), checkRecovery('bro'), checkRecovery(''), checkRecovery(undefined)],
+    [false, false, false, false, false]
+  ));
+check('the warning names the word', () => assert.ok(LOCK_MESSAGES.recoveryLead.includes(RECOVERY_WORD)));
+check('the warning says what else is lost', () =>
+  assert.ok(/(site|word on your list|switch|log)/.test(LOCK_MESSAGES.recoveryLead)));
+check('the warning says it cannot be undone', () =>
+  assert.ok(LOCK_MESSAGES.recoveryLead.includes('None of it comes back')));
 
 console.log(`\nlock: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

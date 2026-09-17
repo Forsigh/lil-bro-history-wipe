@@ -233,6 +233,21 @@ if (!popupSrc.includes('MESSAGES.wipeAllArm')) {
   console.log('  FAIL arming the whole-history wipe from the popup lost its confirmation');
   fail++;
 }
+if (!lockSrc.includes('RECOVERY_WORD')) {
+  console.log('  FAIL lock.js has no RECOVERY_WORD — a forgotten PIN would be unrecoverable');
+  fail++;
+}
+if (!storeSrc.includes('export async function factoryReset')) {
+  console.log('  FAIL store.js has no factoryReset — the recovery path would have nothing to call');
+  fail++;
+}
+for (const file of ['options.js', 'popup.js']) {
+  const src = readFileSync(join(root, file), 'utf8');
+  if (!src.includes('checkRecovery(') || !src.includes('factoryReset(')) {
+    console.log(`  FAIL ${file} lost the forgotten-PIN way out`);
+    fail++;
+  }
+}
 console.log('  lock: list sections gated, PIN hashed, nothing shipped pre-set');
 
 console.log(fail === 0 ? '\npages: ok' : `\npages: ${fail} failed`);

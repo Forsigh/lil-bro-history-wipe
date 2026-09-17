@@ -9,6 +9,7 @@ import {
   activeRules,
   readAttempts,
   writeAttempts,
+  factoryReset,
   RULE_TYPES,
 } from './store.js';
 import { findMatch } from './matcher.js';
@@ -24,6 +25,7 @@ import {
   isLockConfigured,
   pinProblem,
   attemptState,
+  checkRecovery,
   LOCK_MESSAGES,
   MAX_ATTEMPTS,
   LOCKOUT_MS,
@@ -82,6 +84,8 @@ function applyLock() {
   $('lockUnlockRow').classList.toggle('hidden', !configured || unlocked);
   $('lockHonest').textContent = LOCK_MESSAGES.honest;
   // Preview prints the URLs it matched, so it stays shut while locked.
+  $('lockForgotRow').classList.toggle('hidden', !locked);
+  if (!locked) $('lockRecoverRow').classList.add('hidden');
   $('previewBtn').disabled = locked;
   $('previewList').classList.toggle('hidden', locked);
 }
@@ -412,6 +416,25 @@ $('lockUnlock').addEventListener('click', async () => {
   pinIntent = 'unlock';
   await load();
   setMsg($('lockMsg'), wasRemove ? LOCK_MESSAGES.removed : LOCK_MESSAGES.open, 'ok');
+});
+
+$('lockForgot').addEventListener('click', () => {
+  $('lockForgotRow').classList.add('hidden');
+  $('lockRecoverRow').classList.remove('hidden');
+  setMsg($('lockRecoveryNote'), LOCK_MESSAGES.recoveryLead, 'warn');
+  $('lockRecovery').focus();
+});
+
+$('lockRecoverBtn').addEventListener('click', async () => {
+  if (!checkRecovery($('lockRecovery').value)) {
+    setMsg($('lockRecoveryNote'), LOCK_MESSAGES.recoveryWrong, 'err');
+    return;
+  }
+  await factoryReset();
+  unlocked = true;
+  pinIntent = 'unlock';
+  await load();
+  setMsg($('lockMsg'), LOCK_MESSAGES.recoveryDone, 'ok');
 });
 
 $('addBtn').addEventListener('click', async () => {

@@ -787,7 +787,10 @@ function check(label, fn) {
 // 15. keep-list mode (rules inverted)
 // ---------------------------------------------------------------------------
 {
-  const { DEFAULT_SETTINGS, readRules, writeRules, chunkRules, saveState } = await import('../store.js');
+  const { DEFAULT_SETTINGS, readRules, writeRules, chunkRules, saveState, factoryReset, getState } = await import(
+    '../store.js'
+  );
+  const { isLockConfigured } = await import('../lock.js');
   check('keep list: off by default', () => assert.equal(DEFAULT_SETTINGS.listMode, 'block'));
 
   // Instant mode: listed sites stay, everything else dies on visit.
@@ -974,6 +977,42 @@ function check(label, fn) {
   check('settings: nor does the salt', () => assert.ok(!JSON.stringify(s.store.sync).includes('c0ffee')));
   check('settings: the lock is stored on the device', () =>
     assert.equal(s.store.local.settings.lockHash, 'deadbeefcafe'));
+
+  // The way out when the PIN is forgotten: the recovery word clears the lot.
+  const fr = makeFakeChrome([]);
+  globalThis.chrome = fr.chrome;
+  await writeRules([{ id: 'r1', type: 'domain', value: 'secret.example', enabled: true }]);
+  await saveState({
+    settings: {
+      ...DEFAULT_SETTINGS,
+      lockEnabled: true,
+      lockHash: 'abc',
+      lockSalt: 'def',
+      lockIterations: 1000,
+      wipeAllHistory: true,
+    },
+    log: [{ url: 'https://secret.example/x', rule: 'secret.example', at: 1 }],
+    stats: { wipedTotal: 7, lastRunAt: 1, lastRunCount: 7, lastRunPhase: 'manual' },
+    pending: [{ url: 'https://secret.example/y', rule: 'secret.example', at: 2 }],
+  });
+  const beforeReset = await getState();
+  check('recovery: set up for the test', () => assert.equal(beforeReset.rules.length, 1));
+
+  await factoryReset();
+  const afterReset = await getState();
+  check('recovery: the list is gone', () => assert.equal(afterReset.rules.length, 0));
+  check('recovery: the lock is gone', () => assert.equal(isLockConfigured(afterReset.settings), false));
+  check('recovery: the log is gone', () => assert.equal(afterReset.log.length, 0));
+  check('recovery: the count is gone', () => assert.equal(afterReset.stats.wipedTotal, 0));
+  check('recovery: the queue is gone', () => assert.equal(afterReset.pending.length, 0));
+  check('recovery: the whole-history switch is off again', () =>
+    assert.equal(afterReset.settings.wipeAllHistory, false));
+  check('recovery: sync is emptied as well', () => assert.equal(fr.store.sync.rulesMeta.count, 0));
+  check('recovery: no rule text survives anywhere', () =>
+    assert.ok(!JSON.stringify(fr.store.sync).includes('secret.example')));
+
+  // Back to the fake the rest of this block was using.
+  globalThis.chrome = s.chrome;
 
   // Deleting every rule must survive a round trip, not resurrect the old list.
   await writeRules([]);

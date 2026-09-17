@@ -72,6 +72,14 @@ is stored locally, so the lock never syncs to another machine. Five wrong tries 
 for 30 seconds, with the count kept in session storage so closing the popup does not hand out a fresh
 set. Switching the lock off needs the PIN too, and reloading the page locks it again.
 
+Forget the PIN and there is no reset email, because there is no server to send one. The lock answers
+that itself: press `Forgot the PIN?`, type `lilbro`, and the PIN goes. Everything the extension saved
+goes with it: the list, the switches, the log, the count. A lock you can open without losing anything
+is a lock that keeps nothing.
+
+Be clear about what that means: anyone who knows the word can wipe your list, but they still cannot
+read it. This is the same trade every offline app makes.
+
 Being straight about what that is: it keeps the list off the screen. It encrypts nothing, it cannot
 stop the wiping, and anyone who can reach `chrome://extensions` can still disable or remove the
 extension. A shoulder-surfing lock, not a security boundary.
@@ -161,8 +169,8 @@ No build step, no dependencies. Run:
 npm test                      # or the four node commands below
 node tests/matcher.test.mjs   # matching engine, including the regex guards: 68 cases
 node tests/gate.test.mjs      # confirmation gates and their wording: 31 cases
-node tests/lock.test.mjs      # the PIN lock, its hashing and its throttle: 30 cases
-node tests/worker.test.mjs    # the worker against a fake chrome.* API and a fake history DB: 122 cases
+node tests/lock.test.mjs      # the PIN lock, its hashing, throttle and recovery: 38 cases
+node tests/worker.test.mjs    # the worker against a fake chrome.* API and a fake history DB: 131 cases
 node tests/pages.test.mjs     # element ids, manifest sanity, settings/rule-type consistency, deletion scope, gate wiring
 ```
 

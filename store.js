@@ -271,6 +271,18 @@ export async function saveState(patch) {
   if (rules !== undefined) await writeRules(rules);
 }
 
+/**
+ * The last resort behind the recovery word: rules, settings, log, queue and stats,
+ * on this device and in sync. Used by the forgot-the-PIN path, and the only caller.
+ */
+export async function factoryReset() {
+  await writeRules([]); // empty the list, and let the emptiness reach the other devices
+  await areaRemove('local', ['settings', 'pending', 'log', 'stats', 'rules', 'rulesMirror']);
+  await areaSet('local', { settings: { ...DEFAULT_SETTINGS } });
+  await areaRemove('session', ['pinFails', 'pinLastFailAt', 'bootHandled']);
+  return true;
+}
+
 // --- PIN lock throttle -------------------------------------------------------
 // Kept in session storage, so closing and reopening a page does not hand out a
 // fresh set of tries. Cleared when the browser restarts.

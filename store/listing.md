@@ -61,7 +61,8 @@ touch anything.
 
 The list itself can be locked behind a PIN, so it is not sitting in plain sight when
 someone else opens the settings page. Only a salted hash of the PIN is kept, and it stays
-on the device.
+on the device. Forget the PIN and you are not stuck: type lilbro and the PIN comes off,
+along with everything the extension had saved.
 
 What it does not touch: cookies, cache, passwords, downloads and site data. The
 extension never asks for those permissions, so it cannot reach them.
@@ -176,7 +177,7 @@ declares, since discrepancies between the two are treated as a policy violation.
    mandatory.
 4. **128x128 icon.** Already in `icons/icon128.png` and referenced in the manifest.
 5. **Category and language.** "Privacy & Security" is the closest fit.
-6. **Package.** `lil-bro-history-wipe-1.1.0.zip`: manifest.json sits at the root of the
+6. **Package.** `lil-bro-history-wipe-1.1.1.zip`: manifest.json sits at the root of the
    zip, the manifest has no comments, and every file it references is present. Each
    future upload needs a higher version number.
 7. **Privacy policy URL** from 3f, hosted somewhere public.

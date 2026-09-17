@@ -8,6 +8,7 @@ import {
   normalizeDomain,
   readAttempts,
   writeAttempts,
+  factoryReset,
 } from './store.js';
 import {
   checkPhrase,
@@ -20,6 +21,7 @@ import {
   verifyPin,
   isLockConfigured,
   attemptState,
+  checkRecovery,
   LOCK_MESSAGES,
   MAX_ATTEMPTS,
   LOCKOUT_MS,
@@ -197,6 +199,24 @@ $('lockUnlock').addEventListener('click', async () => {
   await writeAttempts(0, 0);
   await load();
   setLockMsg(LOCK_MESSAGES.open, 'ok');
+});
+
+$('lockForgot').addEventListener('click', () => {
+  $('forgotRow').classList.add('hidden');
+  $('recoverRow').classList.remove('hidden');
+  setLockMsg(LOCK_MESSAGES.recoveryLead, 'warn');
+  $('lockRecovery').focus();
+});
+
+$('lockRecoverBtn').addEventListener('click', async () => {
+  if (!checkRecovery($('lockRecovery').value)) {
+    setLockMsg(LOCK_MESSAGES.recoveryWrong, 'err');
+    return;
+  }
+  await factoryReset();
+  unlocked = true;
+  await load();
+  setLockMsg(LOCK_MESSAGES.recoveryDone, 'ok');
 });
 
 $('addDomainBtn').addEventListener('click', () => {
