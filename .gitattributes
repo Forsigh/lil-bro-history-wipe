@@ -1,0 +1,4 @@
+# Keep the working tree byte-identical to the repository, so a local file hash
+# always matches what GitHub serves. Without this, Windows' core.autocrlf=true
+# rewrites every file to CRLF on checkout and every edit shows as a whole-file diff.
+* text=auto eol=lf
