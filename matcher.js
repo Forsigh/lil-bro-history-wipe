@@ -1,4 +1,4 @@
-// Lil Bro — History Wipe
+// Lil Bro: History Wipe
 // The matching engine. Pure functions, zero chrome.* usage, so it can be run
 // under `node` directly in the test suite.
 

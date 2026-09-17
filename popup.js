@@ -1,4 +1,4 @@
-// Lil Bro — toolbar popup
+// Lil Bro: toolbar popup
 
 import { getState, saveState, buildRule, describeRule, normalizeDomain } from './store.js';
 import {
@@ -37,12 +37,12 @@ function render() {
   $('status').textContent = !s.enabled
     ? 'Paused'
     : armed
-      ? 'Armed — wiping ALL history'
+      ? 'Armed: wiping ALL history'
       : 'Active';
   $('toggleBtn').textContent = s.enabled ? 'Pause' : 'Resume';
   $('wipeBtn').textContent = armed ? 'Wipe ALL history now' : 'Wipe now';
   $('wipeAllWarn').textContent = armed
-    ? 'Wipe-all is ON — the entire history goes, not just your rules. Cookies and cache are never touched.'
+    ? 'Wipe-all is ON: the entire history goes, not just your rules. Cookies and cache are never touched.'
     : '';
   const modes = {
     realtime: armed ? 'Every visit is erased the moment it happens.' : 'Wiping instantly, as you browse.',
@@ -58,7 +58,7 @@ function render() {
   $('queueInfo').textContent =
     s.mode === 'realtime'
       ? ''
-      : `${queued} ${queued === 1 ? 'entry' : 'entries'} queued — wiped ${
+      : `${queued} ${queued === 1 ? 'entry' : 'entries'} queued, wiped ${
           s.mode === 'onclose' ? 'when you close the browser' : 'at your next start'
         }.`;
 }
@@ -167,7 +167,7 @@ function resetArm(message) {
 
 $('confirmPhraseBtn').addEventListener('click', () => {
   if (!checkPhrase($('confirmPhrase').value)) {
-    setMsg(`That is not the phrase — nothing was armed. It must read exactly: ${WIPE_ALL_PHRASE}`, 'err');
+    setMsg(`That is not the phrase, so nothing was armed. It must read exactly: ${WIPE_ALL_PHRASE}`, 'err');
     return;
   }
   phraseOk = true;
@@ -191,9 +191,9 @@ function runAction(type) {
       setMsg(
         res.matched
           ? res.wipeAll
-            ? `Wipe-all is armed — all ${res.scanned} entries would be erased.`
+            ? `Wipe-all is armed: all ${res.scanned} entries would be erased.`
             : `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} would be wiped (scanned ${res.scanned}).`
-          : `Nothing would be wiped — scanned ${res.scanned} entries.`,
+          : `Nothing would be wiped after scanning ${res.scanned} entries.`,
         res.matched ? 'ok' : 'mini'
       );
       renderPreview(res.sample || []);
@@ -202,7 +202,7 @@ function runAction(type) {
 
     setMsg(
       res.wipeAll
-        ? `Erased ${res.deleted} entries — the entire history.`
+        ? `Erased ${res.deleted} entries, the entire history.`
         : `Scanned ${res.scanned}, wiped ${res.deleted}.`,
       res.deleted ? 'ok' : 'mini'
     );

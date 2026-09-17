@@ -157,7 +157,7 @@ declares, since discrepancies between the two are treated as a policy violation.
    mandatory.
 4. **128x128 icon.** Already in `icons/icon128.png` and referenced in the manifest.
 5. **Category and language.** "Privacy & Security" is the closest fit.
-6. **Package.** `lil-bro-history-wipe-1.0.3.zip`: manifest.json sits at the root of the
+6. **Package.** `lil-bro-history-wipe-1.0.4.zip`: manifest.json sits at the root of the
    zip, the manifest has no comments, and every file it references is present. Each
    future upload needs a higher version number.
 7. **Privacy policy URL** from 3f, hosted somewhere public.

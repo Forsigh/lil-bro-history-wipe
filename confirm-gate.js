@@ -1,4 +1,4 @@
-// Lil Bro — confirmation gates for destructive actions.
+// Lil Bro: confirmation gates for destructive actions.
 // Pure logic, no DOM and no chrome.* usage, so the suite can prove the ordering:
 // the final confirmation is unreachable unless the typed phrase matched first.
 
@@ -54,18 +54,18 @@ export async function singleConfirm(ask) {
 
 /** One place for the wording, so both surfaces warn in identical terms. */
 export const MESSAGES = {
-  wipeAllPhrase: `Step 1 of 2 — type ${WIPE_ALL_PHRASE} below to arm it.`,
+  wipeAllPhrase: `Step 1 of 2: type ${WIPE_ALL_PHRASE} below to arm it.`,
   wipeAllStep1:
     'Step 1 of 2\n\n' +
-    'All your history will be wiped — every entry, not just the ones matching your rules.\n\n' +
+    'All your history will be wiped: every entry, not just the ones that match your rules.\n\n' +
     'Cookies, cache, passwords and site data are not touched.\n\n' +
     `Type ${WIPE_ALL_PHRASE} to continue:`,
   wipeAllConfirm:
     'Step 2 of 2\n\nAre you sure you want to continue?\n\n' +
     'The entire browsing history will be erased. This cannot be undone.',
   wipeAllStep2: 'Confirm: erase ALL history',
-  wipeAllArmed: 'Step 2 of 2 — click the red button to erase everything.',
-  wipeAllTimeout: 'Confirmation timed out — nothing was wiped. Start again.',
+  wipeAllArmed: 'Step 2 of 2: click the red button to erase everything.',
+  wipeAllTimeout: 'Confirmation timed out. Nothing was wiped, so start again.',
 
   wipeNowConfirm:
     'Wipe the history entries that match your rules now?\n\n' +
@@ -73,7 +73,7 @@ export const MESSAGES = {
 
   armWipeNow: 'Click again to wipe',
   wipeNowHint: 'Click the button once more to wipe the entries that match your rules.',
-  wipeNowTimeout: 'Timed out — nothing was wiped. Click Wipe now to start again.',
+  wipeNowTimeout: 'Timed out - nothing was wiped. Click Wipe now to start again.',
 
   clearLogConfirm: 'Clear the local log of wiped entries? History itself is not affected.',
   removeRule: (label) => `Remove the rule for ${label}?\n\nAlready-wiped entries stay wiped and nothing in your history changes.`,

@@ -1,5 +1,5 @@
-// Lil Bro — History Wipe
-// Service worker: the only place that deletes anything.
+// Lil Bro: History Wipe
+// Service worker. The only place that deletes anything.
 
 import { findMatch, isWipeableUrl } from './matcher.js';
 import {
@@ -138,7 +138,7 @@ async function wipeTargets(targets, phase) {
 
 /**
  * Full scan of the local history database, newest first, paginated by
- * lastVisitTime. Deletes everything matching `rules` — unless dryRun, in which
+ * lastVisitTime. Deletes everything matching `rules`, unless dryRun, in which
  * case it only reports what it found.
  */
 async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dryRun = false } = {}) {
@@ -162,7 +162,7 @@ async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dry
     try {
       batch = await chrome.history.search({
         text: '',
-        startTime: 0, // NOTE: omitted startTime defaults to 24h — must be explicit
+        startTime: 0, // NOTE: an omitted startTime defaults to the last 24h, so it must be explicit
         endTime,
         maxResults: SWEEP_PAGE_SIZE,
       });
@@ -196,7 +196,7 @@ async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dry
     if (!dryRun) deleted += await wipeTargets(targets, phase);
 
     if (oldest === null || oldest <= 1) break;
-    if (oldest >= endTime) break; // no progress — stop instead of looping
+    if (oldest >= endTime) break; // no progress, so stop instead of looping
     endTime = oldest - 1;
   }
 
@@ -248,7 +248,7 @@ async function countHistory(budgetMs = SWEEP_TIME_BUDGET_MS) {
 
 /**
  * Erase the entire history database. Only reachable when the user has switched on
- * the "wipe all history" toggle — never from the rule engine.
+ * the "wipe all history" toggle, never from the rule engine.
  */
 async function wipeEverything(phase) {
   const counted = await countHistory();
@@ -304,7 +304,7 @@ async function flushPending(phase) {
 }
 
 // ---------------------------------------------------------------------------
-// the session-start run — the reliable hook for both deferred modes
+// the session-start run. The reliable hook for both deferred modes
 // ---------------------------------------------------------------------------
 
 let startupInFlight = false;
@@ -498,7 +498,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     (async () => {
       const { rules } = await getState();
       const live = activeRules(rules);
-      // No deletion here — the options page "tester" does its own matching.
+      // No deletion here. The options page "tester" does its own matching.
       reply({ ok: true, activeRules: live.length });
     })().catch((e) => reply({ ok: false, error: String(e) }));
     return true;
@@ -508,7 +508,7 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
 });
 
 // Best-effort "the browser is closing" hook. Chrome does not wait for
-// extensions on shutdown, so this is opportunistic only — the guaranteed
+// extensions on shutdown, so this is opportunistic only. The guaranteed
 // cleanup happens in runSessionStart() on the next launch.
 let windowCount = null;
 

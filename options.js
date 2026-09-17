@@ -1,4 +1,4 @@
-// Lil Bro — options page
+// Lil Bro: options page
 
 import {
   getState,
@@ -39,7 +39,7 @@ async function load() {
   renderLog();
   runTest();
   $('version').textContent =
-    'Lil Bro v' + chrome.runtime.getManifest().version + ' — rules and settings are stored on this device only.';
+    'Lil Bro v' + chrome.runtime.getManifest().version + ': rules and settings are stored on this device only.';
 }
 
 function renderSettings() {
@@ -53,7 +53,7 @@ function renderSettings() {
   $('wipeAll').checked = !!s.wipeAllHistory;
   $('wipeNowBtn').textContent = s.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
   $('wipeAllWarn').textContent = s.wipeAllHistory
-    ? 'ARMED — the entire history is erased on every trigger above, and "Wipe now" empties it immediately.'
+    ? 'ARMED: the entire history is erased on every trigger above, and "Wipe now" empties it immediately.'
     : 'Off by default. Your rules are still being applied.';
 
   const enabled = s.enabled;
@@ -65,10 +65,10 @@ function renderSettings() {
   }[s.mode] || s.mode;
   $('stateText').textContent = s.wipeAllHistory
     ? enabled
-      ? 'ARMED — wiping ALL history'
+      ? 'ARMED: wiping ALL history'
       : 'Paused'
     : enabled
-      ? `Active — ${modeText}`
+      ? `Active: ${modeText}`
       : 'Paused';
 }
 
@@ -144,7 +144,7 @@ function renderStats() {
   $('queueInfo').textContent =
     state.settings.mode === 'realtime'
       ? ''
-      : `${queued} ${queued === 1 ? 'entry' : 'entries'} queued — wiped ${
+      : `${queued} ${queued === 1 ? 'entry' : 'entries'} queued, wiped ${
           state.settings.mode === 'onclose' ? 'when you close the browser' : 'at your next start'
         }.`;
 }
@@ -181,14 +181,14 @@ function runTest() {
   }
   const live = activeRules(state.rules);
   if (!live.length) {
-    setMsg($('testOut'), 'No active rules — nothing would be wiped.', 'warn');
+    setMsg($('testOut'), 'No active rules, so nothing would be wiped.', 'warn');
     return;
   }
   const rule = findMatch({ url, title }, live);
   if (rule) {
     setMsg($('testOut'), `Would be wiped by: ${RULE_TYPES[rule.type]} → ${describeRule(rule)}`, 'ok');
   } else {
-    setMsg($('testOut'), 'No rule matches this — it stays in history.', 'mini');
+    setMsg($('testOut'), 'No rule matches this, so it stays in history.', 'mini');
   }
 }
 
@@ -297,8 +297,8 @@ async function confirmDestructive() {
       setMsg(
         $('sweepMsg'),
         gate.reason === 'phrase-mismatch'
-          ? `The phrase did not match — nothing was wiped. It must read exactly: ${WIPE_ALL_PHRASE}`
-          : 'Cancelled — nothing was wiped.',
+          ? `The phrase did not match, so nothing was wiped. It must read exactly: ${WIPE_ALL_PHRASE}`
+          : 'Cancelled, nothing was wiped.',
         'warn'
       );
     }
@@ -306,7 +306,7 @@ async function confirmDestructive() {
   }
 
   const gate = await singleConfirm(() => window.confirm(MESSAGES.wipeNowConfirm));
-  if (!gate.ok) setMsg($('sweepMsg'), 'Cancelled — nothing was wiped.');
+  if (!gate.ok) setMsg($('sweepMsg'), 'Cancelled, nothing was wiped.');
   return gate.ok;
 }
 
@@ -332,13 +332,13 @@ async function runAction(type) {
         $('sweepMsg'),
         res.matched
           ? res.wipeAll
-            ? `Wipe-all is armed — all ${res.scanned} entries would be erased.`
+            ? `Wipe-all is armed: all ${res.scanned} entries would be erased.`
             : `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} would be wiped (scanned ${res.scanned}).`
-          : `Nothing would be wiped — scanned ${res.scanned} entries.`,
+          : `Nothing would be wiped after scanning ${res.scanned} entries.`,
         res.matched ? 'ok' : 'mini'
       );
     } else if (res.wipeAll) {
-      setMsg($('sweepMsg'), `Erased ${res.deleted} entries — the entire history.`, 'ok');
+      setMsg($('sweepMsg'), `Erased ${res.deleted} entries, the entire history.`, 'ok');
     } else {
       setMsg($('sweepMsg'), `Scanned ${res.scanned}, wiped ${res.deleted}.`, res.deleted ? 'ok' : 'mini');
     }
@@ -400,7 +400,7 @@ $('importFile').addEventListener('change', async (e) => {
     const incoming = Array.isArray(data) ? data : data.rules;
     if (!Array.isArray(incoming)) throw new Error('No rules array in that file.');
     if (!window.confirm(MESSAGES.importConfirm(incoming.length))) {
-      setMsg($('importMsg'), 'Import cancelled — no rules were added.');
+      setMsg($('importMsg'), 'Import cancelled, so no rules were added.');
       e.target.value = '';
       return;
     }

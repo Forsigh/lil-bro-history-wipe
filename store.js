@@ -1,4 +1,4 @@
-// Lil Bro — History Wipe
+// Lil Bro: History Wipe
 // Shared state helpers. Used by the service worker and every extension page.
 
 export const DEFAULT_SETTINGS = {
@@ -16,7 +16,7 @@ export const DEFAULT_SETTINGS = {
   // Remembers the "include subdomains" tick in the popup for next time.
   includeSubdomainsDefault: false,
   // DANGER: when true, every trigger erases the whole history instead of matching
-  // rules. History only — cookies, cache and site data stay untouched.
+  // rules. History only, cookies, cache and site data stay untouched.
   wipeAllHistory: false,
 };
 
@@ -92,7 +92,7 @@ export function buildRule({ type, value, includeSubdomains = false, wholeWord = 
     rule.value = canonUrlForRule(raw);
   } else if (type === 'keyword') {
     if (raw.length < 2) return { ok: false, error: 'Keywords need at least 2 characters.' };
-    if (raw.length < 4) warning = 'Short keywords can match unrelated pages — check the tester below.';
+    if (raw.length < 4) warning = 'Short keywords can match unrelated pages. Check the tester below.';
     if (/\s/.test(raw) && raw.split(/\s+/).length > 4) warning = 'Long keyword phrases rarely match. A single word usually works better.';
     rule.wholeWord = !!wholeWord;
   } else if (type === 'regex') {
