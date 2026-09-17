@@ -1,6 +1,14 @@
 // Lil Bro: toolbar popup
 
-import { getState, saveState, buildRule, describeRule, normalizeDomain } from './store.js';
+import {
+  getState,
+  saveState,
+  buildRule,
+  describeRule,
+  normalizeDomain,
+  readAttempts,
+  writeAttempts,
+} from './store.js';
 import {
   checkPhrase,
   secondClickWithin,
@@ -8,6 +16,14 @@ import {
   WIPE_ALL_PHRASE,
   ARM_WINDOW_MS,
 } from './confirm-gate.js';
+import {
+  verifyPin,
+  isLockConfigured,
+  attemptState,
+  LOCK_MESSAGES,
+  MAX_ATTEMPTS,
+  LOCKOUT_MS,
+} from './lock.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -16,6 +32,8 @@ let currentUrl = '';
 let armAt = null;
 let phraseOk = false;
 let armTimer = null;
+// Unlocking lasts as long as the popup is open; the wrong-PIN throttle outlives it.
+let unlocked = false;
 
 function setMsg(text, kind = 'mini') {
   const el = $('wipeMsg');
@@ -23,11 +41,35 @@ function setMsg(text, kind = 'mini') {
   el.className = 'row ' + kind;
 }
 
+function setLockMsg(text, kind = 'mini') {
+  const el = $('lockMsg');
+  el.textContent = text || '';
+  el.className = 'row ' + kind;
+}
+
 async function load() {
   state = await getState();
   render();
+  applyLock();
   await loadCurrentTab();
   $('version').textContent = 'Lil Bro v' + chrome.runtime.getManifest().version;
+}
+
+/** A PIN is set and this popup has not been unlocked. */
+function isLocked() {
+  return isLockConfigured(state.settings) && !unlocked;
+}
+
+/** Take the parts that would name a site off the screen, and offer the PIN box. */
+function applyLock() {
+  const locked = isLocked();
+  document.body.classList.toggle('locked', locked);
+  $('lockCard').classList.toggle('hidden', !locked);
+  if (!locked) return;
+  $('lockNote').textContent = LOCK_MESSAGES.listHidden;
+  $('previewList').innerHTML = '';
+  $('wipeMsg').textContent = '';
+  setLockMsg('');
 }
 
 function render() {
@@ -44,6 +86,8 @@ function render() {
         : 'Active';
   $('toggleBtn').textContent = s.enabled ? 'Pause' : 'Resume';
   $('wipeBtn').textContent = armed ? 'Wipe ALL history now' : 'Wipe now';
+  $('scopeList').checked = !armed;
+  $('scopeAll').checked = armed;
   $('addDomainBtn').textContent = keep ? 'Keep this site' : 'Wipe this site';
   $('addUrlBtn').textContent = keep ? 'Keep this exact page' : 'Wipe this exact page only';
   $('wipeAllWarn').textContent = armed
@@ -108,6 +152,51 @@ $('toggleBtn').addEventListener('click', async () => {
 $('subdomains').addEventListener('change', async () => {
   state.settings.includeSubdomainsDefault = $('subdomains').checked;
   await saveState({ settings: state.settings });
+});
+
+// Two ways to run: just the list, or the whole history. The red one is armed here
+// as well as on the options page, and both go through the same confirmation.
+$('scopeList').addEventListener('change', async () => {
+  if (!$('scopeList').checked) return;
+  state.settings.wipeAllHistory = false;
+  await saveState({ settings: state.settings });
+  render();
+});
+
+$('scopeAll').addEventListener('change', async () => {
+  if (!$('scopeAll').checked) return;
+  if (!window.confirm(MESSAGES.wipeAllArm)) {
+    render();
+    return;
+  }
+  state.settings.wipeAllHistory = true;
+  await saveState({ settings: state.settings });
+  render();
+});
+
+$('lockUnlock').addEventListener('click', async () => {
+  const { fails, lastFailAt } = await readAttempts();
+  const gate = attemptState(fails, lastFailAt, Date.now());
+  if (gate.blocked) {
+    setLockMsg(LOCK_MESSAGES.lockedOut(Math.ceil(gate.waitMs / 1000)), 'err');
+    return;
+  }
+  const ok = await verifyPin($('lockPin').value, state.settings);
+  $('lockPin').value = '';
+  if (!ok) {
+    const next = fails + 1;
+    await writeAttempts(next, Date.now());
+    const left = MAX_ATTEMPTS - next;
+    setLockMsg(
+      left > 0 ? LOCK_MESSAGES.wrongLeft(left) : LOCK_MESSAGES.lockedOut(Math.ceil(LOCKOUT_MS / 1000)),
+      'err'
+    );
+    return;
+  }
+  unlocked = true;
+  await writeAttempts(0, 0);
+  await load();
+  setLockMsg(LOCK_MESSAGES.open, 'ok');
 });
 
 $('addDomainBtn').addEventListener('click', () => {

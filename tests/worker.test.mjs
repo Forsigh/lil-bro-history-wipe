@@ -957,6 +957,24 @@ function check(label, fn) {
     assert.equal(s.store.local.settings.listMode, 'allow');
   });
 
+  // The PIN hash is the one thing that must never travel: a synced lock would be a
+  // shared secret, and it would arm itself on every machine.
+  await saveState({
+    settings: {
+      ...DEFAULT_SETTINGS,
+      lockEnabled: true,
+      lockHash: 'deadbeefcafe',
+      lockSalt: 'c0ffee',
+      lockIterations: 1000,
+    },
+  });
+  check('lock: off by default', () => assert.equal(DEFAULT_SETTINGS.lockEnabled, false));
+  check('settings: the PIN hash never reaches sync', () =>
+    assert.ok(!JSON.stringify(s.store.sync).includes('deadbeefcafe')));
+  check('settings: nor does the salt', () => assert.ok(!JSON.stringify(s.store.sync).includes('c0ffee')));
+  check('settings: the lock is stored on the device', () =>
+    assert.equal(s.store.local.settings.lockHash, 'deadbeefcafe'));
+
   // Deleting every rule must survive a round trip, not resurrect the old list.
   await writeRules([]);
   const emptied = await readRules();

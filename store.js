@@ -24,6 +24,12 @@ export const DEFAULT_SETTINGS = {
   // list and everything else is wiped. Off by default, because the second one
   // deletes far more than the user typed in.
   listMode: 'block',
+  // Optional PIN lock over the pages. Off by default. Only the salted hash of the
+  // PIN is kept, and the lock is per-device, so it never syncs.
+  lockEnabled: false,
+  lockHash: '',
+  lockSalt: '',
+  lockIterations: 0,
 };
 
 export const RULE_TYPES = {
@@ -263,6 +269,30 @@ export async function saveState(patch) {
   const { rules, ...rest } = patch || {};
   if (Object.keys(rest).length) await areaSet('local', rest);
   if (rules !== undefined) await writeRules(rules);
+}
+
+// --- PIN lock throttle -------------------------------------------------------
+// Kept in session storage, so closing and reopening a page does not hand out a
+// fresh set of tries. Cleared when the browser restarts.
+
+export async function readAttempts() {
+  try {
+    const raw = await chrome.storage.session.get(['pinFails', 'pinLastFailAt']);
+    return { fails: Number(raw.pinFails) || 0, lastFailAt: Number(raw.pinLastFailAt) || 0 };
+  } catch {
+    return { fails: 0, lastFailAt: 0 };
+  }
+}
+
+export async function writeAttempts(fails, lastFailAt) {
+  try {
+    await chrome.storage.session.set({
+      pinFails: Number(fails) || 0,
+      pinLastFailAt: Number(lastFailAt) || 0,
+    });
+  } catch {
+    // best effort: the lock still works, it just forgets the count
+  }
 }
 
 export function activeRules(rules) {

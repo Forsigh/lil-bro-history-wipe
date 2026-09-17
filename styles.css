@@ -105,6 +105,7 @@ label.radio small {
 
 input[type="text"],
 input[type="url"],
+input[type="password"],
 select,
 textarea {
   background: #0d1526;
@@ -117,6 +118,7 @@ textarea {
 }
 
 input[type="text"]:focus,
+input[type="password"]:focus,
 select:focus,
 textarea:focus {
   outline: none;
@@ -257,6 +259,15 @@ td.value {
 
 .hidden {
   display: none !important;
+}
+
+/* While the PIN lock is on, every section that names a site is taken off the page. */
+body.locked .lockable {
+  display: none !important;
+}
+
+.pill.danger {
+  color: var(--danger);
 }
 
 .err {

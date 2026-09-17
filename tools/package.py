@@ -23,6 +23,7 @@ FILES = [
     "matcher.js",
     "store.js",
     "confirm-gate.js",
+    "lock.js",
     "options.html",
     "options.js",
     "popup.html",

@@ -8,7 +8,7 @@
   <body>
     <div class="wrap">
       <h1>Lil Bro <span>— History Wipe</span></h1>
-      <p class="sub">Rules below decide what never stays in your history. Nothing leaves your machine.</p>
+      <p class="sub">The list below decides what never stays in your history. Your rules sync between your computers.</p>
 
       <h2>When to wipe</h2>
       <div class="card">
@@ -17,7 +17,7 @@
             <input type="radio" name="mode" value="realtime" />
             <span>
               <b>Instantly, as I browse</b>
-              <small>The entry is deleted the moment it is recorded. Strongest option.</small>
+              <small>The heaviest of the three. Chrome reports every visit, so each one is checked the moment it lands. Nothing that matches you is ever written down.</small>
             </span>
           </label>
         </div>
@@ -26,7 +26,7 @@
             <input type="radio" name="mode" value="onclose" />
             <span>
               <b>When I close the browser</b>
-              <small>Matches stay visible during the session, then go. Chrome gives extensions no shutdown hook, so the wipe is attempted at close and guaranteed on your next launch.</small>
+              <small>The lightest while you browse, because nothing is checked until the end. Chrome gives extensions no shutdown hook, so the wipe happens as the last window closes and again on your next launch if it was missed.</small>
             </span>
           </label>
         </div>
@@ -35,7 +35,7 @@
             <input type="radio" name="mode" value="startup" />
             <span>
               <b>When I start the browser</b>
-              <small>Matches are queued during the session and cleared at the start of the next one.</small>
+              <small>Nothing to do while you browse. The work happens at launch, so the first minute after opening the browser is the busy one.</small>
             </span>
           </label>
         </div>
@@ -50,8 +50,8 @@
         </div>
       </div>
 
-      <h2>What to wipe</h2>
-      <div class="card">
+      <h2 class="lockable">What to wipe</h2>
+      <div class="card lockable">
         <div class="row">
           <label class="pill">
             <input type="checkbox" id="keepOnly" />
@@ -59,9 +59,8 @@
           </label>
         </div>
         <div class="row mini">
-          Off by default. With this on your rules are a keep list: a site is wiped from history when it is
-          <i>not</i> on the list. Nothing is wiped while the list is empty. Cookies, cache and passwords stay
-          untouched either way.
+          Off by default. Switch it on and the list flips: a page is wiped when it is <i>not</i> on it. While
+          the list is empty nothing is wiped at all. Cookies and cache stay untouched either way.
         </div>
         <div class="row mini" id="keepWarn"></div>
         <div class="row" style="margin-top: 14px">
@@ -81,7 +80,7 @@
         <div class="row"><span id="addMsg" class="mini"></span></div>
       </div>
 
-      <div class="card">
+      <div class="card lockable">
         <table>
           <thead>
             <tr>
@@ -96,8 +95,8 @@
         <div id="rulesEmpty" class="empty">No rules yet. Add a site, a subdomain, or a keyword above.</div>
       </div>
 
-      <h2>Test a URL against your rules</h2>
-      <div class="card">
+      <h2 class="lockable">Test a URL against your rules</h2>
+      <div class="card lockable">
         <div class="row">
           <input id="testUrl" class="grow" type="text" placeholder="https://shop.example.com/cart" />
           <input id="testTitle" style="width: 200px" type="text" placeholder="page title (optional)" />
@@ -130,8 +129,8 @@
         <div id="previewList"></div>
       </div>
 
-      <h2>Wiped so far</h2>
-      <div class="card">
+      <h2 class="lockable">Wiped so far</h2>
+      <div class="card lockable">
         <div id="logList"></div>
         <div id="logEmpty" class="empty">Nothing logged yet.</div>
         <div class="row" style="margin-top: 10px">
@@ -139,8 +138,8 @@
         </div>
       </div>
 
-      <h2>Backup</h2>
-      <div class="card">
+      <h2 class="lockable">Backup</h2>
+      <div class="card lockable">
         <div class="row mini">
           Your rules live in the browser's synced storage, so they follow you to your other computers. Everything
           else, including the switches above, stays on this device.
@@ -155,8 +154,32 @@
         </div>
       </div>
 
-      <h2>Danger zone</h2>
-      <div class="card danger">
+      <h2>Security</h2>
+      <div class="card">
+        <div class="row">
+          <label class="pill">
+            <input type="checkbox" id="lockEnabled" />
+            Ask for a PIN before showing or editing my list
+          </label>
+        </div>
+        <div class="row mini" id="lockHonest"></div>
+        <div class="row hidden" id="lockSetupRow">
+          <input id="lockPin1" type="password" placeholder="new PIN" />
+          <input id="lockPin2" type="password" placeholder="repeat it" />
+          <button id="lockSave">Save PIN</button>
+        </div>
+        <div class="row hidden" id="lockUnlockRow">
+          <input id="lockPin" type="password" placeholder="PIN" />
+          <button id="lockUnlock">Unlock</button>
+        </div>
+        <div class="row mini" id="lockMsg"></div>
+        <div class="row mini">
+          Switching the lock off needs the PIN. Reloading this page locks it again.
+        </div>
+      </div>
+
+      <h2 class="lockable">Danger zone</h2>
+      <div class="card danger lockable">
         <div class="row">
           <label class="pill">
             <input type="checkbox" id="wipeAll" />
@@ -164,11 +187,9 @@
           </label>
         </div>
         <div class="row mini">
-          When this is on, the whole history is erased instead of matching your rules. "Wipe now", browser
-          start and browser close all mean the entire database; in instant mode every new visit is erased the
-          moment it happens, and what is already in history is cleared too if the deep-scan box above is
-          ticked. Cookies, cache, passwords, downloads and site data are never touched: the extension holds no
-          permission for them. Your rules stay saved and apply again the moment this is switched off.
+          Switch this on and your list stops mattering: every trigger erases the whole database instead. In
+          instant mode each new visit is erased as it happens. Still no cookies, no cache, no passwords, no
+          downloads, ever. Your list is kept, and it starts applying again the moment this is off.
         </div>
         <div class="row mini" id="wipeAllWarn"></div>
       </div>

@@ -72,7 +72,7 @@ if (!defaultsBlock) {
   fail++;
 } else {
   const known = new Set([...defaultsBlock[1].matchAll(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/gm)].map((m) => m[1]));
-  const sources = ['options.js', 'popup.js', 'service-worker.js'];
+  const sources = ['options.js', 'popup.js', 'service-worker.js', 'lock.js'];
   const used = new Set();
   for (const file of sources) {
     const src = readFileSync(join(root, file), 'utf8');
@@ -195,6 +195,45 @@ if (!readFileSync(join(root, 'service-worker.js'), 'utf8').includes('settings.wi
   fail++;
 }
 console.log('  confirmations: gates wired in options.js and popup.js, one sendMessage funnel each');
+
+// The lock is only a lock if (a) the sections that name a site are marked for it,
+// (b) both pages verify a PIN, and (c) the PIN is hashed rather than stored.
+const lockSrc = readFileSync(join(root, 'lock.js'), 'utf8');
+for (const file of ['options.html', 'popup.html']) {
+  if (!/class="[^"]*\blockable\b/.test(readFileSync(join(root, file), 'utf8'))) {
+    console.log(`  FAIL ${file} marks no section as lockable — the lock would hide nothing`);
+    fail++;
+  }
+}
+if (!readFileSync(join(root, 'styles.css'), 'utf8').includes('body.locked .lockable')) {
+  console.log('  FAIL styles.css does not hide .lockable sections while locked');
+  fail++;
+}
+for (const file of ['options.js', 'popup.js']) {
+  const src = readFileSync(join(root, file), 'utf8');
+  if (!src.includes("from './lock.js'") || !src.includes('verifyPin(')) {
+    console.log(`  FAIL ${file} does not ask for a PIN before showing the list`);
+    fail++;
+  }
+}
+if (!lockSrc.includes('crypto.subtle') || !lockSrc.includes('PBKDF2')) {
+  console.log('  FAIL lock.js no longer hashes the PIN with PBKDF2');
+  fail++;
+}
+if (/lockHash:\s*'[0-9a-f]{4}/.test(storeSrc)) {
+  console.log('  FAIL store.js ships a hard-coded PIN hash');
+  fail++;
+}
+const popupHtml = readFileSync(join(root, 'popup.html'), 'utf8');
+if (!popupHtml.includes('id="scopeList"') || !popupHtml.includes('id="scopeAll"')) {
+  console.log('  FAIL the popup no longer offers both ways to run (list / everything)');
+  fail++;
+}
+if (!popupSrc.includes('MESSAGES.wipeAllArm')) {
+  console.log('  FAIL arming the whole-history wipe from the popup lost its confirmation');
+  fail++;
+}
+console.log('  lock: list sections gated, PIN hashed, nothing shipped pre-set');
 
 console.log(fail === 0 ? '\npages: ok' : `\npages: ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

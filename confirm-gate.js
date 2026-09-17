@@ -71,6 +71,10 @@ export const MESSAGES = {
     'Wipe the history entries that match your rules now?\n\n' +
     'This cannot be undone. Nothing outside your rules is touched, and cookies and cache are never touched.',
 
+  wipeAllArm:
+    'Wipe everything from now on?\n\n' +
+    'Every trigger will erase the whole history instead of just your list. Arming this erases nothing by ' +
+    'itself, and each wipe still asks twice.',
   keepListConfirm:
     'Turn the keep list on?\n\n' +
     'Every site you have not listed gets erased from history, instead of only the sites you listed.\n\n' +

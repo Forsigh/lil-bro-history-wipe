@@ -32,6 +32,11 @@ matching it against the rules you wrote.
 **Also deep-scan existing history at browser start** (on by default) walks the whole history
 database with a paginated scan, so entries that predate a rule get cleaned too.
 
+Which one to pick: *instantly* is the heaviest, because Chrome hands over every visit and each one is
+checked as it happens. *On close* costs nothing while you browse, since nothing is looked at until
+the end. *At start* moves the work to launch, so the first minute after opening the browser is the
+busy one and your browsing is untouched after that.
+
 ## What it wipes
 
 | Rule type | Matches |
@@ -55,6 +60,22 @@ instead of `Wipe this site`), and the tester reads the other way round too.
 
 Typical use: keep the bank, the work wiki and webmail, let everything else go.
 
+## The PIN lock
+
+Someone else opening your options page sees your list, and a list like that is its own confession.
+Switch on `Ask for a PIN before showing or editing my list` and the rules, the tester, the log, the
+backup card and the danger zone come off the page until the PIN is given. The popup hides the
+matched-URL preview and the add buttons for the same reason.
+
+The PIN is salted and stretched with PBKDF2-SHA256 150 000 times; only the result is stored, and it
+is stored locally, so the lock never syncs to another machine. Five wrong tries and the pad sits out
+for 30 seconds, with the count kept in session storage so closing the popup does not hand out a fresh
+set. Switching the lock off needs the PIN too, and reloading the page locks it again.
+
+Being straight about what that is: it keeps the list off the screen. It encrypts nothing, it cannot
+stop the wiping, and anyone who can reach `chrome://extensions` can still disable or remove the
+extension. A shoulder-surfing lock, not a security boundary.
+
 Before you trust a rule, paste a URL (and a page title if you like) into **Test a URL against your
 rules** on the options page. It tells you which rule would catch it, or that nothing would.
 
@@ -65,6 +86,7 @@ manifest.json      MV3 manifest. Permissions: history, storage, notifications, c
 matcher.js         pure matching engine (domains, subdomains, URL prefixes, keywords, regex)
 store.js           state schema, defaults, rule validation, synced rule storage
 confirm-gate.js    the confirmation ordering, as pure functions
+lock.js            the optional PIN lock (PBKDF2), and its wording
 service-worker.js  the only component that deletes anything
 options.html/js    rule list, timing modes, tester, log, import/export
 popup.html/js      pause/resume, quick-add the current site, wipe now
@@ -110,7 +132,8 @@ nothing else. The test suite enforces that: the call has to appear exactly once,
 function, and must never be reachable from the rule engine.
 
 Preview stays read-only even when the toggle is on, and reports how many entries would go. Pausing
-beats everything: while the extension is paused, the toggle erases nothing.
+beats everything: while the extension is paused, the toggle erases nothing. The same switch sits in
+the popup as `Everything, always` in red, and arming it from there asks first as well.
 
 ## Confirmations
 
@@ -138,7 +161,8 @@ No build step, no dependencies. Run:
 npm test                      # or the four node commands below
 node tests/matcher.test.mjs   # matching engine, including the regex guards: 68 cases
 node tests/gate.test.mjs      # confirmation gates and their wording: 31 cases
-node tests/worker.test.mjs    # the worker against a fake chrome.* API and a fake history DB: 118 cases
+node tests/lock.test.mjs      # the PIN lock, its hashing and its throttle: 30 cases
+node tests/worker.test.mjs    # the worker against a fake chrome.* API and a fake history DB: 122 cases
 node tests/pages.test.mjs     # element ids, manifest sanity, settings/rule-type consistency, deletion scope, gate wiring
 ```
 

@@ -18,6 +18,10 @@
         </div>
         <div class="row mini" id="modeText"></div>
         <div class="row mini" id="wipeAllWarn"></div>
+        <div class="row">
+          <label class="pill"><input type="radio" name="scope" id="scopeList" /> Only my list</label>
+          <label class="pill danger"><input type="radio" name="scope" id="scopeAll" /> Everything, always</label>
+        </div>
       </div>
 
       <div class="stats-popup stat-grid">
@@ -31,7 +35,16 @@
         </div>
       </div>
 
-      <div class="card">
+      <div class="card hidden" id="lockCard">
+        <div class="row mini" id="lockNote"></div>
+        <div class="row">
+          <input id="lockPin" class="grow" type="password" placeholder="PIN" />
+          <button id="lockUnlock">Unlock</button>
+        </div>
+        <div class="row mini" id="lockMsg"></div>
+      </div>
+
+      <div class="card lockable">
         <div class="row mini" id="sitePreview">Checking current tab…</div>
         <div class="row">
           <button id="addDomainBtn" class="grow">Add this site</button>
@@ -57,7 +70,7 @@
         </div>
         <div class="row mini" id="wipeMsg"></div>
         <div class="row mini" id="queueInfo"></div>
-        <div id="previewList"></div>
+        <div id="previewList" class="lockable"></div>
       </div>
 
       <div class="row">

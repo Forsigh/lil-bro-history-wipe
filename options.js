@@ -7,6 +7,8 @@ import {
   buildRule,
   describeRule,
   activeRules,
+  readAttempts,
+  writeAttempts,
   RULE_TYPES,
 } from './store.js';
 import { findMatch } from './matcher.js';
@@ -16,10 +18,23 @@ import {
   MESSAGES,
   WIPE_ALL_PHRASE,
 } from './confirm-gate.js';
+import {
+  makePinRecord,
+  verifyPin,
+  isLockConfigured,
+  pinProblem,
+  attemptState,
+  LOCK_MESSAGES,
+  MAX_ATTEMPTS,
+  LOCKOUT_MS,
+} from './lock.js';
 
 const $ = (id) => document.getElementById(id);
 
 let state = null;
+// The lock lasts as long as this page is open: a reload hides the list again.
+let unlocked = false;
+let pinIntent = 'unlock';
 
 function fmtWhen(ts) {
   if (!ts) return 'never';
@@ -34,12 +49,48 @@ function setMsg(el, text, kind = '') {
 async function load() {
   state = await getState();
   renderSettings();
-  renderRules();
   renderStats();
-  renderLog();
-  runTest();
+  applyLock();
+  if (isLocked()) {
+    // While the lock is on, nothing naming a site is put into the page at all.
+    $('rulesBody').innerHTML = '';
+    $('logList').innerHTML = '';
+    $('previewList').innerHTML = '';
+    $('rulesEmpty').classList.add('hidden');
+    $('logEmpty').classList.add('hidden');
+  } else {
+    renderRules();
+    renderLog();
+    runTest();
+  }
   $('version').textContent =
     'Lil Bro v' + chrome.runtime.getManifest().version + ': rules sync between your computers, the switches stay on this one.';
+}
+
+/** A PIN is set and this page has not been unlocked yet. */
+function isLocked() {
+  return isLockConfigured(state.settings) && !unlocked;
+}
+
+/** Show the right PIN row, and hide the list sections while locked. */
+function applyLock() {
+  const configured = isLockConfigured(state.settings);
+  const wantsOn = $('lockEnabled').checked;
+  const locked = isLocked();
+  document.body.classList.toggle('locked', locked);
+  $('lockSetupRow').classList.toggle('hidden', !(wantsOn && !configured));
+  $('lockUnlockRow').classList.toggle('hidden', !configured || unlocked);
+  $('lockHonest').textContent = LOCK_MESSAGES.honest;
+  // Preview prints the URLs it matched, so it stays shut while locked.
+  $('previewBtn').disabled = locked;
+  $('previewList').classList.toggle('hidden', locked);
+}
+
+function showUnlock(intent, message) {
+  pinIntent = intent;
+  $('lockUnlockRow').classList.remove('hidden');
+  setMsg($('lockMsg'), message, 'warn');
+  $('lockPin').focus();
 }
 
 function renderSettings() {
@@ -52,6 +103,7 @@ function renderSettings() {
   $('logEnabled').checked = !!s.logEnabled;
   $('wipeAll').checked = !!s.wipeAllHistory;
   $('keepOnly').checked = s.listMode === 'allow';
+  $('lockEnabled').checked = !!s.lockEnabled;
   $('keepWarn').textContent =
     s.listMode === 'allow' ? 'On: everything not on your list is being wiped. Cookies and cache aside.' : '';
   $('wipeNowBtn').textContent = s.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
@@ -285,6 +337,81 @@ $('keepOnly').addEventListener('change', async () => {
   await saveState({ settings: state.settings });
   renderSettings();
   runTest();
+});
+
+$('lockEnabled').addEventListener('change', async () => {
+  const wantsOn = $('lockEnabled').checked;
+  const configured = isLockConfigured(state.settings);
+  if (!wantsOn && configured) {
+    // Switching the lock off is itself a locked action.
+    $('lockEnabled').checked = true;
+    showUnlock('remove', 'Type your PIN to switch the lock off.');
+    return;
+  }
+  if (!wantsOn) {
+    state.settings = mergeSettings({ ...state.settings, lockEnabled: false });
+    await saveState({ settings: state.settings });
+    setMsg($('lockMsg'), '', 'mini');
+    applyLock();
+    return;
+  }
+  applyLock(); // reveals the two PIN boxes
+});
+
+$('lockSave').addEventListener('click', async () => {
+  const problem = pinProblem($('lockPin1').value, $('lockPin2').value);
+  if (problem) {
+    setMsg($('lockMsg'), problem, 'err');
+    return;
+  }
+  const record = await makePinRecord($('lockPin1').value);
+  state.settings = mergeSettings({ ...state.settings, lockEnabled: true, ...record });
+  await saveState({ settings: state.settings });
+  $('lockPin1').value = '';
+  $('lockPin2').value = '';
+  unlocked = true; // they just set it, so no point asking for it back immediately
+  pinIntent = 'unlock';
+  renderSettings();
+  applyLock();
+  setMsg($('lockMsg'), LOCK_MESSAGES.saved, 'ok');
+});
+
+$('lockUnlock').addEventListener('click', async () => {
+  const { fails, lastFailAt } = await readAttempts();
+  const gate = attemptState(fails, lastFailAt, Date.now());
+  if (gate.blocked) {
+    setMsg($('lockMsg'), LOCK_MESSAGES.lockedOut(Math.ceil(gate.waitMs / 1000)), 'err');
+    return;
+  }
+  const ok = await verifyPin($('lockPin').value, state.settings);
+  $('lockPin').value = '';
+  if (!ok) {
+    const next = fails + 1;
+    await writeAttempts(next, Date.now());
+    const left = MAX_ATTEMPTS - next;
+    setMsg(
+      $('lockMsg'),
+      left > 0 ? LOCK_MESSAGES.wrongLeft(left) : LOCK_MESSAGES.lockedOut(Math.ceil(LOCKOUT_MS / 1000)),
+      'err'
+    );
+    return;
+  }
+  const wasRemove = pinIntent === 'remove';
+  await writeAttempts(0, 0);
+  if (wasRemove) {
+    state.settings = mergeSettings({
+      ...state.settings,
+      lockEnabled: false,
+      lockHash: '',
+      lockSalt: '',
+      lockIterations: 0,
+    });
+    await saveState({ settings: state.settings });
+  }
+  unlocked = true;
+  pinIntent = 'unlock';
+  await load();
+  setMsg($('lockMsg'), wasRemove ? LOCK_MESSAGES.removed : LOCK_MESSAGES.open, 'ok');
 });
 
 $('addBtn').addEventListener('click', async () => {

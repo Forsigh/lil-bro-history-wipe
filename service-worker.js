@@ -158,8 +158,8 @@ async function wipeTargets(targets, phase) {
 
 /**
  * Full scan of the local history database, newest first, paginated by
- * lastVisitTime. Deletes everything decideWipe() selects — unless dryRun, in
- * which case it only reports what it found.
+ * lastVisitTime. Deletes everything decideWipe() selects, unless dryRun, in which
+ * case it only reports what it found.
  */
 async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dryRun = false, allow = false } = {}) {
   // In keep mode an empty list means nothing is kept, so an empty rule set must
