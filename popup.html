@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lil Bro</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="popup">
+    <div class="popup-wrap">
+      <h1>Lil Bro <span>— History Wipe</span></h1>
+
+      <div class="card">
+        <div class="row">
+          <span class="pill"><span class="dot" id="dot"></span><span id="status">Loading…</span></span>
+        </div>
+        <div class="row">
+          <button id="toggleBtn" class="ghost grow">Pause</button>
+        </div>
+        <div class="row mini" id="modeText"></div>
+        <div class="row mini" id="wipeAllWarn"></div>
+      </div>
+
+      <div class="stats-popup stat-grid">
+        <div class="stat">
+          <b id="statTotal">0</b>
+          <small>wiped all time</small>
+        </div>
+        <div class="stat">
+          <b id="statLast">0</b>
+          <small>last run</small>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row mini" id="sitePreview">Checking current tab…</div>
+        <div class="row">
+          <button id="addDomainBtn" class="grow">Wipe this site</button>
+        </div>
+        <div class="row">
+          <label class="pill"><input type="checkbox" id="subdomains" /> include subdomains</label>
+        </div>
+        <div class="row">
+          <button id="addUrlBtn" class="ghost grow">Wipe this exact page only</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row">
+          <button id="wipeBtn" class="grow">Wipe now</button>
+        </div>
+        <div class="row">
+          <button id="previewBtn" class="ghost grow">Preview (no delete)</button>
+        </div>
+        <div class="row hidden" id="phraseRow">
+          <input id="confirmPhrase" class="grow" type="text" placeholder="WIPE ALL" />
+          <button id="confirmPhraseBtn">Arm</button>
+        </div>
+        <div class="row mini" id="wipeMsg"></div>
+        <div class="row mini" id="queueInfo"></div>
+        <div id="previewList"></div>
+      </div>
+
+      <div class="row">
+        <button id="openOptions" class="ghost grow">All rules &amp; settings</button>
+      </div>
+      <div class="row mini" id="version" style="justify-content: center; margin-top: 10px"></div>
+    </div>
+
+    <script type="module" src="popup.js"></script>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Lil Bro — History Wipe</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>Lil Bro <span>— History Wipe</span></h1>
+      <p class="sub">Rules below decide what never stays in your history. Nothing leaves your machine.</p>
+
+      <h2>When to wipe</h2>
+      <div class="card">
+        <div class="row">
+          <label class="radio grow">
+            <input type="radio" name="mode" value="realtime" />
+            <span>
+              <b>Instantly, as I browse</b>
+              <small>The entry is deleted the moment it is recorded. Strongest option.</small>
+            </span>
+          </label>
+        </div>
+        <div class="row">
+          <label class="radio grow">
+            <input type="radio" name="mode" value="onclose" />
+            <span>
+              <b>When I close the browser</b>
+              <small>Matches stay visible during the session, then go. Chrome gives extensions no shutdown hook, so the wipe is attempted at close and guaranteed on your next launch.</small>
+            </span>
+          </label>
+        </div>
+        <div class="row">
+          <label class="radio grow">
+            <input type="radio" name="mode" value="startup" />
+            <span>
+              <b>When I start the browser</b>
+              <small>Matches are queued during the session and cleared at the start of the next one.</small>
+            </span>
+          </label>
+        </div>
+        <div class="row" style="margin-top: 14px">
+          <label class="pill"><input type="checkbox" id="sweep" /> Also deep-scan existing history at browser start</label>
+        </div>
+        <div class="row">
+          <label class="pill"><input type="checkbox" id="notify" /> Notify me after a wipe</label>
+        </div>
+        <div class="row">
+          <label class="pill"><input type="checkbox" id="logEnabled" /> Keep a local log of wiped entries</label>
+        </div>
+      </div>
+
+      <h2>What to wipe</h2>
+      <div class="card">
+        <div class="row">
+          <select id="ruleType">
+            <option value="domain">Site / domain</option>
+            <option value="url">URL or URL prefix</option>
+            <option value="keyword">Keyword in URL or title</option>
+            <option value="regex">Regular expression</option>
+          </select>
+          <input id="ruleValue" class="grow" type="text" placeholder="example.com" />
+          <button id="addBtn">Add rule</button>
+        </div>
+        <div class="row">
+          <label class="pill hidden" id="subWrap"><input type="checkbox" id="includeSubdomains" /> include all subdomains</label>
+          <label class="pill hidden" id="wordWrap"><input type="checkbox" id="wholeWord" /> whole words only</label>
+        </div>
+        <div class="row"><span id="addMsg" class="mini"></span></div>
+      </div>
+
+      <div class="card">
+        <table>
+          <thead>
+            <tr>
+              <th style="width: 150px">Type</th>
+              <th>Value</th>
+              <th style="width: 90px">Active</th>
+              <th style="width: 70px"></th>
+            </tr>
+          </thead>
+          <tbody id="rulesBody"></tbody>
+        </table>
+        <div id="rulesEmpty" class="empty">No rules yet. Add a site, a subdomain, or a keyword above.</div>
+      </div>
+
+      <h2>Test a URL against your rules</h2>
+      <div class="card">
+        <div class="row">
+          <input id="testUrl" class="grow" type="text" placeholder="https://shop.example.com/cart" />
+          <input id="testTitle" style="width: 200px" type="text" placeholder="page title (optional)" />
+        </div>
+        <div class="row"><span id="testOut" class="mini">Nothing tested yet.</span></div>
+      </div>
+
+      <h2>Status</h2>
+      <div class="card">
+        <div class="row">
+          <div class="stat">
+            <b id="statTotal">0</b>
+            <small>entries wiped, all time</small>
+          </div>
+          <div class="stat">
+            <b id="statLastCount">0</b>
+            <small>entries in the last run</small>
+          </div>
+        </div>
+        <div class="row">
+          <span class="pill"><span class="dot" id="stateDot"></span><span id="stateText">Active</span></span>
+        </div>
+        <div class="row mini" id="lastRun">No runs yet.</div>
+        <div class="row mini" id="queueInfo"></div>
+        <div class="row">
+          <button id="wipeNowBtn">Wipe now</button>
+          <button id="previewBtn" class="ghost">Preview only (no delete)</button>
+          <span id="sweepMsg" class="mini"></span>
+        </div>
+        <div id="previewList"></div>
+      </div>
+
+      <h2>Wiped so far</h2>
+      <div class="card">
+        <div id="logList"></div>
+        <div id="logEmpty" class="empty">Nothing logged yet.</div>
+        <div class="row" style="margin-top: 10px">
+          <button id="clearLog" class="ghost">Clear log</button>
+        </div>
+      </div>
+
+      <h2>Backup</h2>
+      <div class="card">
+        <div class="row">
+          <button id="exportBtn" class="ghost">Export rules</button>
+          <label class="ghost" style="display: inline-block; padding: 9px 14px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer">
+            Import rules
+            <input id="importFile" type="file" accept="application/json" class="hidden" />
+          </label>
+          <span id="importMsg" class="mini"></span>
+        </div>
+      </div>
+
+      <h2>Danger zone</h2>
+      <div class="card danger">
+        <div class="row">
+          <label class="pill">
+            <input type="checkbox" id="wipeAll" />
+            Wipe <b>all</b> history, not just my rules
+          </label>
+        </div>
+        <div class="row mini">
+          When this is on, the whole history is erased instead of matching your rules. "Wipe now", browser
+          start and browser close all mean the entire database; in instant mode every new visit is erased the
+          moment it happens, and what is already in history is cleared too if the deep-scan box above is
+          ticked. Cookies, cache, passwords, downloads and site data are never touched: the extension holds no
+          permission for them. Your rules stay saved and apply again the moment this is switched off.
+        </div>
+        <div class="row mini" id="wipeAllWarn"></div>
+      </div>
+
+      <div class="banner">
+        <b>Known limits.</b> Chrome exposes no shutdown hook, so "when I close the browser" is enforced at close when possible and at next launch otherwise. Deleting a history entry does not always clear a previously typed address from the address-bar suggestion list — Chrome keeps that in a separate store with no extension API.
+      </div>
+
+      <div class="row mini" id="version"></div>
+    </div>
+
+    <script type="module" src="options.js"></script>
+  </body>
+</html>

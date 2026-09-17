@@ -1,0 +1,12 @@
+# build artifacts
+*.zip
+
+# scratch
+*.log
+tmp/
+.hermes/
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store
