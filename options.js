@@ -135,13 +135,13 @@ function renderSettings() {
   }[s.mode] || s.mode;
   $('stateText').textContent = s.wipeAllHistory
     ? enabled
-      ? 'ARMED: wiping ALL history'
-      : 'Paused'
+      ? t('stateArmed') || 'ARMED: wiping ALL history'
+      : t('statePaused') || 'Paused'
     : !enabled
-      ? 'Paused'
+      ? t('statePaused') || 'Paused'
       : s.listMode === 'allow'
-        ? 'Active: wiping all but your keep list'
-        : `Active: ${modeText}`;
+        ? t('stateKeep') || 'Active: wiping all but your keep list'
+        : t('stateActive', [modeText]) || `Active: ${modeText}`;
 }
 
 /** The extra clear: what is on, how far back it reaches, and when it runs. */
@@ -268,16 +268,17 @@ function renderStats() {
   $('statTotal').textContent = st.wipedTotal || 0;
   $('statLastCount').textContent = st.lastRunCount || 0;
   $('lastRun').textContent = st.lastRunAt
-    ? `Last run: ${fmtWhen(st.lastRunAt)} (${st.lastRunPhase || 'run'})`
-    : 'No runs yet.';
+    ? t('lastRunAt', [fmtWhen(st.lastRunAt), st.lastRunPhase || 'run']) ||
+      `Last run: ${fmtWhen(st.lastRunAt)} (${st.lastRunPhase || 'run'})`
+    : t('optLastRunNone') || 'No runs yet.';
 
   const queued = (state.pending || []).length;
+  const when =
+    state.settings.mode === 'onclose'
+      ? t('queueWhenClose') || 'when you close the browser'
+      : t('queueWhenStart') || 'at your next start';
   $('queueInfo').textContent =
-    state.settings.mode === 'realtime'
-      ? ''
-      : `${queued} ${queued === 1 ? 'entry' : 'entries'} queued, wiped ${
-          state.settings.mode === 'onclose' ? 'when you close the browser' : 'at your next start'
-        }.`;
+    state.settings.mode === 'realtime' ? '' : t('queueLine', [String(queued), when]) || `${queued} queued, wiped ${when}.`;
 }
 
 function renderLog() {

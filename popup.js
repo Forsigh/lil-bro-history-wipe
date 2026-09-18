@@ -111,38 +111,44 @@ function render() {
   $('dot').className = 'dot' + (s.enabled ? '' : ' off') + (armed ? ' danger' : '');
   const keep = s.listMode === 'allow';
   $('status').textContent = !s.enabled
-    ? 'Paused'
+    ? t('statusPaused') || 'Paused'
     : armed
-      ? 'Armed: wiping ALL history'
+      ? t('statusArmed') || 'Armed: wiping ALL history'
       : keep
-        ? 'Wiping all but your keep list'
-        : 'Active';
+        ? t('statusKeep') || 'Wiping all but your keep list'
+        : t('statusActive') || 'Active';
 
   // The switch carries the state and the control, so there is nothing to read twice.
   const toggle = $('toggleBtn');
   toggle.setAttribute('aria-checked', s.enabled ? 'true' : 'false');
   toggle.querySelector('.switch-label').textContent = s.enabled ? t('switchOn') || 'On' : t('switchOff') || 'Off';
-  toggle.title = s.enabled ? 'Pause Lil Bro' : 'Start wiping again';
+  toggle.title = s.enabled ? t('pauseTitle') || 'Pause Lil Bro' : t('resumeTitle') || 'Start wiping again';
 
-  $('wipeBtn').textContent = armed ? 'Wipe ALL history now' : 'Wipe now';
+  $('wipeBtn').textContent = armed ? t('wipeAllNow') || 'Wipe ALL history now' : t('wipeNow') || 'Wipe now';
   $('scopeList').checked = !armed;
   $('scopeAll').checked = armed;
-  $('addDomainBtn').textContent = keep ? 'Keep this site' : 'Wipe this site';
-  $('addUrlBtn').textContent = keep ? 'Keep this exact page' : 'Wipe this exact page only';
+  $('addDomainBtn').textContent = keep ? t('keepSite') || 'Keep this site' : t('wipeSite') || 'Wipe this site';
+  $('addUrlBtn').textContent = keep ? t('keepPage') || 'Keep this exact page only' : t('wipePage') || 'Wipe this exact page only';
   $('wipeAllWarn').textContent = armed
-    ? 'Wipe-all is ON: your entire history goes, not just your rules.'
+    ? t('wipeAllOn') || 'Wipe-all is ON: your entire history goes, not just your rules.'
     : keep
-      ? 'Everything not on your list is wiped.'
+      ? t('keepOn') || 'Everything not on your list is wiped.'
       : '';
   const modes = {
-    realtime: armed ? 'Every visit is erased the moment it happens.' : 'Wiping instantly, as you browse.',
-    onclose: armed ? 'Everything goes when you close the browser.' : 'Matches go when you close the browser.',
-    startup: armed ? 'Everything goes at the start of your next session.' : 'Matches go at the start of your next session.',
+    realtime: armed
+      ? t('modeInstantArmed') || 'Every visit is erased the moment it happens.'
+      : t('modeInstant') || 'Wiping instantly, as you browse.',
+    onclose: armed
+      ? t('modeCloseArmed') || 'Everything goes when you close the browser.'
+      : t('modeClose') || 'Matches go when you close the browser.',
+    startup: armed
+      ? t('modeStartArmed') || 'Everything goes at the start of your next session.'
+      : t('modeStart') || 'Matches go at the start of your next session.',
   };
   const keepModes = {
-    realtime: 'Every other site is erased as you visit it.',
-    onclose: 'Everything else goes when you close the browser.',
-    startup: 'Everything else goes at your next start.',
+    realtime: t('keepInstant') || 'Every other site is erased as you visit it.',
+    onclose: t('keepClose') || 'Everything else goes when you close the browser.',
+    startup: t('keepStart') || 'Everything else goes at your next start.',
   };
   $('modeText').textContent = (keep ? keepModes[s.mode] : modes[s.mode]) || '';
   $('statTotal').textContent = state.stats.wipedTotal || 0;

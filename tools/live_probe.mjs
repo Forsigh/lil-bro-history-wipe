@@ -46,6 +46,9 @@ async function launch(headless) {
       '--no-default-browser-check',
       '--disable-sync',
       '--window-size=900,700',
+      // The UI follows the browser language, and the checks compare against English
+      // strings, so the run pins the language instead of inheriting the machine's.
+      '--lang=en',
       ...(headless ? ['--headless=new'] : []),
       'about:blank',
     ],
