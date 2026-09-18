@@ -10,14 +10,15 @@
       <header class="phead">
         <div class="brand">
           <span class="brand-mark">LB</span>
-          <span class="brand-text"><b>Lil Bro</b><small>History Wipe</small></span>
+          <span class="brand-text"><b>Lil Bro</b><small data-i18n="brandSub">History Wipe</small></span>
         </div>
         <button
           id="layoutBtn"
           class="chip-btn"
+          data-i18n-title="layoutTitle"
           title="Switch between the compact popup and the classic one"
         >
-          Classic
+          <span data-i18n="layoutBtn">Classic</span>
         </button>
       </header>
 
@@ -26,7 +27,7 @@
           <span class="pill"><span class="dot" id="dot"></span><span id="status">Loading…</span></span>
           <button id="toggleBtn" class="switch" role="switch" aria-checked="true">
             <span class="knob"></span>
-            <span class="switch-label">On</span>
+            <span class="switch-label" id="switchLabel" data-i18n="switchOn">On</span>
           </button>
         </div>
         <p class="hero-line" id="modeText"></p>
@@ -36,15 +37,15 @@
 
       <div class="card">
         <div class="row">
-          <button id="wipeBtn" class="grow">Wipe now</button>
-          <button id="previewBtn" class="ghost">Preview</button>
+          <button id="wipeBtn" class="grow" data-i18n="wipeNow">Wipe now</button>
+          <button id="previewBtn" class="ghost" data-i18n="preview">Preview</button>
         </div>
         <div class="row hidden" id="extraRow">
-          <button id="extraBtn" class="ghost grow">Clear the extra data</button>
+          <button id="extraBtn" class="ghost grow" data-i18n="clearExtra">Clear the extra data</button>
         </div>
         <div class="row hidden" id="phraseRow">
           <input id="confirmPhrase" class="grow" type="text" placeholder="WIPE ALL" />
-          <button id="confirmPhraseBtn">Arm</button>
+          <button id="confirmPhraseBtn" data-i18n="arm">Arm</button>
         </div>
         <div class="row mini" id="wipeMsg"></div>
       </div>
@@ -52,28 +53,32 @@
       <div class="card hidden lockbox" id="lockCard">
         <div class="row mini" id="lockNote"></div>
         <div class="row">
-          <input id="lockPin" class="grow" type="password" placeholder="PIN" />
-          <button id="lockUnlock">Unlock</button>
+          <input id="lockPin" class="grow" type="password" data-i18n-placeholder="pinPlaceholder" placeholder="PIN" />
+          <button id="lockUnlock" data-i18n="unlock">Unlock</button>
         </div>
         <div class="row mini" id="lockMsg"></div>
         <div class="row" id="forgotRow">
-          <button id="lockForgot" class="ghost grow">Forgot the PIN?</button>
+          <button id="lockForgot" class="ghost grow" data-i18n="forgotPin">Forgot the PIN?</button>
         </div>
         <div class="row hidden" id="recoverRow">
           <input id="lockRecovery" class="grow" type="text" placeholder="type lilbro" />
-          <button id="lockRecoverBtn" class="danger">Reset</button>
+          <button id="lockRecoverBtn" class="danger" data-i18n="reset">Reset</button>
         </div>
       </div>
 
       <button id="moreBtn" class="more-btn" aria-expanded="false">
-        <span>More controls</span><span class="caret">▾</span>
+        <span data-i18n="moreControls">More controls</span><span class="caret">▾</span>
       </button>
 
       <div id="more" class="more">
         <div class="card">
           <div class="row">
-            <label class="pill"><input type="radio" name="scope" id="scopeList" /> Only my list</label>
-            <label class="pill danger"><input type="radio" name="scope" id="scopeAll" /> Everything, always</label>
+            <label class="pill"
+              ><input type="radio" name="scope" id="scopeList" /> <span data-i18n="scopeList">Only my list</span></label
+            >
+            <label class="pill danger"
+              ><input type="radio" name="scope" id="scopeAll" /> <span data-i18n="scopeAll">Everything, always</span></label
+            >
           </div>
           <div class="row mini" id="queueInfo"></div>
         </div>
@@ -81,24 +86,26 @@
         <div class="card lockable">
           <div class="row mini" id="sitePreview">Checking current tab…</div>
           <div class="row">
-            <button id="addDomainBtn" class="grow">Add this site</button>
+            <button id="addDomainBtn" class="grow" data-i18n="addSite">Add this site</button>
           </div>
           <div class="row">
-            <label class="pill"><input type="checkbox" id="subdomains" /> include subdomains</label>
+            <label class="pill"
+              ><input type="checkbox" id="subdomains" /> <span data-i18n="includeSubdomains">include subdomains</span></label
+            >
           </div>
           <div class="row">
-            <button id="addUrlBtn" class="ghost grow">Add this exact page</button>
+            <button id="addUrlBtn" class="ghost grow" data-i18n="addPage">Add this exact page</button>
           </div>
         </div>
 
         <div class="stat-grid">
           <div class="stat">
             <b id="statTotal">0</b>
-            <small>wiped all time</small>
+            <small data-i18n="statTotal">wiped all time</small>
           </div>
           <div class="stat">
             <b id="statLast">0</b>
-            <small>last run</small>
+            <small data-i18n="statLast">last run</small>
           </div>
         </div>
 
@@ -106,7 +113,7 @@
       </div>
 
       <footer class="pfoot">
-        <button id="openOptions" class="ghost grow">All rules &amp; settings</button>
+        <button id="openOptions" class="ghost grow" data-i18n="openOptions">All rules &amp; settings</button>
         <div class="mini" id="version"></div>
       </footer>
     </div>

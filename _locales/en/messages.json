@@ -7,5 +7,31 @@
   },
   "actionTitle": {
     "message": "Lil Bro"
-  }
+  },
+
+  "brandSub": { "message": "History Wipe" },
+  "layoutBtn": { "message": "Classic" },
+  "layoutTitle": { "message": "Switch between the compact popup and the classic one" },
+  "switchOn": { "message": "On" },
+  "switchOff": { "message": "Off" },
+  "wipeNow": { "message": "Wipe now" },
+  "wipeAllNow": { "message": "Wipe ALL history now" },
+  "preview": { "message": "Preview" },
+  "clearExtra": { "message": "Clear the extra data" },
+  "arm": { "message": "Arm" },
+  "pinPlaceholder": { "message": "PIN" },
+  "unlock": { "message": "Unlock" },
+  "forgotPin": { "message": "Forgot the PIN?" },
+  "reset": { "message": "Reset" },
+  "moreControls": { "message": "More controls" },
+  "scopeList": { "message": "Only my list" },
+  "scopeAll": { "message": "Everything, always" },
+  "includeSubdomains": { "message": "include subdomains" },
+  "addSite": { "message": "Add this site" },
+  "keepSite": { "message": "Keep this site" },
+  "addPage": { "message": "Add this exact page" },
+  "keepPage": { "message": "Keep this exact page only" },
+  "statTotal": { "message": "wiped all time" },
+  "statLast": { "message": "last run" },
+  "openOptions": { "message": "All rules & settings" }
 }

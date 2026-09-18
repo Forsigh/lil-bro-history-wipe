@@ -7,5 +7,31 @@
   },
   "actionTitle": {
     "message": "Lil Bro"
-  }
+  },
+
+  "brandSub": { "message": "Czyszczenie historii" },
+  "layoutBtn": { "message": "Klasyczny" },
+  "layoutTitle": { "message": "Przełącz między kompaktowym a klasycznym okienkiem" },
+  "switchOn": { "message": "Wł." },
+  "switchOff": { "message": "Wył." },
+  "wipeNow": { "message": "Wyczyść teraz" },
+  "wipeAllNow": { "message": "Wyczyść CAŁĄ historię" },
+  "preview": { "message": "Podgląd" },
+  "clearExtra": { "message": "Wyczyść dane dodatkowe" },
+  "arm": { "message": "Uzbrój" },
+  "pinPlaceholder": { "message": "PIN" },
+  "unlock": { "message": "Odblokuj" },
+  "forgotPin": { "message": "Nie pamiętasz PIN-u?" },
+  "reset": { "message": "Reset" },
+  "moreControls": { "message": "Więcej opcji" },
+  "scopeList": { "message": "Tylko moja lista" },
+  "scopeAll": { "message": "Wszystko, zawsze" },
+  "includeSubdomains": { "message": "także subdomeny" },
+  "addSite": { "message": "Dodaj tę stronę" },
+  "keepSite": { "message": "Zachowaj tę stronę" },
+  "addPage": { "message": "Dodaj dokładnie ten adres" },
+  "keepPage": { "message": "Zachowaj dokładnie ten adres" },
+  "statTotal": { "message": "wyczyszczone łącznie" },
+  "statLast": { "message": "ostatnie czyszczenie" },
+  "openOptions": { "message": "Wszystkie reguły i ustawienia" }
 }

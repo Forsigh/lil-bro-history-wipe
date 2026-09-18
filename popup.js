@@ -33,6 +33,7 @@ import {
   MAX_ATTEMPTS,
   LOCKOUT_MS,
 } from './lock.js';
+import { applyI18n, t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -120,7 +121,7 @@ function render() {
   // The switch carries the state and the control, so there is nothing to read twice.
   const toggle = $('toggleBtn');
   toggle.setAttribute('aria-checked', s.enabled ? 'true' : 'false');
-  toggle.querySelector('.switch-label').textContent = s.enabled ? 'On' : 'Off';
+  toggle.querySelector('.switch-label').textContent = s.enabled ? t('switchOn') || 'On' : t('switchOff') || 'Off';
   toggle.title = s.enabled ? 'Pause Lil Bro' : 'Start wiping again';
 
   $('wipeBtn').textContent = armed ? 'Wipe ALL history now' : 'Wipe now';
@@ -441,4 +442,5 @@ $('openOptions').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
+applyI18n();
 load();
