@@ -27,15 +27,6 @@
         </div>
         <div class="row">
           <label class="radio grow">
-            <input type="radio" name="mode" value="onclose" />
-            <span>
-              <b data-i18n="optModeOnClose">When I close the browser</b>
-              <small data-i18n="optModeOnCloseHint">Quiet while you surf. It cleans when you close the browser, or the next time you open it if that moment is missed.</small>
-            </span>
-          </label>
-        </div>
-        <div class="row">
-          <label class="radio grow">
             <input type="radio" name="mode" value="startup" />
             <span>
               <b data-i18n="optModeStartup">When I open the browser</b>
@@ -83,19 +74,19 @@
 
       <h2 data-i18n="optClearing">What gets cleaned</h2>
       <div class="card">
-        <div class="row mini" data-i18n="optClearingHint">Pick a level. History is always cleaned, these are the extras.</div>
+        <div class="row mini" data-i18n="optClearingHint">Pick a level. The three words you will see here: history is the list of pages you visited, cache is the saved copy of a page that makes it open faster, cookies are the small files that keep you logged in.</div>
         <div class="row rows" id="presetRow" style="margin-top: 12px">
-          <button class="preset" data-preset="off"><b data-i18n="optPresetOff">Off</b><small data-i18n="optPresetOffSub">My history only, following my rules.</small></button>
-          <button class="preset" data-preset="light"><b data-i18n="optPresetLight">Light</b><small data-i18n="optPresetLightSub">History, plus the saved page files that make sites open fast.</small></button>
-          <button class="preset" data-preset="standard"><b data-i18n="optPresetStandard">Standard</b><small data-i18n="optPresetStandardSub">The same, plus cookies, which is what makes sites remember you.</small></button>
-          <button class="preset danger" data-preset="nuclear"><b data-i18n="optPresetNuclear">Nuclear</b><small data-i18n="optPresetNuclearSub">Everything Chrome lets a cleaner touch, all history included. Passwords are never touched.</small></button>
-          <button class="preset" data-preset="custom"><b data-i18n="optPresetCustom">Custom</b><small data-i18n="optPresetCustomSub">I pick what gets cleared.</small></button>
+          <button class="preset" data-preset="off"><b data-i18n="optPresetOff">Off</b><small data-i18n="optPresetOffSub">Only history, according to my rules.</small></button>
+          <button class="preset" data-preset="light"><b data-i18n="optPresetLight">Light</b><small data-i18n="optPresetLightSub">History and cache, which means websites will load a little slower.</small></button>
+          <button class="preset" data-preset="standard"><b data-i18n="optPresetStandard">Standard</b><small data-i18n="optPresetStandardSub">History, cache and cookies. Websites will not remember you, so you may have to log in again.</small></button>
+          <button class="preset danger" data-preset="nuclear"><b data-i18n="optPresetNuclear">FULL</b><small data-i18n="optPresetNuclearSub">Everything the browser allows. Saved passwords are not removed.</small></button>
+          <button class="preset" data-preset="custom"><b data-i18n="optPresetCustom">Custom</b><small data-i18n="optPresetCustomSub">Pick each kind yourself.</small></button>
         </div>
         <div class="row mini" id="presetNote"></div>
       </div>
 
       <h2 class="lockable" data-i18n="optWhatToWipe">Your list</h2>
-      <div class="card lockable">
+      <div class="card">
         <div class="row mini" data-i18n="optListHint">Anything on this list is cleaned. Sites, words, or address beginnings, whichever suits you.</div>
         <div class="row" style="margin-top: 14px">
           <select id="ruleType">

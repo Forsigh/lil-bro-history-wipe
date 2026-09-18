@@ -110,6 +110,12 @@ function showUnlock(intent, message) {
 
 function renderSettings() {
   const s = state.settings;
+  // "When I close the browser" is gone from the page: it could not run at the exact
+  // moment of close, so anyone still on it moves to the next start, which it also did.
+  if (s.mode === 'onclose') {
+    s.mode = 'startup';
+    saveState({ settings: s });
+  }
   for (const input of document.querySelectorAll('input[name="mode"]')) {
     input.checked = input.value === s.mode;
   }
@@ -180,10 +186,10 @@ function renderPresets() {
   }
   $('customRow').classList.toggle('hidden', name !== 'custom');
   const notes = {
-    off: 'History only. Nothing else is cleared.',
-    light: 'Cache goes with each run.',
-    standard: 'Cache, cookies and saved form text.',
-    nuclear: 'Cache, cookies, form text, download history, and all of your history.',
+    off: 'History only, following your rules. Nothing else is touched.',
+    light: 'Cache goes with each run, so pages will load a little slower.',
+    standard: 'Cache and cookies go with each run. Sites will not remember you, so you may have to log in again.',
+    nuclear: 'Cache, cookies, saved form text, download history and all of your history, at every trigger.',
     custom: 'Your own mix of the four switches.',
   };
   setMsg($('presetNote'), notes[name] || '', name === 'nuclear' ? 'err' : 'mini');
@@ -810,7 +816,7 @@ for (const btn of document.querySelectorAll('.preset')) {
     if (name === 'nuclear' || patch.extraCookies) {
       const ok = window.confirm(
         name === 'nuclear'
-          ? 'Nuclear clears cache, cookies, saved form text, download history and all of your browsing history.\n\nEvery trigger will do that. Continue?'
+          ? 'FULL clears cache, cookies, saved form text, download history and all of your browsing history.\n\nEvery trigger will do that. Continue?'
           : 'This clears cookies and site data with each run. Logins on those sites end. Continue?'
       );
       if (!ok) return;

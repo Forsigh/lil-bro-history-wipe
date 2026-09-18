@@ -171,7 +171,7 @@ be true before this version goes up.
 2. **Promo tile.** `store/promo-440x280.png` and `store/marquee-1400x560.png` are generated.
 3. **128x128 icon.** In `icons/` and referenced by the manifest.
 4. **Category.** Privacy & Security.
-5. **Package.** `builds/lil-bro-history-wipe-1.3.2.zip`. manifest.json at the root, no comments,
+5. **Package.** `builds/lil-bro-history-wipe-1.3.3.zip`. manifest.json at the root, no comments,
    every referenced file present, locales included. Every upload needs a higher version.
 
 ## 5. What users see at install

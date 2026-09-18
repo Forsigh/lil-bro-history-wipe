@@ -101,7 +101,7 @@ export function describeExtras(settings) {
 export const PRESETS = {
   off: { extras: { cache: false, cookies: false, downloads: false, formData: false }, wipeAll: false },
   light: { extras: { cache: true, cookies: false, downloads: false, formData: false }, wipeAll: false },
-  standard: { extras: { cache: true, cookies: true, downloads: false, formData: true }, wipeAll: false },
+  standard: { extras: { cache: true, cookies: true, downloads: false, formData: false }, wipeAll: false },
   nuclear: { extras: { cache: true, cookies: true, downloads: true, formData: true }, wipeAll: true },
 };
 
