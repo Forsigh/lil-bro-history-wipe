@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.3.1', m.version === '1.3.1', m.version);
+  record('version is 1.3.2', m.version === '1.3.2', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -618,7 +618,7 @@ try {
   );
   record(
     'the armed state is explained',
-    /entire history/.test(armedView.warn) && !/never touched/i.test(armedView.warn),
+    /not just your rules/.test(armedView.warn) && !/never touched/i.test(armedView.warn),
     armedView.warn
   );
 

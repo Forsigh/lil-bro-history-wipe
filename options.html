@@ -8,20 +8,20 @@
   <body>
     <div class="wrap">
       <h1>Lil Bro <span data-i18n="brandSub">History Wipe</span></h1>
-      <p class="sub" data-i18n="optSub">Tell it what to forget. Rules sync between your computers, everything else stays on this device.</p>
+      <p class="sub" data-i18n="optSub">Tell it what to forget. Your rules follow you to your other computers, everything else stays on this one.</p>
 
       <div class="banner lockbanner hidden" id="lockedBanner">
-        <b data-i18n="optLockedTag">Locked.</b> <span data-i18n="optLockedBody">Your list is hidden until you unlock it below. Wiping carries on.</span>
+        <b data-i18n="optLockedTag">Locked.</b> <span data-i18n="optLockedBody">Your list is hidden until you unlock it below. Cleaning carries on.</span>
       </div>
 
-      <h2 data-i18n="optWhenToWipe">When to wipe</h2>
+      <h2 data-i18n="optWhenToWipe">When should it clean?</h2>
       <div class="card">
         <div class="row">
           <label class="radio grow">
             <input type="radio" name="mode" value="realtime" />
             <span>
-              <b data-i18n="optModeRealtime">As I browse</b>
-              <small data-i18n="optModeRealtimeHint">Every visit is checked the moment it lands. The busiest of the three.</small>
+              <b data-i18n="optModeRealtime">While I browse</b>
+              <small data-i18n="optModeRealtimeHint">It cleans as you go, so nothing is ever left waiting around.</small>
             </span>
           </label>
         </div>
@@ -29,8 +29,8 @@
           <label class="radio grow">
             <input type="radio" name="mode" value="onclose" />
             <span>
-              <b data-i18n="optModeOnClose">When the browser closes</b>
-              <small data-i18n="optModeOnCloseHint">Nothing runs while you browse. If a close is missed, it runs at the next launch.</small>
+              <b data-i18n="optModeOnClose">When I close the browser</b>
+              <small data-i18n="optModeOnCloseHint">Quiet while you surf. It cleans when you close the browser, or the next time you open it if that moment is missed.</small>
             </span>
           </label>
         </div>
@@ -38,20 +38,19 @@
           <label class="radio grow">
             <input type="radio" name="mode" value="startup" />
             <span>
-              <b data-i18n="optModeStartup">At browser start</b>
-              <small data-i18n="optModeStartupHint">One pass at launch, then nothing for the rest of the session.</small>
+              <b data-i18n="optModeStartup">When I open the browser</b>
+              <small data-i18n="optModeStartupHint">One clean up each time you open the browser.</small>
             </span>
           </label>
         </div>
         <div class="row" style="margin-top: 14px">
-          <label class="pill"><input type="checkbox" id="sweep" /> <span data-i18n="optSweep">Deep-scan existing history at start</span></label>
-          <label class="pill"><input type="checkbox" id="notify" /> <span data-i18n="optNotify">Notify me after a wipe</span></label>
-          <label class="pill"><input type="checkbox" id="logEnabled" /> <span data-i18n="optKeepLog">Keep a local log</span></label>
+          <label class="pill"><input type="checkbox" id="sweep" /> <span data-i18n="optSweep">Also clean history that is already saved, at browser start</span></label>
+          <label class="pill"><input type="checkbox" id="notify" /> <span data-i18n="optNotify">Tell me when it has cleaned</span></label>
         </div>
         <div class="row" style="margin-top: 14px">
           <label class="pill">
             <input type="checkbox" id="lockEnabled" />
-            <span data-i18n="optLockEnable">Ask for a PIN before showing or editing my list</span>
+            <span data-i18n="optLockEnable">Hide the list behind a PIN</span>
           </label>
         </div>
         <div class="row mini" id="lockHonest"></div>
@@ -77,14 +76,14 @@
         </div>
         <div class="row mini" id="lockRecoveryNote"></div>
         <div class="row mini" data-i18n="optLockNote">
-          Turning the lock off needs the PIN. So does the right-click menu that adds a site: while the lock is on,
-          that menu only sends a notification.
+          You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site
+          only shows a notification.
         </div>
       </div>
 
       <h2 data-i18n="optClearing">What gets cleaned</h2>
       <div class="card">
-        <div class="row mini" data-i18n="optClearingHint">Pick one, or build your own. History is always cleaned, these are the extras.</div>
+        <div class="row mini" data-i18n="optClearingHint">Pick a level. History is always cleaned, these are the extras.</div>
         <div class="row rows" id="presetRow" style="margin-top: 12px">
           <button class="preset" data-preset="off"><b data-i18n="optPresetOff">Off</b><small data-i18n="optPresetOffSub">My history only, following my rules.</small></button>
           <button class="preset" data-preset="light"><b data-i18n="optPresetLight">Light</b><small data-i18n="optPresetLightSub">History, plus the saved page files that make sites open fast.</small></button>
@@ -95,30 +94,15 @@
         <div class="row mini" id="presetNote"></div>
       </div>
 
-      <div class="row" style="margin-top: 20px">
-        <label class="pill">
-          <input type="checkbox" id="advOn" />
-          <span data-i18n="optAdvanced">Show the advanced controls</span>
-        </label>
-        <small class="grow" data-i18n="optAdvancedHint">Rules, cookies, the tester, import and export, the nuclear switch. Hidden unless you want them.</small>
-      </div>
-      <div id="advBox" class="hidden">
-
-      <h2 class="lockable" data-i18n="optWhatToWipe">What to wipe</h2>
+      <h2 class="lockable" data-i18n="optWhatToWipe">Your list</h2>
       <div class="card lockable">
-        <div class="row">
-          <label class="pill">
-            <input type="checkbox" id="keepOnly" />
-            <span data-i18n="optKeepOnly">Keep only the sites I list, wipe everything else</span>
-          </label>
-        </div>
-        <div class="row mini" id="keepWarn"></div>
+        <div class="row mini" data-i18n="optListHint">Anything on this list is cleaned. Sites, words, or address beginnings, whichever suits you.</div>
         <div class="row" style="margin-top: 14px">
           <select id="ruleType">
             <option value="domain" data-i18n="optTypeDomain">Site</option>
-            <option value="url" data-i18n="optTypeUrl">URL or prefix</option>
-            <option value="keyword" data-i18n="optTypeKeyword">Keyword</option>
-            <option value="regex" data-i18n="optTypeRegex">Regular expression</option>
+            <option value="url" data-i18n="optTypeUrl">Address starts with</option>
+            <option value="keyword" data-i18n="optTypeKeyword">Word in the address or title</option>
+            <option value="regex" data-i18n="optTypeRegex">Pattern</option>
           </select>
           <input id="ruleValue" class="grow" type="text" placeholder="example.com" />
           <button id="addBtn" data-i18n="optAdd">Add</button>
@@ -142,22 +126,83 @@
           </thead>
           <tbody id="rulesBody"></tbody>
         </table>
-        <div id="rulesEmpty" class="empty" data-i18n="optRulesEmpty">Nothing here yet. Add a site, a word, or a pattern above.</div>
+        <div id="rulesEmpty" class="empty" data-i18n="optRulesEmpty">Nothing on the list yet. Add a site or a word above.</div>
       </div>
 
-      <h2 class="lockable" data-i18n="optTryUrl">Try a URL against your rules</h2>
+      <h2 class="lockable" data-i18n="optWipedSoFar">What it has cleaned</h2>
       <div class="card lockable">
         <div class="row">
-          <input id="testUrl" class="grow" type="text" data-i18n-placeholder="optTestUrlPlaceholder" placeholder="https://shop.example.com/cart" />
-          <input id="testTitle" style="width: 200px" type="text" data-i18n-placeholder="optTestTitlePlaceholder" placeholder="title (optional)" />
+          <label class="pill"><input type="checkbox" id="logEnabled" /> <span data-i18n="optKeepLog">Keep a list of what was cleaned</span></label>
         </div>
-        <div class="row"><span id="testOut" class="mini" data-i18n="optTestNone">Nothing tested yet.</span></div>
+        <div id="logList"></div>
+        <div id="logEmpty" class="empty" data-i18n="optLogEmpty">Nothing cleaned yet.</div>
+        <div class="row" style="margin-top: 10px">
+          <button id="clearLog" class="ghost" data-i18n="optClearLog">Clear this list</button>
+        </div>
       </div>
 
+      <h2 data-i18n="optLook">Look</h2>
+      <div class="card">
+        <div class="row themes" id="themeRow">
+          <button class="theme" data-theme="auto"><i style="background: linear-gradient(90deg, #0b1220 50%, #f4f6fa 50%)"></i><span data-i18n="optThemeAuto">Auto</span></button>
+          <button class="theme" data-theme="dark"><i style="background: #0b1220"></i><span data-i18n="optThemeDark">Dark</span></button>
+          <button class="theme" data-theme="light"><i style="background: #f4f6fa"></i><span data-i18n="optThemeLight">Light</span></button>
+          <button class="theme" data-theme="neon"><i style="background: #22d3ee"></i><span data-i18n="optThemeNeon">Neon</span></button>
+          <button class="theme" data-theme="paper"><i style="background: #f7f3ea"></i><span data-i18n="optThemePaper">Paper</span></button>
+          <button class="theme" data-theme="slate"><i style="background: #7c9cbf"></i><span data-i18n="optThemeSlate">Slate</span></button>
+        </div>
+      </div>
+
+      <h2 data-i18n="optStatus">Right now</h2>
+      <div class="card">
+        <div class="row">
+          <div class="stat">
+            <b id="statTotal">0</b>
+            <small data-i18n="optStatTotal">wiped, all time</small>
+          </div>
+          <div class="stat">
+            <b id="statLastCount">0</b>
+            <small data-i18n="optStatLastCount">in the last run</small>
+          </div>
+        </div>
+        <div class="row">
+          <span class="pill"><span class="dot" id="stateDot"></span><span id="stateText">Loading</span></span>
+        </div>
+        <div class="row mini" id="lastRun" data-i18n="optLastRunNone">No runs yet.</div>
+        <div class="row mini" id="queueInfo"></div>
+        <div class="row">
+          <button id="wipeNowBtn" data-i18n="optWipeNow">Wipe now</button>
+          <button id="previewBtn" class="ghost" data-i18n="optPreview">Preview</button>
+          <span id="sweepMsg" class="mini"></span>
+        </div>
+        <div id="previewList"></div>
+      </div>
+
+      <div class="row" style="margin-top: 20px">
+        <label class="pill">
+          <input type="checkbox" id="advOn" />
+          <span data-i18n="optAdvanced">Show the advanced controls</span>
+        </label>
+        <small class="grow" data-i18n="optAdvancedHint">Cookies, the address tester, import and export, the switch that ignores your list.</small>
+      </div>
+      <div id="advBox" class="hidden">
+
+      <h2 class="lockable" data-i18n="optStayOnList">Staying on your list</h2>
+      <div class="card lockable">
+        <div class="row">
+          <label class="pill">
+            <input type="checkbox" id="keepOnly" />
+            <span data-i18n="optKeepOnly">Keep only the sites on my list, clean everything else</span>
+          </label>
+        </div>
+        <div class="row mini" id="keepWarn"></div>
+      </div>
+
+      <h2 data-i18n="optExtras">The extra kinds</h2>
       <div class="card">
 
         <div id="customRow" class="hidden">
-          <div class="row" style="margin-top: 12px">
+          <div class="row">
             <label class="pill"><input type="checkbox" id="extraCache" /> <span data-i18n="optExtraCache">Saved page files</span></label>
             <label class="pill"><input type="checkbox" id="extraCookies" /> <span data-i18n="optExtraCookies">Cookies (what keeps me logged in)</span></label>
             <label class="pill"><input type="checkbox" id="extraDownloads" /> <span data-i18n="optExtraDownloads">The list of downloads</span></label>
@@ -188,9 +233,9 @@
         </div>
         <div class="row mini" id="extraWarn"></div>
         <div class="row mini" data-i18n="optClearingNote">
-          No count is possible: Chrome does not report what it cleared. Cookies go for the whole site, so logins
-          there end. Download history is the list, not the files. Passwords are not included, Chrome dropped that
-          in 144.
+          Chrome does not say how much it cleared, so there is no number to show. Clearing cookies signs you
+          out of that site. Downloads means the list, not your files. Passwords are not included, Chrome took
+          that away in version 144.
         </div>
       </div>
 
@@ -205,7 +250,7 @@
         </div>
         <div class="row mini" id="cookiesWarn"></div>
         <div class="row" style="margin-top: 12px">
-          <span class="mini" style="width: 100%" data-i18n="optCookieKeepLabel">Keep these signed in, one per line</span>
+          <span class="mini" style="width: 100%" data-i18n="optCookieKeepLabel">Stay logged in on these sites, one per line</span>
         </div>
         <div class="row">
           <textarea id="cookieKeep" class="grow" rows="4" placeholder="example.com"></textarea>
@@ -216,53 +261,16 @@
         </div>
       </div>
 
-      <h2 data-i18n="optLook">Look</h2>
-      <div class="card">
-        <div class="row themes" id="themeRow">
-          <button class="theme" data-theme="auto"><i style="background: linear-gradient(90deg, #0b1220 50%, #f4f6fa 50%)"></i><span data-i18n="optThemeAuto">Auto</span></button>
-          <button class="theme" data-theme="dark"><i style="background: #0b1220"></i><span data-i18n="optThemeDark">Dark</span></button>
-          <button class="theme" data-theme="light"><i style="background: #f4f6fa"></i><span data-i18n="optThemeLight">Light</span></button>
-          <button class="theme" data-theme="neon"><i style="background: #22d3ee"></i><span data-i18n="optThemeNeon">Neon</span></button>
-          <button class="theme" data-theme="paper"><i style="background: #f7f3ea"></i><span data-i18n="optThemePaper">Paper</span></button>
-          <button class="theme" data-theme="slate"><i style="background: #7c9cbf"></i><span data-i18n="optThemeSlate">Slate</span></button>
-        </div>
-      </div>
-
-      <h2 data-i18n="optStatus">Status</h2>
-      <div class="card">
-        <div class="row">
-          <div class="stat">
-            <b id="statTotal">0</b>
-            <small data-i18n="optStatTotal">wiped, all time</small>
-          </div>
-          <div class="stat">
-            <b id="statLastCount">0</b>
-            <small data-i18n="optStatLastCount">in the last run</small>
-          </div>
-        </div>
-        <div class="row">
-          <span class="pill"><span class="dot" id="stateDot"></span><span id="stateText">Loading</span></span>
-        </div>
-        <div class="row mini" id="lastRun" data-i18n="optLastRunNone">No runs yet.</div>
-        <div class="row mini" id="queueInfo"></div>
-        <div class="row">
-          <button id="wipeNowBtn" data-i18n="optWipeNow">Wipe now</button>
-          <button id="previewBtn" class="ghost" data-i18n="optPreview">Preview</button>
-          <span id="sweepMsg" class="mini"></span>
-        </div>
-        <div id="previewList"></div>
-      </div>
-
-      <h2 class="lockable" data-i18n="optWipedSoFar">Wiped so far</h2>
+      <h2 class="lockable" data-i18n="optTryUrl">Check an address against the list</h2>
       <div class="card lockable">
-        <div id="logList"></div>
-        <div id="logEmpty" class="empty" data-i18n="optLogEmpty">Nothing logged yet.</div>
-        <div class="row" style="margin-top: 10px">
-          <button id="clearLog" class="ghost" data-i18n="optClearLog">Clear log</button>
+        <div class="row">
+          <input id="testUrl" class="grow" type="text" data-i18n-placeholder="optTestUrlPlaceholder" placeholder="https://shop.example.com/cart" />
+          <input id="testTitle" style="width: 200px" type="text" data-i18n-placeholder="optTestTitlePlaceholder" placeholder="title (optional)" />
         </div>
+        <div class="row"><span id="testOut" class="mini" data-i18n="optTestNone">Nothing checked yet.</span></div>
       </div>
 
-      <h2 class="lockable" data-i18n="optRulesFile">Rules file</h2>
+      <h2 class="lockable" data-i18n="optRulesFile">Your list as a file</h2>
       <div class="card lockable">
         <div class="row">
           <button id="exportBtn" class="ghost" data-i18n="optExport">Export</button>
@@ -274,17 +282,17 @@
         </div>
       </div>
 
-      <h2 class="lockable" data-i18n="optAllOfIt">All of it</h2>
+      <h2 class="lockable" data-i18n="optAllOfIt">Everything</h2>
       <div class="card danger lockable">
         <div class="row">
           <label class="pill">
             <input type="checkbox" id="wipeAll" />
-            <span data-i18n="optWipeAll">Wipe all history, not just my rules</span>
+            <span data-i18n="optWipeAll">Clean all history, not just what is on my list</span>
           </label>
         </div>
         <div class="row mini" data-i18n="optWipeAllHint">
-          Your list stops mattering: every trigger clears the whole history database. The list stays put and
-          applies again the moment this is off.
+          Your list stops mattering: every trigger clears the whole history. The list stays where it is and
+          counts again the moment this is off.
         </div>
         <div class="row mini" id="wipeAllWarn"></div>
       </div>
@@ -292,10 +300,9 @@
       </div>
 
       <div class="banner" data-i18n="optLimitsBanner">
-        Chrome has no shutdown hook, so "when the browser closes" runs at close when it can and at the
-        next launch otherwise. A deleted entry can still show in the address-bar suggestions, which live
-        in a store no extension can reach. Cookies and cache can be cleared per site, history and form
-        text cannot.
+        Two things Chrome will not let a cleaner do. It cannot run at the exact moment the browser closes,
+        so if that moment is missed the clean happens the next time you open it. And an address you deleted
+        can still show up in the address bar suggestions.
       </div>
 
       <div class="row mini" id="version"></div>
