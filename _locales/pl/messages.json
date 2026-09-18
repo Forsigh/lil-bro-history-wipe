@@ -3,7 +3,7 @@
     "message": "Lil Bro - Czyszczenie historii"
   },
   "description": {
-    "message": "Czyści wybrane strony i słowa z twojej historii: w trakcie przeglądania, przy zamknięciu przeglądarki albo przy następnym starcie."
+    "message": "Czyści z historii wybrane strony i słowa: w trakcie przeglądania albo przy następnym otwarciu przeglądarki."
   },
   "actionTitle": {
     "message": "Lil Bro"
@@ -18,7 +18,7 @@
   "wipeAllNow": { "message": "Wyczyść CAŁĄ historię" },
   "preview": { "message": "Skanuj" },
   "clearExtra": { "message": "Wyczyść dodatkowe dane" },
-  "arm": { "message": "Uzbrój" },
+  "arm": { "message": "Pełne czyszczenie" },
   "pinPlaceholder": { "message": "PIN" },
   "unlock": { "message": "Odblokuj" },
   "forgotPin": { "message": "Nie pamiętasz PIN-u?" },
@@ -37,11 +37,11 @@
   "keepSite": { "message": "Zachowaj tę stronę" },
   "addPage": { "message": "Dodaj tylko tę stronę" },
   "keepPage": { "message": "Zachowaj dokładnie ten adres" },
-  "statTotal": { "message": "wyczyszczone łącznie" },
+  "statTotal": { "message": "wyczyszczone do tej pory" },
   "statLast": { "message": "ostatnie czyszczenie" },
   "openOptions": { "message": "Wszystkie reguły i ustawienia" },
 
-  "optSub": { "message": "Powiedz mu, co ma zapomnieć. Twoje reguły idą z tobą na inne komputery, reszta zostaje na tym." },
+  "optSub": { "message": "Wybierz, co ma zapomnieć. Twoje reguły idą z tobą na inne komputery. Reszta zostaje na tym." },
   "optLockedTag": { "message": "Zablokowane." },
   "optLockedBody": { "message": "Lista jest ukryta, dopóki jej nie odblokujesz poniżej. Czyszczenie działa dalej." },
   "optWhenToWipe": { "message": "Kiedy ma czyścić?" },
@@ -75,15 +75,15 @@
   "optStayOnList": { "message": "Co zostaje na liście" },
   "optExtras": { "message": "Dodatkowe rodzaje danych" },
   "optClearing": { "message": "Co ma być czyszczone" },
-  "optClearingHint": { "message": "Wybierz poziom. Trzy słowa, które tu zobaczysz: historia to lista stron, które odwiedziłeś, cache to zapisana kopia strony, dzięki której otwiera się szybciej, cookies to małe pliki, które trzymają cię zalogowanym." },
+  "optClearingHint": { "message": "Wybierz poziom. Historia to lista stron, które odwiedziłeś. Cache to zapisana kopia strony – dzięki niej otwiera się szybciej. Cookies to małe pliki, które trzymają cię zalogowanym." },
   "optPresetOff": { "message": "Wyłączone" },
-  "optPresetOffSub": { "message": "Tylko historia, zgodnie z moimi regułami." },
+  "optPresetOffSub": { "message": "Zgodnie z twoimi regułami. Tylko historia." },
   "optPresetLight": { "message": "Lekkie" },
-  "optPresetLightSub": { "message": "Historia i cache, czyli strony będą otwierać się trochę wolniej." },
+  "optPresetLightSub": { "message": "Historia i cache. Strony będą otwierać się trochę wolniej." },
   "optPresetStandard": { "message": "Standardowe" },
-  "optPresetStandardSub": { "message": "Historia, cache i cookies. Strony nie będą cię pamiętać, więc możesz musieć zalogować się ponownie." },
+  "optPresetStandardSub": { "message": "Historia, cache i cookies. Strony cię nie zapamiętają, więc zalogujesz się ponownie." },
   "optPresetNuclear": { "message": "FULL" },
-  "optPresetNuclearSub": { "message": "Wszystko, na co pozwala przeglądarka. Zapisane hasła zostają." },
+  "optPresetNuclearSub": { "message": "Wszystko, na co Chrome pozwoli. Zapisane hasła zostają." },
   "optPresetCustom": { "message": "Własne" },
   "optPresetCustomSub": { "message": "Sam wybierasz rodzaje danych." },
   "optExtraCache": { "message": "Zapisane pliki stron" },
@@ -100,7 +100,7 @@
   "optTriggerManual": { "message": "gdy nacisnę przycisk" },
   "optTriggerTriggers": { "message": "także przy zamknięciu i starcie" },
   "optClearNow": { "message": "Wyczyść teraz" },
-  "optClearingNote": { "message": "Chrome nie mówi, ile usunął, więc nie ma tu liczby. Czyszczenie cookies wylogowuje cię z tej strony. Pobrane to lista, nie twoje pliki. Haseł nie ma, Chrome zabrał tę możliwość w wersji 144." },
+  "optClearingNote": { "message": "Chrome nie podaje, ile usunął, więc nie ma tu liczby. Czyszczenie cookies wylogowuje cię ze strony. Pobrane to lista, nie twoje pliki. Haseł nie ma: Chrome zabrał tę możliwość w wersji 144." },
   "optCookies": { "message": "Cookies" },
   "optCookiesOnStart": { "message": "Czyść cookies przy starcie przeglądarki" },
   "optCookiesOnTabClose": { "message": "Czyść cookies strony, gdy zamknę jej kartę" },
@@ -125,7 +125,7 @@
   "optWipeNow": { "message": "Wyczyść teraz" },
   "optPreview": { "message": "Skanuj" },
   "optLastRunNone": { "message": "Jeszcze nic nie uruchamiano." },
-  "optWipedSoFar": { "message": "Co zostało wyczyszczone" },
+  "optWipedSoFar": { "message": "Co już wyczyszczone" },
   "optLogEmpty": { "message": "Jeszcze nic nie wyczyszczono." },
   "optClearLog": { "message": "Wyczyść tę listę" },
   "optRulesFile": { "message": "Twoja lista w pliku" },
@@ -145,11 +145,11 @@
   "optAdvancedHint": { "message": "Cookies, tester adresów, import i eksport, przełącznik, który ignoruje twoją listę." },
   "optAllOfIt": { "message": "Wszystko" },
   "optWipeAll": { "message": "Wyczyść całą historię, nie tylko to, co na liście" },
-  "optWipeAllHint": { "message": "Lista przestaje się liczyć: każde uruchomienie czyści całą historię. Lista zostaje i znów działa, gdy to wyłączysz." },
-  "optLimitsBanner": { "message": "Dwie rzeczy są poza naszym zasięgiem. Chrome nie pozwala czyścić dokładnie w chwili zamykania, więc jeśli ten moment przepadnie, czyścimy przy następnym otwarciu. Usunięty adres może jeszcze podpowiadać się w pasku adresu." },
+  "optWipeAllHint": { "message": "Lista przestaje się liczyć. Każde czyszczenie bierze całą historię. Lista zostaje na miejscu i znów działa, gdy to wyłączysz." },
+  "optLimitsBanner": { "message": "Dwie rzeczy, których Chrome nie pozwoli zrobić żadnemu czyścicielowi. Nie da się czyścić dokładnie w chwili zamknięcia przeglądarki, więc jeśli ten moment przepadnie, czyszczenie wypada przy następnym otwarciu. Usunięty adres może się jeszcze podpowiadać w pasku adresu." },
 
   "statusPaused": { "message": "Wstrzymane" },
-  "statusArmed": { "message": "Uzbrojone: czyści CAŁĄ historię" },
+  "statusArmed": { "message": "Pełne czyszczenie: znika cała historia" },
   "statusKeep": { "message": "Czyści wszystko poza listą zachowanych" },
   "statusActive": { "message": "Aktywne" },
   "pauseTitle": { "message": "Wstrzymaj Lil Bro" },
@@ -170,12 +170,12 @@
   "clearNow": { "message": "Wyczyść teraz" },
   "alsoClearing": { "message": "Dodatkowo czyści: $1." },
   "historyOnly": { "message": "Tylko historia." },
-  "stateArmed": { "message": "UZBROJONE: czyści CAŁĄ historię" },
+  "stateArmed": { "message": "Pełne czyszczenie: znika cała historia" },
   "statePaused": { "message": "Wstrzymane" },
   "stateKeep": { "message": "Aktywne: czyści wszystko poza listą zachowanych" },
   "stateActive": { "message": "Aktywne: $1" },
   "lastRunAt": { "message": "Ostatnie czyszczenie: $1 ($2)" },
-  "queueLine": { "message": "w kolejce: $1, czyszczone $2" },
+  "queueLine": { "message": "czeka: $1, wyczyszczone $2" },
   "queueWhenClose": { "message": "przy zamknięciu przeglądarki" },
   "queueWhenStart": { "message": "przy następnym starcie" },
 
@@ -183,5 +183,5 @@
   "ruleUrl": { "message": "Adres zaczyna się od" },
   "ruleKeyword": { "message": "Słowo w adresie lub tytule" },
   "ruleRegex": { "message": "Wzór" },
-  "wouldBeWiped": { "message": "Wyczyszczone przez: $1 → $2" }
+  "wouldBeWiped": { "message": "Lista to łapie: $1, $2" }
 }

@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.3.7', m.version === '1.3.7', m.version);
+  record('version is 1.3.8', m.version === '1.3.8', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -608,7 +608,7 @@ try {
   );
   record(
     'popup shows the armed state in red',
-    /Armed/.test(armedView.status) && /danger/.test(armedView.dot),
+    /Full wipe is on/.test(armedView.status) && /danger/.test(armedView.dot),
     `${armedView.status} (${armedView.dot})`
   );
   record(
