@@ -348,7 +348,7 @@ try {
     const key=await crypto.subtle.importKey('raw',new TextEncoder().encode('2468'),'PBKDF2',false,['deriveBits']);
     const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:1000,hash:'SHA-256'},key,256);
     const cur=(await chrome.storage.local.get('settings')).settings||{};
-    await chrome.storage.local.set({settings:{...cur,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
+    await chrome.storage.local.set({settings:{...cur,advanced:true,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
     return 'ok';
   })()`);
   record('a PIN can be set on the real page', pinned === 'ok', pinned);
@@ -728,7 +728,7 @@ try {
     const key=await crypto.subtle.importKey('raw',new TextEncoder().encode('1357'),'PBKDF2',false,['deriveBits']);
     const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:1000,hash:'SHA-256'},key,256);
     const cur=(await chrome.storage.local.get('settings')).settings||{};
-    await chrome.storage.local.set({settings:{...cur,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
+    await chrome.storage.local.set({settings:{...cur,advanced:true,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
     return 'ok';
   })()`);
   const pop5 = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
@@ -893,7 +893,7 @@ try {
       const key=await crypto.subtle.importKey('raw',new TextEncoder().encode('2468'),'PBKDF2',false,['deriveBits']);
       const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:1000,hash:'SHA-256'},key,256);
       const cur=(await chrome.storage.local.get('settings')).settings||{};
-      await chrome.storage.local.set({settings:{...cur,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
+      await chrome.storage.local.set({settings:{...cur,advanced:true,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
       return 'ok';
     })()`);
     const shotLocked = await openPage(`chrome-extension://${id}/options.html`);

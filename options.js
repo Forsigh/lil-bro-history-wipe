@@ -119,6 +119,8 @@ function renderSettings() {
   $('wipeAll').checked = !!s.wipeAllHistory;
   $('keepOnly').checked = s.listMode === 'allow';
   $('lockEnabled').checked = !!s.lockEnabled;
+  $('advOn').checked = !!s.advanced;
+  $('advBox').classList.toggle('hidden', !s.advanced);
   $('keepWarn').textContent =
     s.listMode === 'allow' ? 'On: everything not on your list is being wiped. Cookies and cache are separate.' : '';
   $('wipeNowBtn').textContent = s.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
@@ -373,6 +375,11 @@ $('notify').addEventListener('change', async () => {
 });
 $('logEnabled').addEventListener('change', async () => {
   state.settings.logEnabled = $('logEnabled').checked;
+  await saveState({ settings: state.settings });
+});
+$('advOn').addEventListener('change', async () => {
+  state.settings.advanced = $('advOn').checked;
+  $('advBox').classList.toggle('hidden', !state.settings.advanced);
   await saveState({ settings: state.settings });
 });
 

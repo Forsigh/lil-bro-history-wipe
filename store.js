@@ -43,6 +43,7 @@ export const DEFAULT_SETTINGS = {
   extraTrigger: 'manual',
   // The toolbar popup opens compact. 'classic' brings back the older, denser one.
   popupLayout: 'simple',
+  advanced: false,
   // One name for a mix of the four extra switches. The flags stay the truth.
   preset: 'off',
   // Domains that keep their cookies when a cookie clear runs.
