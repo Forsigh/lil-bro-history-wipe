@@ -470,7 +470,7 @@ try {
       extraRowHidden: document.getElementById('extraRow').classList.contains('hidden')
     })`)
   );
-  record('popup renders with its version', /1\.3\.0/.test(view.version), `${view.title} / ${view.version}`);
+  record('popup renders with its version', view.version.includes(m.version), `${view.title} / ${view.version}`);
   record('popup shows the active state', view.status === 'Active' && view.dot === 'dot', `${view.status} (${view.dot})`);
   record('popup starts on "only my list"', view.scopeList === true && view.scopeAll === false, view.wipeBtn);
   record('popup shows a lock card only when a PIN exists', view.lockCardHidden === true);
