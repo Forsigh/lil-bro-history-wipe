@@ -144,9 +144,9 @@
         </div>
         <div class="row mini" id="extraWarn"></div>
         <div class="row mini">
-          No count is possible, Chrome does not report what it removed. Cookies go for the whole site, so logins
-          there end. Download history is the list, not the files. Passwords are left out: Chrome removed password
-          clearing from this API in 144.
+          No count is possible: Chrome does not report what it cleared. Cookies go for the whole site, so logins
+          there end. Download history is the list, not the files. Passwords are not included, Chrome dropped that
+          in 144.
         </div>
       </div>
 
@@ -282,10 +282,10 @@
       </div>
 
       <div class="banner">
-        Chrome has no shutdown hook, so "when the browser closes" runs at close when it can and at the next launch
-        otherwise. Deleting an entry does not always clear it from the address-bar suggestions, which live in a
-        store no extension can reach. Cookies and cache can be cleared per site; history, downloads and form text
-        cannot.
+        Chrome has no shutdown hook, so "when the browser closes" runs at close when it can and at the
+        next launch otherwise. A deleted entry can still show in the address-bar suggestions, which live
+        in a store no extension can reach. Cookies and cache can be cleared per site, history and form
+        text cannot.
       </div>
 
       <div class="row mini" id="version"></div>

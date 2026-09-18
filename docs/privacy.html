@@ -22,52 +22,47 @@
   <body>
     <main>
       <h1>Lil Bro - History Wipe privacy policy</h1>
-      <p class="updated">Last updated: 17 September 2026</p>
+      <p class="updated">Last updated: 18 September 2026</p>
 
       <p>
-        Lil Bro - History Wipe is a browser extension that deletes chosen entries from your
-        browsing history. It does its work on your device and has no server of its own.
+        Lil Bro - History Wipe deletes chosen entries from your browsing history. Everything happens
+        on your device. There is no server behind it.
       </p>
 
       <h2>What it accesses</h2>
       <ul>
+        <li><b>Your browsing history</b>, to find the entries that match your rules and delete those.</li>
+        <li><b>Extension storage</b> for your rules, your settings and an optional local log.</li>
         <li>
-          <b>Your browsing history</b>, through the browser's history permission. The extension
-          reads history only to find the entries that match the rules you entered, and deletes
-          only those entries.
+          <b>Cookies</b>, if you use the cookie features. It reads cookie names and domains to delete
+          the ones you did not keep, and keeps the site of an open tab in session storage (memory,
+          gone when the browser closes) so a closed tab's cookies can go with it. Tab access is an
+          optional permission, asked for only when you switch that feature on.
         </li>
         <li>
-          <b>Extension storage</b>, which holds your rules and settings, plus an optional local
-          log of what was wiped.
-        </li>
-        <li>
-          <b>The browser's stored browsing data</b>, through the browsing-data permission, and only
-          if you switch it on. With those switches off (the default) the extension never calls that
-          part of the browser. With them on, it can clear cache, cookies and site storage, download
-          history and saved form text, for the time span you choose, when you press the button. It
-          reads nothing from that data and sends nothing anywhere.
+          <b>Other stored browsing data</b>: cache, download history and saved form text, cleared
+          through the browsing-data permission and only with those switches on.
         </li>
       </ul>
 
       <h2>What it does not do</h2>
       <ul>
-        <li>It does not collect, sell or share any data. There is no analytics, no account and no third-party service.</li>
+        <li>Nothing is collected, sold or shared. No analytics, no account, no third party.</li>
+        <li>It makes no network requests of its own.</li>
         <li>
-          It makes no network requests of its own. There is no server behind it.
-        </li>
-        <li>
-          It does not read page content, and it cannot touch passwords: Chrome removed password
-          deletion from extensions, so the extension does not offer it and never asks for it.
+          It does not read page content, and it does not touch passwords: Chrome removed password
+          deletion from extensions, so there is no such switch.
         </li>
       </ul>
 
-      <h2>Cookies and other browsing data</h2>
+      <h2>Cookies, cache and the rest</h2>
       <p>
-        Clearing cookies, cache, download history or saved form text is off by default and stays off
-        until you turn a switch on. When it runs, it is all-or-nothing for the time span you pick,
-        because Chrome cannot narrow those data types to a single site. Cookies are removed for the
-        whole registrable domain, so signing out of that site is the normal result. The extension
-        cannot clear passwords, and does not pretend to.
+        Clearing is off by default. With it on, cache, cookies, site storage, download history and
+        saved form text go for the span you pick, when you press a button, and at browser close or
+        start only if you ask for that. Cookies are removed for the whole site, so being signed out
+        of it is the normal result. The keep list is the exception: those sites are never touched.
+        Chrome cannot narrow history, download history or form text to one site, so those are
+        all-or-nothing for the span you choose.
       </p>
 
       <h2>Where your data lives</h2>

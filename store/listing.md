@@ -1,38 +1,23 @@
 # Chrome Web Store listing copy
 
-Everything in this file is ready to paste into the developer dashboard. Written to be
-copied as-is: no stray punctuation, no marketing voice, nothing the reviewer has to
-interpret.
+Ready to paste into the developer dashboard.
 
 ---
 
-## 1. Short description (manifest `description`, max 132 characters)
-
-**Use this one** (124 characters):
+## 1. Short description (max 132 characters)
 
 ```
-Remove chosen sites and words from your browsing history. Works as you browse, when you close the browser, or at next start.
+Remove chosen sites and words from your browsing history. Works while you browse, at browser close, or at the next start.
 ```
 
-Alternates if you want a different tone:
-
-```
-Pick the sites and words you do not want in your history. Clears them as you browse, when you close the browser, or at next start.
-```
-(130 characters)
-
-```
-Choose sites and keywords. Lil Bro keeps them out of your browsing history: as you browse, on close, or at next start.
-```
-(118 characters)
-
-Note: this exact string has to be in `manifest.json` as well. The dashboard will not let
-you edit manifest metadata after upload, so if you change your mind you must bump the
-version, re-zip and upload again.
+(123 characters.) This exact string lives in `_locales/en/messages.json` as `description`, which is
+what `manifest.json` pulls through `__MSG_description__`. The `pl` locale carries the translated
+version. The dashboard will not let you edit manifest metadata after upload, so a change means a
+version bump and a fresh zip.
 
 ---
 
-## 2. Detailed description (paste into "Description" on the store listing)
+## 2. Detailed description
 
 Keeps the sites and words you choose out of your browsing history.
 
@@ -40,50 +25,43 @@ Give it a list:
 
 - a site, with or without its subdomains
 - one page, or a folder on a site
-- a word, like shoes. That also matches page titles, so "shoes - Google Search" goes too
+- a word, like shoes. Titles count too, so "shoes - Google Search" goes as well
 - a pattern, if you prefer regular expressions
 
-Then pick when it runs. Instantly, as you browse. When you close the browser. Or at the
-start of your next session.
+Then pick when it runs: as you browse, when you close the browser, or at your next start. Preview
+first if you want. Preview reads your history, reports what it would remove and which rule caught it,
+and deletes nothing.
 
-Preview first if you want. Preview reads your history, tells you how many entries it
-would remove and which rule caught each one, and deletes nothing. When you do press
-Wipe now it tells you what it removed, and the wipe everything option makes you confirm
-twice before it touches anything.
+Prefer it the other way round? One checkbox turns the list into a keep list: the bank, your webmail
+and the work wiki stay, everything else goes. Off by default, and it will not switch on while the
+list is empty.
 
-Prefer it the other way round? One checkbox turns the list into a keep list: the bank,
-your webmail and the work wiki stay, everything else goes. Off by default, and it will
-not switch on while the list is empty.
+There is more than history here, all of it off until you pick it:
 
-Two ways to run it from the popup, whichever suits you: only your list, or everything,
-always. The everything switch is red, and both it and the wipe button ask before they
-touch anything. The popup itself stays small: state, one switch, wipe now, preview, and a
-line saying what is being wiped. Everything else is one click behind "More controls", and
-a button in the header brings back the older layout with all of it on screen.
+- Off: history only
+- Light: cache
+- Standard: cache, cookies and site data, saved form text
+- Nuclear: all of that, plus download history and all of your history
+- Custom: the four switches, your own mix
 
-The list itself can be locked behind a PIN, so it is not sitting in plain sight when
-someone else opens the settings page. Only a salted hash of the PIN is kept, and it stays
-on the device. Forget the PIN and you are not stuck: type lilbro and the PIN comes off,
-along with everything the extension had saved.
+You choose how far back a clear reaches (an hour, a day, a week, a month, everything) and when it
+runs (on the button, or also at browser close and start). Cookies have a keep list of their own plus
+two triggers, at browser start and when you close a tab. Passwords are not offered at all, because
+Chrome removed password deletion from extensions.
 
-Four extra switches, all off until you turn them on: cache, cookies and site data,
-download history and saved form text. Each one is a deliberate press, with a time span you
-pick (last hour, day, week, month, or everything), and they run when you press the button
-or, if you ask for it, when the browser closes or starts. Turn them on and you also get a
-single button that clears them on their own without touching your history. Worth knowing
-before you switch cookies on: they go for the whole registrable domain, so you end up
-signed out of those sites. Passwords are not on the offer at all, because Chrome removed
-password deletion from extensions.
+The popup stays small: state, one switch, wipe now, preview, and a line saying what else is being
+cleared. Everything else is one click behind "More controls", and a header button brings back the
+denser older layout. Six themes, light to neon, and an optional PIN lock that keeps the rule list off
+the screen when someone else opens your settings.
 
-No account and no server, and the extension makes no network requests of its own. Your
-rules are kept in the browser's synced storage, which is how a rule added on one computer
-shows up on your other ones; your history itself never leaves the machine.
+No account, no server, and no network requests of its own. Your rules sit in the browser's synced
+storage, which is how a rule added on one computer shows up on another; your history never leaves the
+machine.
 
-Two things worth knowing before you install. Chrome only hands over browsing history
-after you accept a warning about reading and changing it, and that warning cannot be
-narrowed. And Chrome gives extensions no way to notice that the browser is shutting
-down, so wiping on close does its work when the last window closes and, if that gets
-missed, at the next launch.
+Two things to know before installing. Chrome shows a warning about reading and changing your browsing
+history, and the wording cannot be narrowed. And Chrome gives extensions no way to notice the browser
+shutting down, so close-mode does its work when the last window closes and, if that is missed, at the
+next launch.
 
 ---
 
@@ -92,7 +70,7 @@ missed, at the next launch.
 ### 3a. Single purpose description (max 1000 characters)
 
 ```
-Deletes the browsing history entries a user chooses, and optionally clears the browser data types the user explicitly switches on. The user lists sites, subdomains, keywords, URLs or patterns; the extension matches those against browsing history and erases the matching entries, either as the user browses, when the browser closes, or at the start of the next session. Cache, cookies and site data, download history and saved form text are cleared only when the user turns that switch on and asks for it. It has no other function.
+Deletes the browsing history entries a user chooses, and optionally clears the browser data the user explicitly switches on. The user lists sites, subdomains, keywords, URLs or patterns; the extension matches those against browsing history and erases the matching entries, either as the user browses, when the browser closes, or at the next start. Cache, cookies and site data, download history and saved form text are cleared only when the user picks a preset or turns a switch on and asks for it. It has no other function.
 ```
 
 ### 3b. Permission justifications (max 1000 characters each)
@@ -106,13 +84,13 @@ Required to read browsing history so the extension can find the entries matching
 **storage**
 
 ```
-Keeps the user's rules, their settings and an optional local log of wiped entries in browser storage. Settings and the log stay on the device. The rule list is stored in the browser's synced extension storage so it follows the user to their other signed-in devices; that transfer is performed by the browser's own sync, is never seen by the extension, and carries nothing but the rule list.
+Keeps the user's rules, settings and an optional local log of wiped entries in browser storage. Settings and the log stay on the device. The rule list is stored in the browser's synced extension storage so it follows the user to their other signed-in devices; that transfer is performed by the browser's own sync, is never seen by the extension, and carries nothing but the rule list. Session storage holds the site of an open tab so a closed tab's cookies can be cleared; it is memory, cleared when the browser closes.
 ```
 
 **notifications**
 
 ```
-Displays an optional desktop notification after a wipe reporting how many entries were removed. The user can switch it off in the extension's settings.
+Displays an optional desktop notification after a wipe reporting how many entries were removed. The user can switch it off in the settings.
 ```
 
 **contextMenus**
@@ -124,102 +102,91 @@ Adds two right-click menu items that let the user add the current page, or the s
 **activeTab**
 
 ```
-Used only after the user clicks the extension's toolbar button. The popup reads the address of the current tab so it can offer to wipe that site or that page. Page content is not read.
+Used only after the user clicks the toolbar button. The popup reads the address of the current tab so it can offer to wipe that site or that page. Page content is not read.
 ```
 
 **browsingData**
 
 ```
-Used only by the four optional clear switches (cache, cookies and site data, download history, saved form text). They are off by default; with them off the API is never called. When the user turns one on and presses the clear button, the extension calls chrome.browsingData.remove for the data types and the time span the user selected. Nothing read from this API is stored or transmitted; the reply carries no data, so no count is shown. Passwords are not requested through this API.
+Used only by the optional clear presets (cache, cookies and site data, download history, saved form text). They are off by default; with them off the API is never called. When the user turns one on and presses the clear button, the extension calls chrome.browsingData.remove for the data types and time span the user selected. Nothing read from this API is stored or transmitted; the reply carries no data, so no count is shown. Passwords are not requested through this API.
+```
+
+**cookies**
+
+```
+Used for the cookie features the user switches on: clearing cookies at browser start or when a tab closes, and the keep list of sites whose cookies are never touched. The extension reads cookie names and domains to decide what to delete, and deletes only cookies that are not on the keep list. Cookie values are never read, stored or transmitted. With those features off (the default), no cookie is read or removed.
+```
+
+**tabs (optional, requested at runtime)**
+
+```
+Requested only when the user switches on "clear a site's cookies when I close its tab". Without it Chrome does not expose the address of a tab, so the extension could not tell which site a closed tab belonged to. The address is reduced to a host name, kept in session storage (memory, cleared when the browser closes) and deleted as soon as the tab closes. This permission is optional, so it never appears as an install warning.
 ```
 
 ### 3c. Remote code
 
-Select **"No, I am not using remote code."** Leave its justification field empty.
+Select **"No, I am not using remote code."** Leave the justification field empty.
 
-### 3d. Data usage — which boxes to tick
+### 3d. Data usage boxes
 
 Tick **Web history / Online history** only. Leave the other eight unticked.
 
-Reason, from Google's own User Data FAQ: "handle" covers collecting, transmitting,
-*using* or sharing, and it names "collecting web browsing activity ... including the
-domains or URLs the browser interacts with". The FAQ also states plainly that disclosure
-is required "even when data is processed or stored locally on a user's device and is not
-transmitted to external servers or third parties". An extension holding the `history`
-permission that declares nothing is exactly the inconsistency that gets a version
-rejected.
+Google's User Data FAQ says "handle" covers collecting, transmitting, using or sharing, and it names
+"collecting web browsing activity ... including the domains or URLs the browser interacts with". The
+disclosure is required "even when data is processed or stored locally on a user's device and is not
+transmitted to external servers or third parties". An extension holding `history` that declares
+nothing is the inconsistency that gets a version rejected.
 
-Unticked and correct: identification, health, financial and payment, authentication,
-personal communications, location, user activity, website content. The extension never
-touches any of them.
+Unticked and correct: identification, health, financial and payment, authentication, personal
+communications, location, user activity, website content.
 
-The extra clear does not change those boxes. It deletes local browser data at the user's
-request; it reads nothing out of it, keeps nothing from it, and sends nothing.
-
-One nuance to be aware of: the rule list lives in the browser's synced storage, so a user
-with sync switched on has it carried between their own signed-in devices by the browser.
-That is the user's own browser sync rather than a transfer by the extension, and rules are
-not browsing history. The policy at 3f says so explicitly, and the two must agree.
+Cookies and the other clear targets do not change those boxes. They are deleted locally at the user's
+request; their contents are never read, kept or sent. The rule list travelling through the browser's
+own sync is the user's browser feature, not a transfer by the extension, and rules are not browsing
+history. The policy says the same thing, and the two must agree.
 
 ### 3e. Certifications
 
-Tick all three. All are true: nothing is sold or transferred to third parties, nothing is
-used for purposes unrelated to the extension's single purpose, and nothing is used for
-creditworthiness or lending.
+Tick all three. All are true: nothing is sold or transferred to third parties, nothing is used for
+purposes unrelated to the single purpose, and nothing is used for creditworthiness or lending.
 
-### 3f. Privacy policy URL (required, field takes up to 2048 characters)
-
-The FAQ makes this mandatory even for local-only storage.
-
-**Live URL, ready to paste into the dashboard field:**
+### 3f. Privacy policy URL
 
 ```
 https://forsigh.github.io/lil-bro-history-wipe/privacy.html
 ```
 
-Served by GitHub Pages from `docs/` on `main` of the public repo
-`https://github.com/Forsigh/lil-bro-history-wipe`. It is already published and returning 200.
-If you ever change the policy, edit `docs/privacy.html`, commit and push: Pages rebuilds in
-about a minute. Once published, do not let the hosted policy drift from what the dashboard
-declares, since discrepancies between the two are treated as a policy violation.
+Served by GitHub Pages from `docs/` on `main`. Edit the file, commit and push: Pages rebuilds in about
+a minute. The hosted policy and the dashboard declarations must never drift apart.
 
-The policy now has a section on the extra clear, which is what the browsing-data
-permission is for. It has to, before this version goes up.
+The policy now covers the clear presets, the cookie keep list and the optional tab access. That has to
+be true before this version goes up.
 
 ---
 
-## 4. Still needed before you can submit
+## 4. Before you submit
 
-1. **Developer account.** One time 5 USD registration fee, then verify the email.
-2. **Screenshots.** At least one, 1280x800 or 640x400. Rejected listings are usually
-   missing icon or screenshots. The screenshots on the current listing show the old popup,
-   so they need replacing with the compact one.
-3. **Promo tile.** `store/promo-440x280.png` is already generated; the store says it is
-   mandatory.
-4. **128x128 icon.** Already in `icons/icon128.png` and referenced in the manifest.
-5. **Category and language.** "Privacy & Security" is the closest fit.
-6. **Package.** `builds/lil-bro-history-wipe-1.2.0.zip`: manifest.json sits at the root of
-   the zip, the manifest has no comments, and every file it references is present. Each
-   future upload needs a higher version number.
-7. **Privacy policy URL** from 3f, hosted somewhere public.
+1. **Screenshots.** At least one, 1280x800 or 640x400. Replace the current ones: they show the old
+   popup. Take the new set with the theme you want on display.
+2. **Promo tile.** `store/promo-440x280.png` and `store/marquee-1400x560.png` are generated.
+3. **128x128 icon.** In `icons/` and referenced by the manifest.
+4. **Category.** Privacy & Security.
+5. **Package.** `builds/lil-bro-history-wipe-1.3.0.zip`. manifest.json at the root, no comments,
+   every referenced file present, locales included. Every upload needs a higher version.
 
-## 5. What users will see at install
+## 5. What users see at install
 
-Chrome attaches this warning to the history permission and it cannot be narrowed:
+Chrome attaches this warning to `history`, and the wording cannot be narrowed:
 
 ```
 Read and change your browsing history on all your signed-in devices
 ```
 
-The other five permissions produce no warning. `browsingData` is the one to be ready to
-explain if a reviewer asks: it exists for the four optional clear switches, the switches
-ship off, and the justification at 3b says so in the same words the code uses.
+The other permissions produce no warning of their own, `cookies` and `browsingData` included. `tabs`
+is optional, so it is not part of the install prompt at all; Chrome asks for it the first time the
+user switches on the tab-close cookie rule.
 
-Two things to note about shipping 1.2.0 to the existing installs:
-
-1. Chrome disables an extension on update when the update adds a permission that produces
-   a **new warning**, and prompts the user to re-enable it. `browsingData` produces no
-   warning, so this update should land silently. That is the reading of Chrome's own
-   documentation, not a guarantee, so watch the install count after the update rolls out.
-2. The store listing text, the screenshots and the hosted privacy policy all have to match
-   the new behaviour before the upload, or the review will catch the mismatch.
+Shipping this over 1.2.0: Chrome disables an extension on update only when a new permission produces a
+**new warning**. Nothing here does, so the update should land silently. That is a reading of Chrome's
+documentation rather than a promise, so keep an eye on the install count afterwards. The listing text,
+the screenshots and the hosted policy all have to describe the new behaviour before the upload.

@@ -30,12 +30,7 @@ export const DEFAULT_SETTINGS = {
   lockHash: '',
   lockSalt: '',
   lockIterations: 0,
-  // --- the extra clear -------------------------------------------------------
-  // Cookies, cache, download history and saved form text. Off by default: these
-  // are the things the listing promises never to touch, and every one of them
-  // needs the "browsingData" permission. They cannot be counted, and Chrome
-  // cannot limit history, downloads or form text to a site, so they are a
-  // separate, deliberate switch rather than part of the rule engine.
+  // The clear presets: cache, download history, saved form text, cookies.
   extraCache: false,
   extraCookies: false,
   extraDownloads: false,

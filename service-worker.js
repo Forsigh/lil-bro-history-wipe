@@ -91,18 +91,7 @@ async function notify(count, phase) {
 // the extra clear: cookies, cache, download history, saved form text
 // ---------------------------------------------------------------------------
 
-/**
- * The only place that calls chrome.browsingData. It runs when the user has
- * switched an extra kind on, from a button or (if they asked for it) at the
- * close / session-start triggers. Never on a visit: erasing cookies while
- * somebody browses is not a cleaner.
- *
- * Chrome reports nothing back about how much it removed, and history, downloads
- * and form text cannot be narrowed to a site, so the honest answer is which
- * kinds were asked for and how long it took. There is no count to give, and this
- * never touches passwords: Chrome removed password deletion from this API in
- * Chrome 144 and the call has had no effect since.
- */
+/** The one call site for chrome.browsingData. Only a button or an opted-in trigger. */
 async function clearExtra(phase) {
   const { settings } = await getState();
   const selection = extraSelection(settings);
