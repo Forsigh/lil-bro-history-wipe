@@ -213,7 +213,8 @@ function renderRules() {
     const tr = document.createElement('tr');
 
     const tdType = document.createElement('td');
-    tdType.textContent = RULE_TYPES[rule.type] || rule.type;
+    tdType.textContent =
+      t(`rule${rule.type[0].toUpperCase()}${rule.type.slice(1)}`) || RULE_TYPES[rule.type] || rule.type;
     tr.appendChild(tdType);
 
     const tdValue = document.createElement('td');
@@ -331,7 +332,8 @@ function runTest() {
     return;
   }
   if (rule) {
-    setMsg($('testOut'), `Would be wiped by: ${RULE_TYPES[rule.type]} → ${describeRule(rule)}`, 'ok');
+    const typeName = t(`rule${rule.type[0].toUpperCase()}${rule.type.slice(1)}`) || RULE_TYPES[rule.type] || rule.type;
+    setMsg($('testOut'), t('wouldBeWiped', [typeName, describeRule(rule)]) || `Would be wiped by: ${typeName} → ${describeRule(rule)}`, 'ok');
   } else {
     setMsg($('testOut'), 'No rule matches this, so it stays in history.', 'mini');
   }

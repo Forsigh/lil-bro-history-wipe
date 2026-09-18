@@ -161,5 +161,11 @@
   "lastRunAt": { "message": "Last run: $1 ($2)" },
   "queueLine": { "message": "queued: $1, wiped $2" },
   "queueWhenClose": { "message": "when you close the browser" },
-  "queueWhenStart": { "message": "at your next start" }
+  "queueWhenStart": { "message": "at your next start" },
+
+  "ruleDomain": { "message": "Site / domain" },
+  "ruleUrl": { "message": "URL or URL prefix" },
+  "ruleKeyword": { "message": "Keyword in URL or title" },
+  "ruleRegex": { "message": "Regular expression" },
+  "wouldBeWiped": { "message": "Would be wiped by: $1 → $2" }
 }

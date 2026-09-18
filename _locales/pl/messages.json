@@ -161,5 +161,11 @@
   "lastRunAt": { "message": "Ostatnie czyszczenie: $1 ($2)" },
   "queueLine": { "message": "w kolejce: $1, czyszczone $2" },
   "queueWhenClose": { "message": "przy zamknięciu przeglądarki" },
-  "queueWhenStart": { "message": "przy następnym starcie" }
+  "queueWhenStart": { "message": "przy następnym starcie" },
+
+  "ruleDomain": { "message": "Strona / domena" },
+  "ruleUrl": { "message": "Adres lub początek adresu" },
+  "ruleKeyword": { "message": "Słowo w adresie lub tytule" },
+  "ruleRegex": { "message": "Wyrażenie regularne" },
+  "wouldBeWiped": { "message": "Zostałoby wyczyszczone przez: $1 → $2" }
 }
