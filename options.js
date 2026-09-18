@@ -19,6 +19,7 @@ import {
   parseCookieKeep,
   RULE_TYPES,
 } from './store.js';
+import { applyI18n, t } from './i18n.js';
 import { findMatch } from './matcher.js';
 import {
   doubleConfirm,
@@ -901,5 +902,6 @@ for (const btn of document.querySelectorAll('.theme')) {
 
 getState().then((s) => applyTheme(s.settings.theme));
 
+applyI18n();
 syncRuleTypeUi();
 load();
