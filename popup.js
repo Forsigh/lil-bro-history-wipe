@@ -60,6 +60,8 @@ function setLockMsg(text, kind = 'mini') {
 async function load() {
   state = await getState();
   await setLang(state.settings.lang);
+  // After the language, not before: the labels come from the bundle.
+  applyI18n();
   render();
   applyLock();
   applyLayout(state.settings.popupLayout);
@@ -204,7 +206,13 @@ function addRule(rule) {
   state.rules.push(rule);
   saveState({ rules: state.rules }).then(() => {
     setMsg(
-      state.settings.listMode === 'allow' ? `Keeping ${describeRule(rule)}.` : `Added ${describeRule(rule)}.`,
+      // With the lock on, the site name stays out of this page, so the note says
+      // what happened and nothing more.
+      isLocked()
+        ? (state.settings.listMode === 'allow' ? t('keptOnly') || 'Kept.' : t('addedOnly') || 'Added.')
+        : state.settings.listMode === 'allow'
+          ? `Keeping ${describeRule(rule)}.`
+          : `Added ${describeRule(rule)}.`,
       'ok'
     );
   });
@@ -449,5 +457,4 @@ $('openOptions').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
-applyI18n();
 load();
