@@ -13,7 +13,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.3.1.
 | 1.1.1 | 17 Sep 21:09 | `cd1b8b9` | `13afff0cc95a25af` | |
 | 1.2.0 | 18 Sep 18:48 | `660d9d7` | `4c2f15f8d2f77bc1` | extras, compact popup, options rewrite |
 | 1.3.0 | 18 Sep 20:10 | `2ad778e` | `9acf516f84124f2a` | label only: rebuilt three times under this name, so this hash is not what 1.0.x-era uploads looked like |
-| 1.3.1 | 18 Sep 21:0x | `ebeeca9` + this commit | `4d8bd6955ec83506` | presets with plain explanations, PIN under "When should it clean?", advanced controls behind one switch, en + pl |
+| 1.3.1 | 18 Sep 20:56 | `94ad476` | `4d8bd6955ec83506` | presets with plain explanations, PIN under "When should it clean?", advanced controls behind one switch, en + pl |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
 Desktop. A zip is the contract: if the bytes differ, the version has to.
