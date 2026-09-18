@@ -14,6 +14,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.3.1.
 | 1.2.0 | 18 Sep 18:48 | `660d9d7` | `4c2f15f8d2f77bc1` | extras, compact popup, options rewrite |
 | 1.3.0 | 18 Sep 20:10 | `2ad778e` | `9acf516f84124f2a` | label only: rebuilt three times under this name, so this hash is not what 1.0.x-era uploads looked like |
 | 1.3.1 | 18 Sep 20:56 | `94ad476` | `4d8bd6955ec83506` | presets with plain explanations, PIN under "When should it clean?", advanced controls behind one switch, en + pl |
+| 1.3.2 | 18 Sep 21:09 | `eb9ba4b` | `7d477d77bdf392eb` | list and log back on the first screen (PIN still hides them), advanced slimmed, every visible string rewritten in plain English and Polish |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
 Desktop. A zip is the contract: if the bytes differ, the version has to.
