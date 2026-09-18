@@ -19,6 +19,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.3.1.
 | 1.3.4 | 18 Sep 21:32 | `d5b994a` | `5e6e69c7b9202833` | "Preview" is now "Scan" on both pages (en) and "Sprawdź" (pl) |
 | 1.3.5 | 18 Sep 21:39 | `45b69e1` | `e44de5afcd9ed641` | popup cut to what a person actually uses: status, add to filter list, wipe now, scan, settings link. No compact/classic switch, no "more controls", no counters. "Skanuj" in Polish |
 | 1.3.6 | 18 Sep 21:47 | `79d63b8` | `fbcbf6ee3e9ab66b` | Language row in settings: Auto (the browser), English, Polski. The pages read the bundle themselves, so the setting beats the browser's own choice |
+| 1.3.7 | 18 Sep 21:55 | `9af2307` | `f51df3e6cc2eb82f` | popup labels now actually translate (the label pass ran before the language loaded, so Polish showed "Scan"); "Added." without the site name while the PIN is on |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
 Desktop. A zip is the contract: if the bytes differ, the version has to.
