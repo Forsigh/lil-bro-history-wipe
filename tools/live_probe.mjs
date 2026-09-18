@@ -163,11 +163,19 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.2.0', m.version === '1.2.0', m.version);
+  record('version is 1.3.0', m.version === '1.3.0', m.version);
   record(
-    'permission set is the documented six',
+    'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
-      JSON.stringify(['activeTab', 'browsingData', 'contextMenus', 'history', 'notifications', 'storage']),
+      JSON.stringify([
+        'activeTab',
+        'browsingData',
+        'contextMenus',
+        'cookies',
+        'history',
+        'notifications',
+        'storage',
+      ]),
     m.permissions.join(', ')
   );
 
@@ -176,7 +184,14 @@ try {
     'JSON.stringify({browsingData: typeof chrome.browsingData, cookies: typeof chrome.cookies, downloads: typeof chrome.downloads, sessions: typeof chrome.sessions, search: typeof chrome.history.search, del: typeof chrome.history.deleteUrl, delAll: typeof chrome.history.deleteAll})'
   );
   const s = JSON.parse(surface);
-  record('cookies API absent (no cookies permission)', s.cookies === 'undefined', `typeof chrome.cookies = ${s.cookies}`);
+  record('cookies API present (the keep list needs it)', s.cookies === 'object', s.cookies);
+  record(
+    'tabs is optional, never required',
+    Array.isArray(m.optional_permissions) &&
+      m.optional_permissions.includes('tabs') &&
+      !m.permissions.includes('tabs'),
+    JSON.stringify(m.optional_permissions)
+  );
   record('browsingData API present (permission declared)', s.browsingData === 'object', s.browsingData);
   record('downloads API absent (clearing uses browsingData instead)', s.downloads === 'undefined', s.downloads);
   record('history API present', s.search === 'function' && s.del === 'function', `search=${s.search}, deleteUrl=${s.del}`);
@@ -452,7 +467,7 @@ try {
       extraRowHidden: document.getElementById('extraRow').classList.contains('hidden')
     })`)
   );
-  record('popup renders with its version', /1\.2\.0/.test(view.version), `${view.title} / ${view.version}`);
+  record('popup renders with its version', /1\.3\.0/.test(view.version), `${view.title} / ${view.version}`);
   record('popup shows the active state', view.status === 'Active' && view.dot === 'dot', `${view.status} (${view.dot})`);
   record('popup starts on "only my list"', view.scopeList === true && view.scopeAll === false, view.wipeBtn);
   record('popup shows a lock card only when a PIN exists', view.lockCardHidden === true);
@@ -599,8 +614,8 @@ try {
     armedView.wipeBtn
   );
   record(
-    'the armed state is explained, cookies included',
-    /entire history/.test(armedView.warn) && /cookies/i.test(armedView.warn),
+    'the armed state is explained',
+    /entire history/.test(armedView.warn) && !/never touched/i.test(armedView.warn),
     armedView.warn
   );
 
@@ -698,7 +713,7 @@ try {
   );
   record(
     'keep mode warns that everything else goes',
-    /everything/i.test(keepView.warn) && /cookies/i.test(keepView.warn),
+    /not on your list/i.test(keepView.warn),
     keepView.warn.slice(0, 55)
   );
   await closePage(pop4.id);

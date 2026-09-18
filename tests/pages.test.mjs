@@ -118,17 +118,35 @@ console.log(`  rule types: ui [${uiTypes.join(', ')}] vs engine [${engineTypes.j
 // path, which is off by default and never runs on a visit. Cookie and download
 // APIs beyond that are never granted, and passwords are never promised at all:
 // Chrome removed password deletion from browsingData in Chrome 144.
-const EXPECTED_PERMISSIONS = ['history', 'storage', 'notifications', 'contextMenus', 'activeTab', 'browsingData'];
+const EXPECTED_PERMISSIONS = [
+  'history',
+  'storage',
+  'notifications',
+  'contextMenus',
+  'activeTab',
+  'browsingData',
+  'cookies',
+];
 const actualPerms = [...manifest.permissions].sort();
 if (JSON.stringify(actualPerms) !== JSON.stringify([...EXPECTED_PERMISSIONS].sort())) {
   console.log(`  FAIL permission set changed: ${actualPerms.join(', ')}`);
   fail++;
 }
-for (const banned of ['cookies', 'downloads', 'sessions', 'tabs', 'management', 'declarativeNetRequest']) {
+for (const banned of ['downloads', 'sessions', 'tabs', 'management', 'declarativeNetRequest']) {
   if (manifest.permissions.includes(banned)) {
     console.log(`  FAIL "${banned}" permission would widen what the extension can delete`);
     fail++;
   }
+}
+// tabs is optional on purpose: asking for it at install time would add a warning
+// and disable the extension for everyone who already has it.
+if (!(manifest.optional_permissions || []).includes('tabs')) {
+  console.log('  FAIL tabs should be an optional permission, requested only for the tab-close cookie rule');
+  fail++;
+}
+if (manifest.permissions.includes('tabs')) {
+  console.log('  FAIL tabs must not be a required permission');
+  fail++;
 }
 const workerSrc = readFileSync(join(root, 'service-worker.js'), 'utf8');
 // Comments explain the rules and may name the very APIs the code must not call,
@@ -165,6 +183,38 @@ if (outsideClear.includes('browsingData')) {
 }
 if (!clearBody.includes('extraSelection(settings)')) {
   console.log('  FAIL clearExtra() no longer takes its data set from extraSelection()');
+  fail++;
+}
+// The cookie API is confined to the worker's cookie section, and nothing in a page
+// ever touches a cookie. Only the options page may ask for the optional tabs
+// permission, and only from a click.
+const cookieCalls = (workerCode.match(/chrome\.cookies\.remove\(/g) || []).length;
+const cookieStart = workerSrc.indexOf('// cookies');
+const cookieEnd = workerSrc.indexOf('async function ensureMenus');
+const cookieBody = cookieStart === -1 ? '' : workerSrc.slice(cookieStart, cookieEnd);
+const cookieOutside = stripComments(
+  cookieStart === -1 ? workerSrc : workerSrc.slice(0, cookieStart) + workerSrc.slice(cookieEnd)
+);
+if (cookieCalls !== 2 || !cookieBody.includes('chrome.cookies.remove(')) {
+  console.log(`  FAIL chrome.cookies.remove appears ${cookieCalls} times, expected 2 inside the cookie section`);
+  fail++;
+}
+if (cookieOutside.includes('chrome.cookies')) {
+  console.log('  FAIL cookie code lives outside the cookie section');
+  fail++;
+}
+for (const page of ['options.js', 'popup.js']) {
+  if (readFileSync(join(root, page), 'utf8').includes('chrome.cookies')) {
+    console.log(`  FAIL ${page} touches chrome.cookies — pages only send messages`);
+    fail++;
+  }
+}
+if (workerCode.includes('chrome.permissions.request')) {
+  console.log('  FAIL the worker asks for permissions; only a page can, and only from a click');
+  fail++;
+}
+if (!readFileSync(join(root, 'options.js'), 'utf8').includes('chrome.permissions.request')) {
+  console.log('  FAIL nothing asks for the optional tabs permission');
   fail++;
 }
 // deleteAll is permitted in exactly one place: the opt-in wipe-all path.
@@ -242,10 +292,15 @@ for (const [file, src, needed] of [
     }
   }
   const sends = (src.match(/chrome\.runtime\.sendMessage\(/g) || []).length;
-  if (sends !== 2) {
-    console.log(`  FAIL ${file} has ${sends} sendMessage call sites, expected 2 (wipe funnel + confirmed extra clear)`);
+  const expected = file === 'options.js' ? 3 : 2;
+  if (sends !== expected) {
+    console.log(`  FAIL ${file} has ${sends} sendMessage call sites, expected ${expected}`);
     fail++;
   }
+}
+if (!optionsSrc.includes('Clear cookies for everything except') || !optionsSrc.includes("type: 'pruneCookies'")) {
+  console.log('  FAIL the manual cookie clear lost its confirmation or its message');
+  fail++;
 }
 if (!readFileSync(join(root, 'service-worker.js'), 'utf8').includes('settings.wipeAllHistory')) {
   console.log('  FAIL the worker no longer reads the wipe-all setting');

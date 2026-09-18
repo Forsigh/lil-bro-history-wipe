@@ -1,0 +1,11 @@
+{
+  "name": {
+    "message": "Lil Bro - History Wipe"
+  },
+  "description": {
+    "message": "Remove chosen sites and words from your browsing history. Works while you browse, at browser close, or at the next start."
+  },
+  "actionTitle": {
+    "message": "Lil Bro"
+  }
+}

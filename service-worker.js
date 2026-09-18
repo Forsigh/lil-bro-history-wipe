@@ -134,6 +134,158 @@ function extraAllowedAt(settings, phase) {
   return settings.extraTrigger === 'triggers';
 }
 
+// ---------------------------------------------------------------------------
+// cookies
+// ---------------------------------------------------------------------------
+
+/** True when the keep list says this host keeps its cookies. */
+function cookieKept(settings, host) {
+  const h = String(host || '').toLowerCase().replace(/^\./, '');
+  if (!h) return false;
+  return (settings.cookieKeep || []).some((raw) => {
+    const d = String(raw || '').toLowerCase().trim().replace(/^\./, '');
+    return !!d && (h === d || h.endsWith('.' + d));
+  });
+}
+
+function cookieUrl(c) {
+  const host = String(c.domain || '').replace(/^\./, '');
+  const path = c.path && c.path.startsWith('/') ? c.path : '/';
+  return `${c.secure ? 'https' : 'http'}://${host}${path}`;
+}
+
+/** Every cookie for one host, unless that host is on the keep list. */
+async function clearCookiesFor(host, settings) {
+  if (!chrome.cookies) return { ok: false, removed: 0, error: 'No cookie access.' };
+  if (cookieKept(settings, host)) return { ok: true, removed: 0, kept: true };
+  let removed = 0;
+  for (const c of await chrome.cookies.getAll({ domain: host })) {
+    try {
+      await chrome.cookies.remove({ url: cookieUrl(c), name: c.name, storeId: c.storeId });
+      removed++;
+    } catch (e) {
+      log('cookie remove failed', e);
+    }
+  }
+  return { ok: true, removed };
+}
+
+/** Everything except the keep list. Used by the start trigger and the button. */
+async function pruneCookies(settings) {
+  if (!chrome.cookies) return { ok: false, removed: 0, error: 'No cookie access.' };
+  let removed = 0;
+  for (const c of await chrome.cookies.getAll({})) {
+    if (cookieKept(settings, c.domain)) continue;
+    try {
+      await chrome.cookies.remove({ url: cookieUrl(c), name: c.name, storeId: c.storeId });
+      removed++;
+    } catch (e) {
+      log('cookie remove failed', e);
+    }
+  }
+  return { ok: true, removed };
+}
+
+// Tab host tracking, so a closed tab's cookies can go with it. The url field
+// needs the tabs permission, which is optional and asked for only when this is
+// switched on. The map lives in session storage rather than in memory: the worker
+// is stopped and started at will, and an in-memory map would be empty by the time
+// a tab closes.
+const TAB_MAP_KEY = 'tabHosts';
+
+async function readTabHosts() {
+  try {
+    const got = await chrome.storage.session.get(TAB_MAP_KEY);
+    return got[TAB_MAP_KEY] || {};
+  } catch {
+    return {};
+  }
+}
+
+async function writeTabHosts(map) {
+  try {
+    await chrome.storage.session.set({ [TAB_MAP_KEY]: map });
+  } catch {
+    // session storage is best effort
+  }
+}
+
+async function rememberTabHost(tab) {
+  if (!tab || typeof tab.id !== 'number' || !tab.url) return;
+  let host;
+  try {
+    const u = new URL(tab.url);
+    if (u.protocol !== 'http:' && u.protocol !== 'https:') return;
+    host = u.hostname;
+  } catch {
+    return; // not a web page
+  }
+  const map = await readTabHosts();
+  map[tab.id] = host;
+  await writeTabHosts(map);
+}
+
+/** Takes the host off the map, so a repeated close cannot clear twice. */
+async function forgetTabHost(tabId) {
+  const map = await readTabHosts();
+  const host = map[tabId];
+  if (!host) return '';
+  delete map[tabId];
+  await writeTabHosts(map);
+  return host;
+}
+
+async function tabsAllowed() {
+  try {
+    return !!(chrome.permissions && (await chrome.permissions.contains({ permissions: ['tabs'] })));
+  } catch {
+    return false;
+  }
+}
+
+async function seedTabHosts() {
+  if (!chrome.tabs || !(await tabsAllowed())) return;
+  try {
+    for (const tab of await chrome.tabs.query({})) rememberTabHost(tab);
+  } catch (e) {
+    log('tab seed failed', e);
+  }
+}
+
+async function onTabClosed(tabId) {
+  const host = await forgetTabHost(tabId);
+  if (!host) return;
+  const { settings } = await getState();
+  if (!settings.cookiesOnTabClose) return;
+  const res = await clearCookiesFor(host, settings);
+  if (res.removed) {
+    await pushLog([
+      {
+        url: host,
+        title: `${res.removed} cookie${res.removed === 1 ? '' : 's'} cleared`,
+        rule: 'cookie keep list',
+        at: Date.now(),
+        phase: 'tab close',
+      },
+    ]);
+  }
+}
+
+if (chrome.tabs && chrome.tabs.onRemoved) {
+  chrome.tabs.onUpdated.addListener((_id, info, tab) => {
+    if (info.url || info.status === 'complete') rememberTabHost(tab);
+  });
+  chrome.tabs.onRemoved.addListener((id) => {
+    onTabClosed(id).catch((e) => log('tab close failed', e));
+  });
+}
+
+if (chrome.permissions && chrome.permissions.onAdded) {
+  chrome.permissions.onAdded.addListener(() => {
+    seedTabHosts().catch(() => {});
+  });
+}
+
 async function ensureMenus() {
   try {
     await chrome.contextMenus.removeAll();
@@ -399,7 +551,8 @@ async function runSessionStart(phase = 'startup') {
       await bumpStats(wiped, phase);
       await notify(wiped, phase);
       const extra = extraAllowedAt(settings, phase) ? await clearExtra(phase) : null;
-      return { deleted: wiped, wipeAll: true, skipped: !shouldWipeAtBoot, extra };
+      const cookies = settings.cookiesOnStart ? await pruneCookies(settings) : null;
+      return { deleted: wiped, wipeAll: true, skipped: !shouldWipeAtBoot, extra, cookies };
     }
 
     const live = activeRules(rules);
@@ -419,9 +572,13 @@ async function runSessionStart(phase = 'startup') {
     await bumpStats(deleted, phase);
     await notify(deleted, phase);
     const extra = extraAllowedAt(settings, phase) ? await clearExtra(phase) : null;
-    return { deleted, extra };
+    const cookies = settings.cookiesOnStart ? await pruneCookies(settings) : null;
+    return { deleted, extra, cookies };
   } finally {
     startupInFlight = false;
+    // Tab hosts are needed the moment a tab closes, and the worker is not always
+    // running by then, so they go into session storage on every pass.
+    seedTabHosts().catch(() => {});
   }
 }
 
@@ -484,6 +641,7 @@ chrome.history.onVisited.addListener((item) => {
 });
 
 chrome.runtime.onStartup.addListener(() => {
+  seedTabHosts().catch(() => {});
   runSessionStart('startup').catch((e) => log('startup run failed', e));
 });
 
@@ -612,6 +770,28 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   // touching the history at all.
   if (msg.type === 'clearExtra') {
     clearExtra('manual')
+      .then(reply)
+      .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
+    return true;
+  }
+
+  if (msg.type === 'pruneCookies') {
+    (async () => {
+      const { settings } = await getState();
+      const res = await pruneCookies(settings);
+      if (res.removed) {
+        await pushLog([
+          {
+            url: '(cookies)',
+            title: `${res.removed} cookie${res.removed === 1 ? '' : 's'} cleared`,
+            rule: 'cookie keep list',
+            at: Date.now(),
+            phase: 'manual',
+          },
+        ]);
+      }
+      return res;
+    })()
       .then(reply)
       .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
     return true;

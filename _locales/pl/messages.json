@@ -1,0 +1,11 @@
+{
+  "name": {
+    "message": "Lil Bro - Czyszczenie historii"
+  },
+  "description": {
+    "message": "Usuwa wybrane strony i słowa z historii przeglądania. Działa w trakcie przeglądania, przy zamknięciu przeglądarki lub przy następnym starcie."
+  },
+  "actionTitle": {
+    "message": "Lil Bro"
+  }
+}

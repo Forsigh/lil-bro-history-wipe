@@ -129,9 +129,9 @@ function render() {
   $('addDomainBtn').textContent = keep ? 'Keep this site' : 'Wipe this site';
   $('addUrlBtn').textContent = keep ? 'Keep this exact page' : 'Wipe this exact page only';
   $('wipeAllWarn').textContent = armed
-    ? 'Wipe-all is ON: the entire history goes, not just your rules. Cookies and cache are never touched.'
+    ? 'Wipe-all is ON: your entire history goes, not just your rules.'
     : keep
-      ? 'Everything you have not listed is being wiped. Cookies and cache are never touched.'
+      ? 'Everything not on your list is wiped.'
       : '';
   const modes = {
     realtime: armed ? 'Every visit is erased the moment it happens.' : 'Wiping instantly, as you browse.',
@@ -152,13 +152,15 @@ function render() {
   const extras = extraOn(s);
   $('extraRow').classList.toggle('hidden', !extras);
   if (extras) {
-    $('extraBtn').textContent = keep ? 'Clear the extra data now' : 'Clear the extra data now';
+    $('extraBtn').textContent = 'Clear now';
     $('extraLine').textContent = `Also clearing: ${describeExtras(s)}, ${
       EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince
     }.`;
   } else {
-    $('extraLine').textContent = 'History only. Cookies, cache and downloads stay put.';
+    $('extraLine').textContent = 'History only.';
   }
+
+  document.documentElement.dataset.theme = s.theme || 'auto';
 
   const queued = (state.pending || []).length;
   $('queueInfo').textContent =

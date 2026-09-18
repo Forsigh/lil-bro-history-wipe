@@ -13,6 +13,10 @@ import {
   extraOn,
   describeExtras,
   EXTRA_SINCE_LABELS,
+  PRESETS,
+  presetPatch,
+  presetName,
+  parseCookieKeep,
   RULE_TYPES,
 } from './store.js';
 import { findMatch } from './matcher.js';
@@ -152,15 +156,50 @@ function renderExtras() {
 
   const kinds = describeExtras(s);
   if (!kinds) {
-    setMsg($('extraWarn'), 'Nothing extra is on, so the extension never asks Chrome to clear cookies, cache, downloads or form text.');
-    return;
+    setMsg($('extraWarn'), '');
+  } else {
+    const reach = EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince;
+    const when =
+      s.extraTrigger === 'manual'
+        ? 'only when you press a button'
+        : 'on a button, and again when the browser closes or starts';
+    setMsg($('extraWarn'), `On: ${kinds}, covering ${reach}, ${when}.`, 'warn');
   }
-  const reach = EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince;
-  const when =
-    s.extraTrigger === 'manual'
-      ? 'only when you press a button'
-      : 'on a button, and again when the browser closes or starts';
-  setMsg($('extraWarn'), `On: ${kinds}, covering ${reach}, ${when}.`, 'warn');
+  renderPresets();
+  renderCookies();
+}
+
+/** Which preset is active, and the switches when none of them fit. */
+function renderPresets() {
+  const name = presetName(state.settings);
+  for (const btn of document.querySelectorAll('.preset')) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.preset === name));
+  }
+  $('customRow').classList.toggle('hidden', name !== 'custom');
+  const notes = {
+    off: 'History only. Nothing else is cleared.',
+    light: 'Cache goes with each run.',
+    standard: 'Cache, cookies and saved form text.',
+    nuclear: 'Cache, cookies, form text, download history, and all of your history.',
+    custom: 'Your own mix of the four switches.',
+  };
+  setMsg($('presetNote'), notes[name] || '', name === 'nuclear' ? 'err' : 'mini');
+}
+
+/** The cookie keep list and the two cookie triggers. */
+function renderCookies() {
+  const s = state.settings;
+  $('cookiesOnStart').checked = !!s.cookiesOnStart;
+  $('cookiesOnTabClose').checked = !!s.cookiesOnTabClose;
+  $('cookieKeep').value = (s.cookieKeep || []).join('\n');
+  const on = s.cookiesOnStart || s.cookiesOnTabClose;
+  setMsg(
+    $('cookiesWarn'),
+    on
+      ? 'Cookies are deleted for every site except the list below, so logins everywhere else end.'
+      : 'Off. Cookies are only cleared if you turn on the cookie switch in Clearing above, or press the button below.'
+  );
+  $('tabsPermBtn').classList.toggle('hidden', !s.cookiesOnTabClose);
 }
 
 function renderRules() {
@@ -743,6 +782,124 @@ $('importFile').addEventListener('change', async (e) => {
   }
   e.target.value = '';
 });
+
+// --- presets ---------------------------------------------------------------
+
+for (const btn of document.querySelectorAll('.preset')) {
+  btn.addEventListener('click', async () => {
+    const name = btn.dataset.preset;
+    if (name === 'custom') {
+      state.settings.preset = 'custom';
+      await saveState({ settings: state.settings });
+      renderExtras();
+      return;
+    }
+    const patch = presetPatch(name);
+    if (!patch) return;
+    if (name === 'nuclear' || patch.extraCookies) {
+      const ok = window.confirm(
+        name === 'nuclear'
+          ? 'Nuclear clears cache, cookies, saved form text, download history and all of your browsing history.\n\nEvery trigger will do that. Continue?'
+          : 'This clears cookies and site data with each run. Logins on those sites end. Continue?'
+      );
+      if (!ok) return;
+    }
+    Object.assign(state.settings, patch);
+    await saveState({ settings: state.settings });
+    renderSettings();
+    renderExtras();
+    renderStats();
+  });
+}
+
+// --- cookies ---------------------------------------------------------------
+
+$('cookieKeep').addEventListener('change', async () => {
+  state.settings.cookieKeep = parseCookieKeep($('cookieKeep').value);
+  await saveState({ settings: state.settings });
+  renderCookies();
+});
+
+for (const id of ['cookiesOnStart', 'cookiesOnTabClose']) {
+  $(id).addEventListener('change', async () => {
+    const wantsOn = $(id).checked;
+    if (wantsOn && !window.confirm('Clear cookies for every site except your keep list? Logins elsewhere end.')) {
+      $(id).checked = false;
+      return;
+    }
+    state.settings[id] = wantsOn;
+    if (id === 'cookiesOnTabClose' && wantsOn) {
+      const granted = await askTabs();
+      if (!granted) {
+        state.settings.cookiesOnTabClose = false;
+        $(id).checked = false;
+        setMsg($('cookiesWarn'), 'Tab access was refused, so this stays off.', 'err');
+      }
+    }
+    await saveState({ settings: state.settings });
+    renderCookies();
+  });
+}
+
+/** The tabs permission is optional, so Chrome asks here and nowhere else. */
+async function askTabs() {
+  if (!chrome.permissions) return false;
+  try {
+    if (await chrome.permissions.contains({ permissions: ['tabs'] })) return true;
+    return await chrome.permissions.request({ permissions: ['tabs'] });
+  } catch {
+    return false;
+  }
+}
+
+$('tabsPermBtn').addEventListener('click', async () => {
+  const granted = await askTabs();
+  setMsg($('cookieMsg'), granted ? 'Tab access granted.' : 'Tab access refused.', granted ? 'ok' : 'err');
+});
+
+$('cookieNowBtn').addEventListener('click', () => {
+  const kept = (state.settings.cookieKeep || []).length;
+  const ask = kept
+    ? `Clear cookies for everything except your ${kept} kept site(s)?`
+    : 'Clear every cookie in this browser?';
+  if (!window.confirm(ask)) {
+    setMsg($('cookieMsg'), 'Cancelled.');
+    return;
+  }
+  setMsg($('cookieMsg'), 'Clearing…');
+  chrome.runtime.sendMessage({ type: 'pruneCookies' }, (res) => {
+    if (chrome.runtime.lastError) {
+      setMsg($('cookieMsg'), chrome.runtime.lastError.message, 'err');
+      return;
+    }
+    if (!res || !res.ok) {
+      setMsg($('cookieMsg'), (res && res.error) || 'The clear failed.', 'err');
+      return;
+    }
+    setMsg($('cookieMsg'), res.removed ? `Cleared ${res.removed} cookies.` : 'Nothing to clear.', 'ok');
+    load();
+  });
+});
+
+// --- themes ----------------------------------------------------------------
+
+function applyTheme(name) {
+  const theme = name || 'auto';
+  document.documentElement.dataset.theme = theme;
+  for (const btn of document.querySelectorAll('.theme')) {
+    btn.setAttribute('aria-pressed', String(btn.dataset.theme === theme));
+  }
+}
+
+for (const btn of document.querySelectorAll('.theme')) {
+  btn.addEventListener('click', async () => {
+    state.settings.theme = btn.dataset.theme;
+    await saveState({ settings: state.settings });
+    applyTheme(btn.dataset.theme);
+  });
+}
+
+getState().then((s) => applyTheme(s.settings.theme));
 
 syncRuleTypeUi();
 load();

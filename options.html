@@ -2,17 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <title>Lil Bro — History Wipe</title>
+    <title>Lil Bro</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <div class="wrap">
-      <h1>Lil Bro <span>— History Wipe</span></h1>
-      <p class="sub">The list below decides what never stays in your history. Your rules sync between your computers.</p>
+      <h1>Lil Bro <span>History Wipe</span></h1>
+      <p class="sub">Tell it what to forget. Rules sync between your computers, everything else stays on this device.</p>
 
       <div class="banner lockbanner hidden" id="lockedBanner">
-        <b>The lock is on.</b> Your list is off the screen until you unlock it in Security below. Nothing else changes:
-        wiping keeps working the whole time.
+        <b>Locked.</b> Your list is hidden until you unlock it below. Wiping carries on.
       </div>
 
       <h2>When to wipe</h2>
@@ -21,8 +20,8 @@
           <label class="radio grow">
             <input type="radio" name="mode" value="realtime" />
             <span>
-              <b>Instantly, as I browse</b>
-              <small>The heaviest of the three. Chrome reports every visit, so each one is checked the moment it lands. Nothing that matches you is ever written down.</small>
+              <b>As I browse</b>
+              <small>Every visit is checked the moment it lands. The busiest of the three.</small>
             </span>
           </label>
         </div>
@@ -30,8 +29,8 @@
           <label class="radio grow">
             <input type="radio" name="mode" value="onclose" />
             <span>
-              <b>When I close the browser</b>
-              <small>The lightest while you browse, because nothing is checked until the end. Chrome gives extensions no shutdown hook, so the wipe happens as the last window closes and again on your next launch if it was missed.</small>
+              <b>When the browser closes</b>
+              <small>Nothing runs while you browse. If a close is missed, it runs at the next launch.</small>
             </span>
           </label>
         </div>
@@ -39,19 +38,15 @@
           <label class="radio grow">
             <input type="radio" name="mode" value="startup" />
             <span>
-              <b>When I start the browser</b>
-              <small>Nothing to do while you browse. The work happens at launch, so the first minute after opening the browser is the busy one.</small>
+              <b>At browser start</b>
+              <small>One pass at launch, then nothing for the rest of the session.</small>
             </span>
           </label>
         </div>
         <div class="row" style="margin-top: 14px">
-          <label class="pill"><input type="checkbox" id="sweep" /> Also deep-scan existing history at browser start</label>
-        </div>
-        <div class="row">
+          <label class="pill"><input type="checkbox" id="sweep" /> Deep-scan existing history at start</label>
           <label class="pill"><input type="checkbox" id="notify" /> Notify me after a wipe</label>
-        </div>
-        <div class="row">
-          <label class="pill"><input type="checkbox" id="logEnabled" /> Keep a local log of wiped entries</label>
+          <label class="pill"><input type="checkbox" id="logEnabled" /> Keep a local log</label>
         </div>
       </div>
 
@@ -63,24 +58,20 @@
             Keep only the sites I list, wipe everything else
           </label>
         </div>
-        <div class="row mini">
-          Off by default. Switch it on and the list flips: a page is wiped when it is <i>not</i> on it. While
-          the list is empty nothing is wiped at all. Cookies and cache are a separate switch, further down.
-        </div>
         <div class="row mini" id="keepWarn"></div>
         <div class="row" style="margin-top: 14px">
           <select id="ruleType">
-            <option value="domain">Site / domain</option>
-            <option value="url">URL or URL prefix</option>
-            <option value="keyword">Keyword in URL or title</option>
+            <option value="domain">Site</option>
+            <option value="url">URL or prefix</option>
+            <option value="keyword">Keyword</option>
             <option value="regex">Regular expression</option>
           </select>
           <input id="ruleValue" class="grow" type="text" placeholder="example.com" />
-          <button id="addBtn">Add rule</button>
+          <button id="addBtn">Add</button>
         </div>
         <div class="row">
-          <label class="pill hidden" id="subWrap"><input type="checkbox" id="includeSubdomains" /> include all subdomains</label>
-          <label class="pill hidden" id="wordWrap"><input type="checkbox" id="wholeWord" /> whole words only</label>
+          <label class="pill hidden" id="subWrap"><input type="checkbox" id="includeSubdomains" /> subdomains too</label>
+          <label class="pill hidden" id="wordWrap"><input type="checkbox" id="wholeWord" /> whole words</label>
         </div>
         <div class="row"><span id="addMsg" class="mini"></span></div>
       </div>
@@ -97,59 +88,99 @@
           </thead>
           <tbody id="rulesBody"></tbody>
         </table>
-        <div id="rulesEmpty" class="empty">No rules yet. Add a site, a subdomain, or a keyword above.</div>
+        <div id="rulesEmpty" class="empty">Nothing here yet. Add a site, a word, or a pattern above.</div>
       </div>
 
-      <h2 class="lockable">Test a URL against your rules</h2>
+      <h2 class="lockable">Try a URL against your rules</h2>
       <div class="card lockable">
         <div class="row">
           <input id="testUrl" class="grow" type="text" placeholder="https://shop.example.com/cart" />
-          <input id="testTitle" style="width: 200px" type="text" placeholder="page title (optional)" />
+          <input id="testTitle" style="width: 200px" type="text" placeholder="title (optional)" />
         </div>
         <div class="row"><span id="testOut" class="mini">Nothing tested yet.</span></div>
       </div>
 
-      <h2>Also clear</h2>
+      <h2>Clearing</h2>
       <div class="card">
-        <div class="row mini">
-          The history wipe above never touches these. Switch any of them on and they are cleared on demand, by the
-          same buttons, and by nothing else unless you ask for the triggers at the bottom of this card.
+        <div class="row mini">Pick one, or build your own. The history wipe above is separate and never turns off.</div>
+        <div class="row" id="presetRow" style="margin-top: 12px">
+          <button class="preset" data-preset="off"><b>Off</b><small>History only</small></button>
+          <button class="preset" data-preset="light"><b>Light</b><small>Cache</small></button>
+          <button class="preset" data-preset="standard"><b>Standard</b><small>Cache, cookies, form text</small></button>
+          <button class="preset danger" data-preset="nuclear"><b>Nuclear</b><small>Everything, and all history</small></button>
+          <button class="preset" data-preset="custom"><b>Custom</b><small>Choose below</small></button>
         </div>
-        <div class="row" style="margin-top: 12px">
-          <label class="pill"><input type="checkbox" id="extraCache" /> Cache</label>
-          <label class="pill"><input type="checkbox" id="extraCookies" /> Cookies and site data</label>
-          <label class="pill"><input type="checkbox" id="extraDownloads" /> Download history</label>
-          <label class="pill"><input type="checkbox" id="extraFormData" /> Saved form text</label>
+        <div class="row mini" id="presetNote"></div>
+
+        <div id="customRow" class="hidden">
+          <div class="row" style="margin-top: 12px">
+            <label class="pill"><input type="checkbox" id="extraCache" /> Cache</label>
+            <label class="pill"><input type="checkbox" id="extraCookies" /> Cookies and site data</label>
+            <label class="pill"><input type="checkbox" id="extraDownloads" /> Download history</label>
+            <label class="pill"><input type="checkbox" id="extraFormData" /> Saved form text</label>
+          </div>
         </div>
+
         <div class="row" style="margin-top: 12px">
           <label class="pill">
-            Reach back:
+            Reach back
             <select id="extraSince">
-              <option value="hour">the last hour</option>
-              <option value="day">the last day</option>
-              <option value="week">the last week</option>
-              <option value="month">the last month</option>
-              <option value="all">everything, however old</option>
+              <option value="hour">an hour</option>
+              <option value="day">a day</option>
+              <option value="week">a week</option>
+              <option value="month">a month</option>
+              <option value="all">everything</option>
             </select>
           </label>
           <label class="pill">
-            Run them:
+            Run
             <select id="extraTrigger">
-              <option value="manual">only when I press the button</option>
-              <option value="triggers">also when the browser closes or starts</option>
+              <option value="manual">when I press the button</option>
+              <option value="triggers">also at close and start</option>
             </select>
           </label>
-        </div>
-        <div class="row">
-          <button id="extraNowBtn" class="ghost">Clear them now</button>
+          <button id="extraNowBtn" class="ghost">Clear now</button>
           <span id="extraMsg" class="mini"></span>
         </div>
         <div class="row mini" id="extraWarn"></div>
         <div class="row mini">
-          Worth knowing. Chrome tells the extension nothing about how much it removed, so there is no count to
-          show. Cookies go for the whole registrable domain, not just the page you were on, so logins on that
-          site end. Download history is the list, not the files. Passwords are not on the list at all: Chrome
-          removed password deletion from this API in Chrome 144, and the call has had no effect since.
+          No count is possible, Chrome does not report what it removed. Cookies go for the whole site, so logins
+          there end. Download history is the list, not the files. Passwords are left out: Chrome removed password
+          clearing from this API in 144.
+        </div>
+      </div>
+
+      <h2>Cookies</h2>
+      <div class="card">
+        <div class="row">
+          <label class="pill"><input type="checkbox" id="cookiesOnStart" /> Clear cookies at browser start</label>
+        </div>
+        <div class="row">
+          <label class="pill"><input type="checkbox" id="cookiesOnTabClose" /> Clear a site's cookies when I close its tab</label>
+          <button id="tabsPermBtn" class="ghost hidden">Allow tab access</button>
+        </div>
+        <div class="row mini" id="cookiesWarn"></div>
+        <div class="row" style="margin-top: 12px">
+          <span class="mini" style="width: 100%">Keep these signed in, one per line</span>
+        </div>
+        <div class="row">
+          <textarea id="cookieKeep" class="grow" rows="4" placeholder="example.com"></textarea>
+        </div>
+        <div class="row">
+          <button id="cookieNowBtn" class="ghost">Clear cookies now</button>
+          <span id="cookieMsg" class="mini"></span>
+        </div>
+      </div>
+
+      <h2>Look</h2>
+      <div class="card">
+        <div class="row themes" id="themeRow">
+          <button class="theme" data-theme="auto"><i style="background: linear-gradient(90deg, #0b1220 50%, #f4f6fa 50%)"></i>Auto</button>
+          <button class="theme" data-theme="dark"><i style="background: #0b1220"></i>Dark</button>
+          <button class="theme" data-theme="light"><i style="background: #f4f6fa"></i>Light</button>
+          <button class="theme" data-theme="neon"><i style="background: #22d3ee"></i>Neon</button>
+          <button class="theme" data-theme="paper"><i style="background: #f7f3ea"></i>Paper</button>
+          <button class="theme" data-theme="slate"><i style="background: #7c9cbf"></i>Slate</button>
         </div>
       </div>
 
@@ -158,21 +189,21 @@
         <div class="row">
           <div class="stat">
             <b id="statTotal">0</b>
-            <small>entries wiped, all time</small>
+            <small>wiped, all time</small>
           </div>
           <div class="stat">
             <b id="statLastCount">0</b>
-            <small>entries in the last run</small>
+            <small>in the last run</small>
           </div>
         </div>
         <div class="row">
-          <span class="pill"><span class="dot" id="stateDot"></span><span id="stateText">Active</span></span>
+          <span class="pill"><span class="dot" id="stateDot"></span><span id="stateText">Loading</span></span>
         </div>
         <div class="row mini" id="lastRun">No runs yet.</div>
         <div class="row mini" id="queueInfo"></div>
         <div class="row">
           <button id="wipeNowBtn">Wipe now</button>
-          <button id="previewBtn" class="ghost">Preview only (no delete)</button>
+          <button id="previewBtn" class="ghost">Preview</button>
           <span id="sweepMsg" class="mini"></span>
         </div>
         <div id="previewList"></div>
@@ -187,23 +218,19 @@
         </div>
       </div>
 
-      <h2 class="lockable">Backup</h2>
+      <h2 class="lockable">Rules file</h2>
       <div class="card lockable">
-        <div class="row mini">
-          Your rules live in the browser's synced storage, so they follow you to your other computers. Everything
-          else, including the switches above, stays on this device.
-        </div>
         <div class="row">
-          <button id="exportBtn" class="ghost">Export rules</button>
+          <button id="exportBtn" class="ghost">Export</button>
           <label class="ghost" style="display: inline-block; padding: 9px 14px; border: 1px solid var(--line); border-radius: 9px; cursor: pointer">
-            Import rules
+            Import
             <input id="importFile" type="file" accept="application/json" class="hidden" />
           </label>
           <span id="importMsg" class="mini"></span>
         </div>
       </div>
 
-      <h2>Security</h2>
+      <h2>Lock</h2>
       <div class="card">
         <div class="row">
           <label class="pill">
@@ -224,7 +251,6 @@
         <div class="row mini" id="lockMsg"></div>
         <div class="row hidden" id="lockNowRow">
           <button id="lockNowBtn" class="ghost">Hide the list now</button>
-          <span class="mini">No reload, no waiting: the list goes as soon as the PIN is saved and this hides it again.</span>
         </div>
         <div class="row hidden" id="lockForgotRow">
           <button id="lockForgot" class="ghost">Forgot the PIN?</button>
@@ -235,13 +261,12 @@
         </div>
         <div class="row mini" id="lockRecoveryNote"></div>
         <div class="row mini">
-          Switching the lock off needs the PIN, and so does the context menu that adds a site: while the lock is
-          on, that menu answers with a notification instead of changing the list. Reloading this page locks it
-          again.
+          Turning the lock off needs the PIN. So does the right-click menu that adds a site: while the lock is on,
+          that menu only sends a notification.
         </div>
       </div>
 
-      <h2 class="lockable">Danger zone</h2>
+      <h2 class="lockable">All of it</h2>
       <div class="card danger lockable">
         <div class="row">
           <label class="pill">
@@ -250,15 +275,17 @@
           </label>
         </div>
         <div class="row mini">
-          Switch this on and your list stops mattering: every trigger erases the whole history database instead.
-          In instant mode each new visit is erased as it happens. Your list is kept, and it starts applying again
-          the moment this is off.
+          Your list stops mattering: every trigger clears the whole history database. The list stays put and
+          applies again the moment this is off.
         </div>
         <div class="row mini" id="wipeAllWarn"></div>
       </div>
 
       <div class="banner">
-        <b>Known limits.</b> Chrome exposes no shutdown hook, so "when I close the browser" is enforced at close when possible and at next launch otherwise. Deleting a history entry does not always clear a previously typed address from the address-bar suggestion list. Chrome keeps that in a separate store that no extension API reaches. History, download history and saved form text cannot be narrowed to a site: the extra clear is all-or-nothing for the reach you pick, while the history wipe works per rule.
+        Chrome has no shutdown hook, so "when the browser closes" runs at close when it can and at the next launch
+        otherwise. Deleting an entry does not always clear it from the address-bar suggestions, which live in a
+        store no extension can reach. Cookies and cache can be cleared per site; history, downloads and form text
+        cannot.
       </div>
 
       <div class="row mini" id="version"></div>

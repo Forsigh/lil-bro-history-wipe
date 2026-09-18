@@ -48,6 +48,14 @@ export const DEFAULT_SETTINGS = {
   extraTrigger: 'manual',
   // The toolbar popup opens compact. 'classic' brings back the older, denser one.
   popupLayout: 'simple',
+  // One name for a mix of the four extra switches. The flags stay the truth.
+  preset: 'off',
+  // Domains that keep their cookies when a cookie clear runs.
+  cookieKeep: [],
+  cookiesOnStart: false,
+  cookiesOnTabClose: false,
+  // auto | light | dark | neon | paper | slate
+  theme: 'auto',
 };
 
 /**
@@ -91,6 +99,57 @@ export function extraKinds(settings) {
 export function describeExtras(settings) {
   const kinds = extraKinds(settings);
   return kinds.length ? kinds.map((k) => EXTRA_LABELS[k]).join(', ') : '';
+}
+
+/** The three mixes, plus off. Custom is what the switches say when none fit. */
+export const PRESETS = {
+  off: { extras: { cache: false, cookies: false, downloads: false, formData: false }, wipeAll: false },
+  light: { extras: { cache: true, cookies: false, downloads: false, formData: false }, wipeAll: false },
+  standard: { extras: { cache: true, cookies: true, downloads: false, formData: true }, wipeAll: false },
+  nuclear: { extras: { cache: true, cookies: true, downloads: true, formData: true }, wipeAll: true },
+};
+
+/** The settings a preset stands for. */
+export function presetPatch(name) {
+  const p = PRESETS[name];
+  if (!p) return null;
+  return {
+    preset: name,
+    extraCache: p.extras.cache,
+    extraCookies: p.extras.cookies,
+    extraDownloads: p.extras.downloads,
+    extraFormData: p.extras.formData,
+    wipeAllHistory: p.wipeAll,
+  };
+}
+
+/** Which preset the switches add up to, or 'custom'. */
+export function presetName(settings) {
+  for (const [name, p] of Object.entries(PRESETS)) {
+    const same =
+      !!settings.extraCache === p.extras.cache &&
+      !!settings.extraCookies === p.extras.cookies &&
+      !!settings.extraDownloads === p.extras.downloads &&
+      !!settings.extraFormData === p.extras.formData &&
+      !!settings.wipeAllHistory === p.wipeAll;
+    if (same) return name;
+  }
+  return 'custom';
+}
+
+/** One domain per line, as typed. */
+export function parseCookieKeep(text) {
+  const out = [];
+  for (const line of String(text || '').split(/\r?\n/)) {
+    const d = line
+      .trim()
+      .toLowerCase()
+      .replace(/^https?:\/\//, '')
+      .replace(/^\./, '')
+      .replace(/\/.*$/, '');
+    if (d && !out.includes(d)) out.push(d);
+  }
+  return out;
 }
 
 /**

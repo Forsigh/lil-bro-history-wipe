@@ -17,6 +17,11 @@ function makeFakeChrome(seed = [], opts = {}) {
     forbidden: [],
     calls: { deleteAll: 0, deleteRange: 0, browsingData: 0 },
     browsingDataCalls: [],
+    cookies: [],
+    cookieRemovals: [],
+    cookieReads: [],
+    permissionsGranted: false,
+    permissionChecks: [],
   };
   const listeners = {
     onVisited: [],
@@ -137,7 +142,44 @@ function makeFakeChrome(seed = [], opts = {}) {
       onCreated: { addListener: (fn) => listeners.winCreated.push(fn) },
       onRemoved: { addListener: (fn) => listeners.winRemoved.push(fn) },
     },
-    tabs: { query: async () => [] },
+    tabs: {
+      query: async () => db.tabs || [],
+      onUpdated: {
+        addListener: (fn) => {
+          (db.tabUpdaters ||= []).push(fn);
+        },
+      },
+      onRemoved: {
+        addListener: (fn) => {
+          (db.tabRemovers ||= []).push(fn);
+        },
+      },
+    },
+    permissions: {
+      contains: async (q) => {
+        db.permissionChecks.push(q);
+        return !!db.permissionsGranted;
+      },
+      request: async () => false,
+    },
+    cookies: {
+      getAll: async (filter) => {
+        db.cookieReads.push(filter || {});
+        if (filter && filter.domain) {
+          const d = filter.domain.toLowerCase().replace(/^\./, '');
+          return db.cookies.filter((c) => {
+            const host = c.domain.toLowerCase().replace(/^\./, '');
+            return host === d || host.endsWith('.' + d);
+          });
+        }
+        return [...db.cookies];
+      },
+      remove: async ({ url, name, storeId }) => {
+        db.cookieRemovals.push({ url, name, storeId });
+        db.cookies = db.cookies.filter((c) => !(c.name === name && c.storeId === storeId));
+        return { url, name };
+      },
+    },
   };
 
   return { chrome, db, listeners, store, notifications };
@@ -1188,6 +1230,94 @@ function check(label, fn) {
   check('extra: a build without the API gets an honest error, not a throw', () =>
     assert.equal(noApiReply.ok, false));
   check('extra: the history path still worked', () => assert.ok(noApi.db.deleted.length >= 0));
+}
+
+// ---------------------------------------------------------------------------
+// 13. cookies, with a keep list
+// ---------------------------------------------------------------------------
+{
+  const rule = () => [{ id: 'r1', type: 'domain', value: 'match.example', enabled: true }];
+  const seedCookies = (db, hosts) => {
+    db.cookies = hosts.map((h, i) => ({ domain: h, name: `c${i}`, storeId: '0', secure: true, path: '/' }));
+  };
+
+  // Off by default: a wipe run never reads or removes a cookie.
+  const off = makeFakeChrome([]);
+  off.store.local.rules = rule();
+  off.store.local.settings = { mode: 'startup', notifyOnWipe: false };
+  seedCookies(off.db, ['gone.example']);
+  await boot(off.chrome, off.store);
+  await new Promise((res) => off.listeners.onMessage[0]({ type: 'wipeNow' }, {}, res));
+  check('cookies: nothing is read while the feature is off', () => assert.equal(off.db.cookieReads.length, 0));
+  check('cookies: nothing is removed while the feature is off', () => assert.equal(off.db.cookieRemovals.length, 0));
+
+  // At start, everything except the keep list goes.
+  const on = makeFakeChrome([]);
+  on.store.local.rules = rule();
+  on.store.local.settings = {
+    mode: 'startup',
+    notifyOnWipe: false,
+    cookiesOnStart: true,
+    cookieKeep: ['keep.example'],
+  };
+  seedCookies(on.db, ['keep.example', 'a.example', '.b.example']);
+  await boot(on.chrome, on.store);
+  await waitFor('cookie prune at start', () => on.db.cookieRemovals.length === 2);
+  check('cookies: the keep list survives, everything else goes', () =>
+    assert.deepEqual(
+      on.db.cookieRemovals.map((r) => new URL(r.url).hostname).sort(),
+      ['a.example', 'b.example']
+    ));
+  check('cookies: a kept domain is never touched', () =>
+    assert.ok(!on.db.cookieRemovals.some((r) => r.url.includes('keep.example'))));
+
+  // The manual button clears the same way, and logs what it did.
+  const manual = makeFakeChrome([]);
+  manual.store.local.rules = rule();
+  manual.store.local.settings = { mode: 'startup', notifyOnWipe: false, cookieKeep: ['keep.example'] };
+  seedCookies(manual.db, ['keep.example', 'c.example']);
+  await boot(manual.chrome, manual.store);
+  const manualReply = await new Promise((res) =>
+    manual.listeners.onMessage[0]({ type: 'pruneCookies' }, {}, res)
+  );
+  check('cookies: the button reports a real count', () => assert.equal(manualReply.removed, 1));
+  check('cookies: and logs it without naming a page', () =>
+    assert.ok(manual.store.local.log.some((e) => e.url === '(cookies)' && /1 cookie/.test(e.title))));
+
+  // Closing a tab clears that site, and only that site.
+  const tabbed = makeFakeChrome([]);
+  tabbed.db.permissionsGranted = true;
+  tabbed.db.tabs = [{ id: 7, url: 'https://closing.example/page' }];
+  tabbed.store.local.rules = rule();
+  tabbed.store.local.settings = {
+    mode: 'startup',
+    notifyOnWipe: false,
+    cookiesOnTabClose: true,
+    cookieKeep: ['keep.example'],
+  };
+  seedCookies(tabbed.db, ['closing.example', 'other.example', 'keep.example']);
+  await boot(tabbed.chrome, tabbed.store);
+  await new Promise((r) => setTimeout(r, 30));
+  check('cookies: tab hosts are watched when the permission is there', () =>
+    assert.equal(typeof (tabbed.db.tabRemovers || [])[0], 'function'));
+  tabbed.db.tabRemovers[0](7);
+  await waitFor('tab close clear', () => tabbed.db.cookieRemovals.length === 1);
+  check('cookies: the closed tab loses its cookies', () =>
+    assert.equal(new URL(tabbed.db.cookieRemovals[0].url).hostname, 'closing.example'));
+  check('cookies: other sites keep theirs', () =>
+    assert.ok(!tabbed.db.cookieRemovals.some((r) => r.url.includes('other.example'))));
+
+  // No permission, no tracking, no clear.
+  const noPerm = makeFakeChrome([]);
+  noPerm.db.tabs = [{ id: 9, url: 'https://closing.example/page' }];
+  noPerm.store.local.rules = rule();
+  noPerm.store.local.settings = { mode: 'startup', notifyOnWipe: false, cookiesOnTabClose: true };
+  seedCookies(noPerm.db, ['closing.example']);
+  await boot(noPerm.chrome, noPerm.store);
+  noPerm.db.tabRemovers[0](9);
+  await new Promise((r) => setTimeout(r, 40));
+  check('cookies: without the permission nothing is cleared', () =>
+    assert.equal(noPerm.db.cookieRemovals.length, 0));
 }
 
 console.log(`\nworker: ${pass} passed, ${fail} failed`);
