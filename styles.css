@@ -463,6 +463,25 @@ a {
   color: var(--muted);
 }
 
+/* Each preset reads as one line: the name on the left, what it clears on the right. */
+.rows {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.rows .preset {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+}
+
+.rows .preset small {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
 .preset[aria-pressed="true"] {
   border-color: var(--accent);
   box-shadow: inset 0 0 0 1px var(--accent);
