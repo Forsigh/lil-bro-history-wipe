@@ -8,7 +8,7 @@
 //
 // Throwaway profile and a staged copy only. Never the live dev folder, never a real profile.
 import { spawn } from 'node:child_process';
-import { cpSync, mkdtempSync, rmSync, existsSync } from 'node:fs';
+import { cpSync, mkdtempSync, rmSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -809,6 +809,79 @@ try {
     `${sv.rows} rule row(s), named=${sv.named}`
   );
   await closePage(optLocked.id);
+
+  // --- 12. optional screenshots: the compact popup, the classic one, the options --
+  // node tools/live_probe.mjs <port> <browser> <output-dir>
+  const shotsDir = process.argv[4];
+  if (shotsDir) {
+    mkdirSync(shotsDir, { recursive: true });
+    await resetStore();
+    await setStore({
+      rules: [
+        { id: 's1', type: 'domain', value: 'linkedin.com', includeSubdomains: true, enabled: true },
+        { id: 's2', type: 'keyword', value: 'auction', enabled: true },
+      ],
+      settings: {
+        enabled: true,
+        mode: 'realtime',
+        sweepExistingOnStartup: true,
+        notifyOnWipe: false,
+        listMode: 'block',
+        wipeAllHistory: false,
+        extraCache: true,
+        extraCookies: false,
+      },
+      stats: { wipedTotal: 4821, lastRunAt: Date.now() - 3600000, lastRunCount: 37, lastRunPhase: 'manual' },
+    });
+
+    const shoot = async (page, file, width, height, full) => {
+      await page.send('Page.enable');
+      await page.send('Emulation.setDeviceMetricsOverride', {
+        width,
+        height,
+        deviceScaleFactor: 2,
+        mobile: false,
+      });
+      await sleep(400);
+      const r = await page.send('Page.captureScreenshot', {
+        format: 'png',
+        captureBeyondViewport: !!full,
+      });
+      const data = r && r.result && r.result.data;
+      if (!data) {
+        record(`screenshot ${file}`, false, JSON.stringify(r).slice(0, 140));
+        return;
+      }
+      const out = path.join(shotsDir, file);
+      writeFileSync(out, Buffer.from(data, 'base64'));
+      record(`screenshot ${file}`, true, out);
+    };
+
+    const shotPopup = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+    await shoot(shotPopup, 'popup-compact.png', 360, 520, false);
+    await shotPopup.evaluate("document.getElementById('layoutBtn').click()");
+    await sleep(300);
+    await shoot(shotPopup, 'popup-classic.png', 360, 760, false);
+    await closePage(shotPopup.id);
+
+    const shotOptions = await openPage(`chrome-extension://${id}/options.html`);
+    await shoot(shotOptions, 'options.png', 900, 1100, true);
+    await closePage(shotOptions.id);
+
+    // The same options page with a PIN set, which is what the lock looks like.
+    await ev(`(async()=>{
+      const hex=(b)=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
+      const salt=crypto.getRandomValues(new Uint8Array(16));
+      const key=await crypto.subtle.importKey('raw',new TextEncoder().encode('2468'),'PBKDF2',false,['deriveBits']);
+      const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:1000,hash:'SHA-256'},key,256);
+      const cur=(await chrome.storage.local.get('settings')).settings||{};
+      await chrome.storage.local.set({settings:{...cur,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
+      return 'ok';
+    })()`);
+    const shotLocked = await openPage(`chrome-extension://${id}/options.html`);
+    await shoot(shotLocked, 'options-locked.png', 900, 700, false);
+    await closePage(shotLocked.id);
+  }
 } catch (e) {
   record('probe ran to the end', false, String(e.message || e));
 } finally {
