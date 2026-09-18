@@ -33,7 +33,7 @@ import {
   MAX_ATTEMPTS,
   LOCKOUT_MS,
 } from './lock.js';
-import { applyI18n, t } from './i18n.js';
+import { applyI18n, setLang, t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -59,6 +59,7 @@ function setLockMsg(text, kind = 'mini') {
 
 async function load() {
   state = await getState();
+  await setLang(state.settings.lang);
   render();
   applyLock();
   applyLayout(state.settings.popupLayout);

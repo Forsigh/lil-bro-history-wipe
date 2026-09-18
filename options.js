@@ -19,7 +19,7 @@ import {
   parseCookieKeep,
   RULE_TYPES,
 } from './store.js';
-import { applyI18n, t } from './i18n.js';
+import { applyI18n, setLang, t } from './i18n.js';
 import { findMatch } from './matcher.js';
 import {
   doubleConfirm,
@@ -127,6 +127,9 @@ function renderSettings() {
   $('lockEnabled').checked = !!s.lockEnabled;
   $('advOn').checked = !!s.advanced;
   $('advBox').classList.toggle('hidden', !s.advanced);
+  for (const input of document.querySelectorAll('input[name="lang"]')) {
+    input.checked = input.value === (s.lang || 'auto');
+  }
   $('keepWarn').textContent =
     s.listMode === 'allow' ? 'On: everything not on your list is being wiped. Cookies and cache are separate.' : '';
   $('wipeNowBtn').textContent = s.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
@@ -388,6 +391,15 @@ $('advOn').addEventListener('change', async () => {
   $('advBox').classList.toggle('hidden', !state.settings.advanced);
   await saveState({ settings: state.settings });
 });
+// Switching the language reloads the page: every string, including the ones the
+// script writes, has to come out in the new one.
+for (const input of document.querySelectorAll('input[name="lang"]')) {
+  input.addEventListener('change', async () => {
+    state.settings.lang = input.value;
+    await saveState({ settings: state.settings });
+    location.reload();
+  });
+}
 
 // --- the extra clear -------------------------------------------------------
 
@@ -916,8 +928,12 @@ for (const btn of document.querySelectorAll('.theme')) {
   });
 }
 
-getState().then((s) => applyTheme(s.settings.theme));
-
-applyI18n();
-syncRuleTypeUi();
-load();
+// The language has to be settled before anything writes text into the page.
+(async () => {
+  const initial = await getState();
+  await setLang(initial.settings.lang);
+  applyTheme(initial.settings.theme);
+  applyI18n();
+  syncRuleTypeUi();
+  await load();
+})();

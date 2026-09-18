@@ -44,6 +44,8 @@ export const DEFAULT_SETTINGS = {
   // Kept for the older popup layout setting; the popup no longer offers the switch.
   popupLayout: 'simple',
   advanced: false,
+  // 'auto' follows the browser. Set to 'en' / 'pl' to force one of the shipped languages.
+  lang: 'auto',
   // One name for a mix of the four extra switches. The flags stay the truth.
   preset: 'off',
   // Domains that keep their cookies when a cookie clear runs.
