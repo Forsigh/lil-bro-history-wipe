@@ -127,8 +127,8 @@ function render() {
   $('wipeBtn').textContent = armed ? t('wipeAllNow') || 'Wipe ALL history now' : t('wipeNow') || 'Wipe now';
   $('scopeList').checked = !armed;
   $('scopeAll').checked = armed;
-  $('addDomainBtn').textContent = keep ? t('keepSite') || 'Keep this site' : t('wipeSite') || 'Wipe this site';
-  $('addUrlBtn').textContent = keep ? t('keepPage') || 'Keep this exact page only' : t('wipePage') || 'Wipe this exact page only';
+  $('addDomainBtn').textContent = keep ? t('keepSite') || 'Keep this site' : t('addSite') || 'Add to filter list';
+  $('addUrlBtn').textContent = keep ? t('keepPage') || 'Keep this exact page only' : t('addPage') || 'Add just this page';
   $('wipeAllWarn').textContent = armed
     ? t('wipeAllOn') || 'Wipe-all is ON: your entire history goes, not just your rules.'
     : keep

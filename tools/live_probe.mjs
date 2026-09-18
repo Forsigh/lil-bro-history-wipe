@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.3.4', m.version === '1.3.4', m.version);
+  record('version is 1.3.5', m.version === '1.3.5', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -744,7 +744,9 @@ try {
   );
   record('popup shows the lock card when a PIN exists', lockView2.card && lockView2.bodyLocked, lockView2.status);
   record('popup lock offers the way out as well', lockView2.forgot === true && lockView2.recover === true);
-  record('popup hides the list sections while locked', lockView2.addHidden === true);
+  // Adding is allowed while the lock is on: the button names no site, so it gives
+  // nothing away. What stays hidden is anything that lists what is being cleaned.
+  record('popup can still add while locked', lockView2.addHidden === false);
   await closePage(pop5.id);
 
   // --- 11. while the lock is on, nothing on either page names the list --------

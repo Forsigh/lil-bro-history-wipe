@@ -41,7 +41,7 @@ export const DEFAULT_SETTINGS = {
   // the next session starts. Never on a visit: erasing cookies as you browse is
   // not a cleaner.
   extraTrigger: 'manual',
-  // The toolbar popup opens compact. 'classic' brings back the older, denser one.
+  // Kept for the older popup layout setting; the popup no longer offers the switch.
   popupLayout: 'simple',
   advanced: false,
   // One name for a mix of the four extra switches. The flags stay the truth.
