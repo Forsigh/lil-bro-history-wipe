@@ -16,6 +16,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.3.1.
 | 1.3.1 | 18 Sep 20:56 | `94ad476` | `4d8bd6955ec83506` | presets with plain explanations, PIN under "When should it clean?", advanced controls behind one switch, en + pl |
 | 1.3.2 | 18 Sep 21:09 | `eb9ba4b` | `7d477d77bdf392eb` | list and log back on the first screen (PIN still hides them), advanced slimmed, every visible string rewritten in plain English and Polish |
 | 1.3.3 | 18 Sep 21:26 | `c430089` | `64de55c68c8b91ab` | preset rows say what each one costs you, Nuclear renamed FULL and red, "when I close the browser" dropped, adding to the list works while the PIN is on |
+| 1.3.4 | 18 Sep 21:32 | `d5b994a` | `5e6e69c7b9202833` | "Preview" is now "Scan" on both pages (en) and "Sprawdź" (pl) |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
 Desktop. A zip is the contract: if the bytes differ, the version has to.
