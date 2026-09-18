@@ -10,6 +10,11 @@
       <h1>Lil Bro <span>— History Wipe</span></h1>
       <p class="sub">The list below decides what never stays in your history. Your rules sync between your computers.</p>
 
+      <div class="banner lockbanner hidden" id="lockedBanner">
+        <b>The lock is on.</b> Your list is off the screen until you unlock it in Security below. Nothing else changes:
+        wiping keeps working the whole time.
+      </div>
+
       <h2>When to wipe</h2>
       <div class="card">
         <div class="row">
@@ -60,7 +65,7 @@
         </div>
         <div class="row mini">
           Off by default. Switch it on and the list flips: a page is wiped when it is <i>not</i> on it. While
-          the list is empty nothing is wiped at all. Cookies and cache stay untouched either way.
+          the list is empty nothing is wiped at all. Cookies and cache are a separate switch, further down.
         </div>
         <div class="row mini" id="keepWarn"></div>
         <div class="row" style="margin-top: 14px">
@@ -102,6 +107,50 @@
           <input id="testTitle" style="width: 200px" type="text" placeholder="page title (optional)" />
         </div>
         <div class="row"><span id="testOut" class="mini">Nothing tested yet.</span></div>
+      </div>
+
+      <h2>Also clear</h2>
+      <div class="card">
+        <div class="row mini">
+          The history wipe above never touches these. Switch any of them on and they are cleared on demand, by the
+          same buttons, and by nothing else unless you ask for the triggers at the bottom of this card.
+        </div>
+        <div class="row" style="margin-top: 12px">
+          <label class="pill"><input type="checkbox" id="extraCache" /> Cache</label>
+          <label class="pill"><input type="checkbox" id="extraCookies" /> Cookies and site data</label>
+          <label class="pill"><input type="checkbox" id="extraDownloads" /> Download history</label>
+          <label class="pill"><input type="checkbox" id="extraFormData" /> Saved form text</label>
+        </div>
+        <div class="row" style="margin-top: 12px">
+          <label class="pill">
+            Reach back:
+            <select id="extraSince">
+              <option value="hour">the last hour</option>
+              <option value="day">the last day</option>
+              <option value="week">the last week</option>
+              <option value="month">the last month</option>
+              <option value="all">everything, however old</option>
+            </select>
+          </label>
+          <label class="pill">
+            Run them:
+            <select id="extraTrigger">
+              <option value="manual">only when I press the button</option>
+              <option value="triggers">also when the browser closes or starts</option>
+            </select>
+          </label>
+        </div>
+        <div class="row">
+          <button id="extraNowBtn" class="ghost">Clear them now</button>
+          <span id="extraMsg" class="mini"></span>
+        </div>
+        <div class="row mini" id="extraWarn"></div>
+        <div class="row mini">
+          Worth knowing. Chrome tells the extension nothing about how much it removed, so there is no count to
+          show. Cookies go for the whole registrable domain, not just the page you were on, so logins on that
+          site end. Download history is the list, not the files. Passwords are not on the list at all: Chrome
+          removed password deletion from this API in Chrome 144, and the call has had no effect since.
+        </div>
       </div>
 
       <h2>Status</h2>
@@ -173,6 +222,10 @@
           <button id="lockUnlock">Unlock</button>
         </div>
         <div class="row mini" id="lockMsg"></div>
+        <div class="row hidden" id="lockNowRow">
+          <button id="lockNowBtn" class="ghost">Hide the list now</button>
+          <span class="mini">No reload, no waiting: the list goes as soon as the PIN is saved and this hides it again.</span>
+        </div>
         <div class="row hidden" id="lockForgotRow">
           <button id="lockForgot" class="ghost">Forgot the PIN?</button>
         </div>
@@ -182,7 +235,9 @@
         </div>
         <div class="row mini" id="lockRecoveryNote"></div>
         <div class="row mini">
-          Switching the lock off needs the PIN. Reloading this page locks it again.
+          Switching the lock off needs the PIN, and so does the context menu that adds a site: while the lock is
+          on, that menu answers with a notification instead of changing the list. Reloading this page locks it
+          again.
         </div>
       </div>
 
@@ -195,15 +250,15 @@
           </label>
         </div>
         <div class="row mini">
-          Switch this on and your list stops mattering: every trigger erases the whole database instead. In
-          instant mode each new visit is erased as it happens. Still no cookies, no cache, no passwords, no
-          downloads, ever. Your list is kept, and it starts applying again the moment this is off.
+          Switch this on and your list stops mattering: every trigger erases the whole history database instead.
+          In instant mode each new visit is erased as it happens. Your list is kept, and it starts applying again
+          the moment this is off.
         </div>
         <div class="row mini" id="wipeAllWarn"></div>
       </div>
 
       <div class="banner">
-        <b>Known limits.</b> Chrome exposes no shutdown hook, so "when I close the browser" is enforced at close when possible and at next launch otherwise. Deleting a history entry does not always clear a previously typed address from the address-bar suggestion list. Chrome keeps that in a separate store that no extension API reaches.
+        <b>Known limits.</b> Chrome exposes no shutdown hook, so "when I close the browser" is enforced at close when possible and at next launch otherwise. Deleting a history entry does not always clear a previously typed address from the address-bar suggestion list. Chrome keeps that in a separate store that no extension API reaches. History, download history and saved form text cannot be narrowed to a site: the extra clear is all-or-nothing for the reach you pick, while the history wipe works per rule.
       </div>
 
       <div class="row mini" id="version"></div>

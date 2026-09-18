@@ -357,3 +357,232 @@ body.popup {
 a {
   color: var(--accent);
 }
+
+/* --- popup, second pass: compact by default, classic on request ------------- */
+
+body.popup {
+  width: 340px;
+}
+
+.phead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  background: linear-gradient(155deg, var(--accent), var(--accent-dim));
+  color: #04201c;
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brand-text b {
+  font-size: 14px;
+  font-weight: 650;
+}
+
+.brand-text small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.chip-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.chip-btn:hover {
+  color: var(--text);
+  border-color: var(--accent-dim);
+  background: transparent;
+}
+
+.hero {
+  background: linear-gradient(180deg, var(--card-2), var(--card));
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hero-line {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.hero-line.muted,
+.muted {
+  color: var(--muted);
+}
+
+.danger-text {
+  color: var(--danger);
+  margin-top: 8px;
+}
+
+.danger-text:empty {
+  display: none;
+}
+
+.hero .pill {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* the on/off switch, so the state and the control are the same object */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.switch .knob {
+  position: relative;
+  width: 38px;
+  height: 21px;
+  border-radius: 20px;
+  background: var(--line);
+  transition: background 0.18s ease;
+}
+
+.switch .knob::after {
+  content: '';
+  position: absolute;
+  top: 2.5px;
+  left: 2.5px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #8fa1c0;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.switch[aria-checked='true'] .knob {
+  background: var(--accent-dim);
+}
+
+.switch[aria-checked='true'] .knob::after {
+  transform: translateX(17px);
+  background: #04201c;
+}
+
+.switch[aria-checked='true'] .switch-label {
+  color: var(--accent);
+}
+
+.switch[aria-checked='false'] .switch-label {
+  color: var(--muted);
+}
+
+.more-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  background: transparent;
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 8px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  margin-bottom: 10px;
+}
+
+.more-btn:hover {
+  color: var(--text);
+  border-color: var(--accent-dim);
+  background: transparent;
+}
+
+.more-btn .caret {
+  transition: transform 0.18s ease;
+}
+
+.more-btn[aria-expanded='true'] .caret {
+  transform: rotate(180deg);
+}
+
+.more {
+  display: none;
+}
+
+.more.open {
+  display: block;
+}
+
+.lockbox {
+  border-color: var(--accent-dim);
+  background: var(--card-2);
+}
+
+.pfoot {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.pfoot .mini {
+  text-align: center;
+}
+
+/* The classic layout is the popup as it was: everything on screen, no disclosure. */
+body.layout-classic .more {
+  display: block;
+}
+
+body.layout-classic .more-btn {
+  display: none;
+}
+
+body.layout-classic .hero {
+  background: var(--card);
+}
+
+/* An unfolded section keeps its own spacing once the disclosure is open. */
+.more .card:last-of-type {
+  margin-bottom: 12px;
+}
+

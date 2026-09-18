@@ -1,4 +1,8 @@
 // Lil Bro: toolbar popup
+//
+// Two layouts, one set of controls. 'simple' opens with the state, the switch and
+// the two runs; everything else sits behind "More controls". 'classic' is the
+// denser popup as it was, for anyone who wants it all on screen at once.
 
 import {
   getState,
@@ -9,6 +13,9 @@ import {
   readAttempts,
   writeAttempts,
   factoryReset,
+  extraOn,
+  describeExtras,
+  EXTRA_SINCE_LABELS,
 } from './store.js';
 import {
   checkPhrase,
@@ -53,6 +60,7 @@ async function load() {
   state = await getState();
   render();
   applyLock();
+  applyLayout(state.settings.popupLayout);
   await loadCurrentTab();
   $('version').textContent = 'Lil Bro v' + chrome.runtime.getManifest().version;
 }
@@ -74,6 +82,28 @@ function applyLock() {
   setLockMsg('');
 }
 
+/**
+ * The layout lives in settings, so it survives closing the popup. Nothing that
+ * names a site is affected by it: both layouts hold the same controls.
+ */
+function applyLayout(layout) {
+  const classic = layout === 'classic';
+  document.body.classList.toggle('layout-classic', classic);
+  document.body.classList.toggle('layout-simple', !classic);
+  $('layoutBtn').textContent = classic ? 'Compact' : 'Classic';
+  $('layoutBtn').title = classic
+    ? 'Switch back to the compact popup'
+    : 'Switch to the classic popup, with everything on screen';
+  if (classic) setMore(true);
+}
+
+function setMore(open) {
+  const btn = $('moreBtn');
+  $('more').classList.toggle('open', !!open);
+  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  btn.firstElementChild.textContent = open ? 'Fewer controls' : 'More controls';
+}
+
 function render() {
   const s = state.settings;
   const armed = !!s.wipeAllHistory;
@@ -86,7 +116,13 @@ function render() {
       : keep
         ? 'Wiping all but your keep list'
         : 'Active';
-  $('toggleBtn').textContent = s.enabled ? 'Pause' : 'Resume';
+
+  // The switch carries the state and the control, so there is nothing to read twice.
+  const toggle = $('toggleBtn');
+  toggle.setAttribute('aria-checked', s.enabled ? 'true' : 'false');
+  toggle.querySelector('.switch-label').textContent = s.enabled ? 'On' : 'Off';
+  toggle.title = s.enabled ? 'Pause Lil Bro' : 'Start wiping again';
+
   $('wipeBtn').textContent = armed ? 'Wipe ALL history now' : 'Wipe now';
   $('scopeList').checked = !armed;
   $('scopeAll').checked = armed;
@@ -112,6 +148,18 @@ function render() {
   $('statLast').textContent = state.stats.lastRunCount || 0;
   $('subdomains').checked = !!state.settings.includeSubdomainsDefault;
 
+  // The extra clear, when it is switched on anywhere.
+  const extras = extraOn(s);
+  $('extraRow').classList.toggle('hidden', !extras);
+  if (extras) {
+    $('extraBtn').textContent = keep ? 'Clear the extra data now' : 'Clear the extra data now';
+    $('extraLine').textContent = `Also clearing: ${describeExtras(s)}, ${
+      EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince
+    }.`;
+  } else {
+    $('extraLine').textContent = 'History only. Cookies, cache and downloads stay put.';
+  }
+
   const queued = (state.pending || []).length;
   $('queueInfo').textContent =
     s.mode === 'realtime'
@@ -122,6 +170,13 @@ function render() {
 }
 
 async function loadCurrentTab() {
+  if (isLocked()) {
+    // The lock is on, so the current tab is not named anywhere in this page.
+    $('sitePreview').textContent = LOCK_MESSAGES.listHidden;
+    $('addDomainBtn').disabled = true;
+    $('addUrlBtn').disabled = true;
+    return;
+  }
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     currentUrl = (tab && tab.url) || '';
@@ -149,6 +204,17 @@ $('toggleBtn').addEventListener('click', async () => {
   state.settings.enabled = !state.settings.enabled;
   await saveState({ settings: state.settings });
   render();
+});
+
+$('layoutBtn').addEventListener('click', async () => {
+  const next = state.settings.popupLayout === 'classic' ? 'simple' : 'classic';
+  state.settings.popupLayout = next;
+  applyLayout(next);
+  await saveState({ settings: state.settings });
+});
+
+$('moreBtn').addEventListener('click', () => {
+  setMore(!$('more').classList.contains('open'));
 });
 
 $('subdomains').addEventListener('change', async () => {
@@ -239,6 +305,20 @@ $('wipeBtn').addEventListener('click', () => requestRun('wipeNow'));
 $('previewBtn').addEventListener('click', () => requestRun('preview'));
 
 /**
+ * The extra clear. It cannot report a count, because Chrome does not say how
+ * much cache or how many cookies it removed, so the message names what was asked
+ * for and stops there.
+ */
+$('extraBtn').addEventListener('click', () => {
+  setMsg('Clearing…');
+  chrome.runtime.sendMessage({ type: 'clearExtra' }, (res) => {
+    if (chrome.runtime.lastError) return setMsg(chrome.runtime.lastError.message, 'err');
+    if (!res || !res.ok) return setMsg((res && res.error) || 'The clear failed.', 'err');
+    setMsg(`Cleared ${res.kinds} (${EXTRA_SINCE_LABELS[res.since] || res.since}). Chrome gives no count.`, 'ok');
+  });
+});
+
+/**
  * Two gates before anything is erased. Wipe-all needs a typed phrase and then a
  * confirming click; the rule-based wipe needs two clicks inside the arm window.
  * Preview never asks.
@@ -326,11 +406,12 @@ function runAction(type) {
       return;
     }
 
+    const extra = res.extra && res.extra.ok ? ` Extra data cleared too (${res.extra.kinds}).` : '';
     setMsg(
-      res.wipeAll
+      (res.wipeAll
         ? `Erased ${res.deleted} entries, the entire history.`
-        : `Scanned ${res.scanned}, wiped ${res.deleted}.`,
-      res.deleted ? 'ok' : 'mini'
+        : `Scanned ${res.scanned}, wiped ${res.deleted}.`) + extra,
+      res.deleted || extra ? 'ok' : 'mini'
     );
     if (res.deleted) renderPreview(res.sample || []);
     load();

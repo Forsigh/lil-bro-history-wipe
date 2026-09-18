@@ -5,37 +5,51 @@
     <title>Lil Bro</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
-  <body class="popup">
+  <body class="popup layout-simple">
     <div class="popup-wrap">
-      <h1>Lil Bro <span>— History Wipe</span></h1>
+      <header class="phead">
+        <div class="brand">
+          <span class="brand-mark">LB</span>
+          <span class="brand-text"><b>Lil Bro</b><small>History Wipe</small></span>
+        </div>
+        <button
+          id="layoutBtn"
+          class="chip-btn"
+          title="Switch between the compact popup and the classic one"
+        >
+          Classic
+        </button>
+      </header>
+
+      <section class="hero">
+        <div class="hero-top">
+          <span class="pill"><span class="dot" id="dot"></span><span id="status">Loading…</span></span>
+          <button id="toggleBtn" class="switch" role="switch" aria-checked="true">
+            <span class="knob"></span>
+            <span class="switch-label">On</span>
+          </button>
+        </div>
+        <p class="hero-line" id="modeText"></p>
+        <p class="hero-line muted" id="extraLine"></p>
+        <p class="mini danger-text" id="wipeAllWarn"></p>
+      </section>
 
       <div class="card">
         <div class="row">
-          <span class="pill"><span class="dot" id="dot"></span><span id="status">Loading…</span></span>
+          <button id="wipeBtn" class="grow">Wipe now</button>
+          <button id="previewBtn" class="ghost">Preview</button>
         </div>
-        <div class="row">
-          <button id="toggleBtn" class="ghost grow">Pause</button>
+        <div class="row hidden" id="extraRow">
+          <button id="extraBtn" class="ghost grow">Clear the extra data</button>
         </div>
-        <div class="row mini" id="modeText"></div>
-        <div class="row mini" id="wipeAllWarn"></div>
-        <div class="row">
-          <label class="pill"><input type="radio" name="scope" id="scopeList" /> Only my list</label>
-          <label class="pill danger"><input type="radio" name="scope" id="scopeAll" /> Everything, always</label>
+        <div class="row hidden" id="phraseRow">
+          <input id="confirmPhrase" class="grow" type="text" placeholder="WIPE ALL" />
+          <button id="confirmPhraseBtn">Arm</button>
         </div>
+        <div class="row mini" id="wipeMsg"></div>
       </div>
 
-      <div class="stats-popup stat-grid">
-        <div class="stat">
-          <b id="statTotal">0</b>
-          <small>wiped all time</small>
-        </div>
-        <div class="stat">
-          <b id="statLast">0</b>
-          <small>last run</small>
-        </div>
-      </div>
-
-      <div class="card hidden" id="lockCard">
+      <div class="card hidden lockbox" id="lockCard">
         <div class="row mini" id="lockNote"></div>
         <div class="row">
           <input id="lockPin" class="grow" type="password" placeholder="PIN" />
@@ -51,39 +65,50 @@
         </div>
       </div>
 
-      <div class="card lockable">
-        <div class="row mini" id="sitePreview">Checking current tab…</div>
-        <div class="row">
-          <button id="addDomainBtn" class="grow">Add this site</button>
-        </div>
-        <div class="row">
-          <label class="pill"><input type="checkbox" id="subdomains" /> include subdomains</label>
-        </div>
-        <div class="row">
-          <button id="addUrlBtn" class="ghost grow">Add this exact page</button>
-        </div>
-      </div>
+      <button id="moreBtn" class="more-btn" aria-expanded="false">
+        <span>More controls</span><span class="caret">▾</span>
+      </button>
 
-      <div class="card">
-        <div class="row">
-          <button id="wipeBtn" class="grow">Wipe now</button>
+      <div id="more" class="more">
+        <div class="card">
+          <div class="row">
+            <label class="pill"><input type="radio" name="scope" id="scopeList" /> Only my list</label>
+            <label class="pill danger"><input type="radio" name="scope" id="scopeAll" /> Everything, always</label>
+          </div>
+          <div class="row mini" id="queueInfo"></div>
         </div>
-        <div class="row">
-          <button id="previewBtn" class="ghost grow">Preview (no delete)</button>
+
+        <div class="card lockable">
+          <div class="row mini" id="sitePreview">Checking current tab…</div>
+          <div class="row">
+            <button id="addDomainBtn" class="grow">Add this site</button>
+          </div>
+          <div class="row">
+            <label class="pill"><input type="checkbox" id="subdomains" /> include subdomains</label>
+          </div>
+          <div class="row">
+            <button id="addUrlBtn" class="ghost grow">Add this exact page</button>
+          </div>
         </div>
-        <div class="row hidden" id="phraseRow">
-          <input id="confirmPhrase" class="grow" type="text" placeholder="WIPE ALL" />
-          <button id="confirmPhraseBtn">Arm</button>
+
+        <div class="stat-grid">
+          <div class="stat">
+            <b id="statTotal">0</b>
+            <small>wiped all time</small>
+          </div>
+          <div class="stat">
+            <b id="statLast">0</b>
+            <small>last run</small>
+          </div>
         </div>
-        <div class="row mini" id="wipeMsg"></div>
-        <div class="row mini" id="queueInfo"></div>
+
         <div id="previewList" class="lockable"></div>
       </div>
 
-      <div class="row">
+      <footer class="pfoot">
         <button id="openOptions" class="ghost grow">All rules &amp; settings</button>
-      </div>
-      <div class="row mini" id="version" style="justify-content: center; margin-top: 10px"></div>
+        <div class="mini" id="version"></div>
+      </footer>
     </div>
 
     <script type="module" src="popup.js"></script>

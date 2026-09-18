@@ -163,11 +163,11 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.1.1', m.version === '1.1.1', m.version);
+  record('version is 1.2.0', m.version === '1.2.0', m.version);
   record(
-    'permission set unchanged',
+    'permission set is the documented six',
     JSON.stringify([...m.permissions].sort()) ===
-      JSON.stringify(['activeTab', 'contextMenus', 'history', 'notifications', 'storage']),
+      JSON.stringify(['activeTab', 'browsingData', 'contextMenus', 'history', 'notifications', 'storage']),
     m.permissions.join(', ')
   );
 
@@ -176,9 +176,9 @@ try {
     'JSON.stringify({browsingData: typeof chrome.browsingData, cookies: typeof chrome.cookies, downloads: typeof chrome.downloads, sessions: typeof chrome.sessions, search: typeof chrome.history.search, del: typeof chrome.history.deleteUrl, delAll: typeof chrome.history.deleteAll})'
   );
   const s = JSON.parse(surface);
-  record('cookies API absent (no permission)', s.cookies === 'undefined', `typeof chrome.cookies = ${s.cookies}`);
-  record('browsingData API absent (no permission)', s.browsingData === 'undefined', s.browsingData);
-  record('downloads API absent', s.downloads === 'undefined', s.downloads);
+  record('cookies API absent (no cookies permission)', s.cookies === 'undefined', `typeof chrome.cookies = ${s.cookies}`);
+  record('browsingData API present (permission declared)', s.browsingData === 'object', s.browsingData);
+  record('downloads API absent (clearing uses browsingData instead)', s.downloads === 'undefined', s.downloads);
   record('history API present', s.search === 'function' && s.del === 'function', `search=${s.search}, deleteUrl=${s.del}`);
 
   // --- helpers -------------------------------------------------------------
@@ -444,13 +444,94 @@ try {
       scopeAll: document.getElementById('scopeAll').checked,
       wipeBtn: document.getElementById('wipeBtn').textContent.trim(),
       addDomain: document.getElementById('addDomainBtn').textContent.trim(),
-      lockCardHidden: document.getElementById('lockCard').classList.contains('hidden')
+      lockCardHidden: document.getElementById('lockCard').classList.contains('hidden'),
+      layout: document.body.className,
+      moreOpen: document.getElementById('more').classList.contains('open'),
+      switchState: document.getElementById('toggleBtn').getAttribute('aria-checked'),
+      extraLine: document.getElementById('extraLine').textContent.trim(),
+      extraRowHidden: document.getElementById('extraRow').classList.contains('hidden')
     })`)
   );
-  record('popup renders with its version', /1\.1\.1/.test(view.version), `${view.title} / ${view.version}`);
+  record('popup renders with its version', /1\.2\.0/.test(view.version), `${view.title} / ${view.version}`);
   record('popup shows the active state', view.status === 'Active' && view.dot === 'dot', `${view.status} (${view.dot})`);
   record('popup starts on "only my list"', view.scopeList === true && view.scopeAll === false, view.wipeBtn);
   record('popup shows a lock card only when a PIN exists', view.lockCardHidden === true);
+  record('popup opens compact, with the rest behind a disclosure', /layout-simple/.test(view.layout) && view.moreOpen === false, view.layout);
+  record('the switch carries the state it controls', view.switchState === 'true', String(view.switchState));
+  record(
+    'the popup says what is not being cleared',
+    /History only/.test(view.extraLine) && view.extraRowHidden === true,
+    view.extraLine
+  );
+
+  // The compact and the classic layout are one click apart, and the choice sticks.
+  const layouts = JSON.parse(
+    await pop.evaluate(`(async()=>{
+      document.getElementById('moreBtn').click();
+      await new Promise(r=>setTimeout(r,80));
+      const opened = document.getElementById('more').classList.contains('open');
+      document.getElementById('layoutBtn').click();
+      await new Promise(r=>setTimeout(r,150));
+      const classic = document.body.classList.contains('layout-classic');
+      const shown = getComputedStyle(document.getElementById('more')).display !== 'none';
+      const stored = (await chrome.storage.local.get('settings')).settings.popupLayout;
+      document.getElementById('layoutBtn').click();
+      await new Promise(r=>setTimeout(r,150));
+      return JSON.stringify({ opened, classic, shown, stored, back: document.body.classList.contains('layout-simple') });
+    })()`)
+  );
+  record('the compact popup unfolds on demand', layouts.opened === true);
+  record('the classic layout shows everything at once, and is remembered', layouts.classic && layouts.shown && layouts.stored === 'classic', `stored=${layouts.stored}`);
+  record('and it switches back', layouts.back === true);
+
+  // The extra clear, driven from the popup, against the real browser.
+  await setStore({
+    settings: {
+      enabled: true,
+      mode: 'startup',
+      sweepExistingOnStartup: false,
+      notifyOnWipe: false,
+      listMode: 'block',
+      wipeAllHistory: false,
+      extraCache: true,
+      extraCookies: true,
+      extraSince: 'hour',
+      extraTrigger: 'manual',
+    },
+  });
+  const popExtra = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  const extraView = JSON.parse(
+    await popExtra.evaluate(`JSON.stringify({
+      rowShown: !document.getElementById('extraRow').classList.contains('hidden'),
+      line: document.getElementById('extraLine').textContent.trim()
+    })`)
+  );
+  record(
+    'the extra clear announces itself in the popup',
+    extraView.rowShown && /Cache/.test(extraView.line) && /Cookies/.test(extraView.line),
+    extraView.line.slice(0, 70)
+  );
+  const historyBeforeExtra = (await historyUrls()).length;
+  const extraReply = await popExtra.evaluate(`new Promise((res)=>{
+    document.getElementById('extraBtn').click();
+    const started = Date.now();
+    const t = setInterval(()=>{
+      const m = document.getElementById('wipeMsg').textContent.trim();
+      if (m && !/Clearing/.test(m)) { clearInterval(t); res(m); }
+      else if (Date.now() - started > 20000) { clearInterval(t); res('timeout: ' + m); }
+    }, 60);
+  })`);
+  record(
+    'pressing it reports a real clear, with no invented count',
+    /Cleared .*Cache/.test(String(extraReply)) && /no count/i.test(String(extraReply)),
+    String(extraReply).slice(0, 80)
+  );
+  record(
+    'and it deletes no history',
+    (await historyUrls()).length === historyBeforeExtra,
+    `${(await historyUrls()).length} of ${historyBeforeExtra} still there`
+  );
+  await closePage(popExtra.id);
 
   const first = JSON.parse(
     await pop.evaluate(`(async()=>{
@@ -647,6 +728,87 @@ try {
   record('popup lock offers the way out as well', lockView2.forgot === true && lockView2.recover === true);
   record('popup hides the list sections while locked', lockView2.addHidden === true);
   await closePage(pop5.id);
+
+  // --- 11. while the lock is on, nothing on either page names the list --------
+  // A rule with a name worth hiding, then a sweep of everything a page can put on
+  // screen: body text, every title/placeholder/value/aria-label, and the lists.
+  const SECRET = 'hidden-secret.example';
+  // The rule is written the way readRules() looks for it: the list lives in sync
+  // storage (with the local mirror), so a local-only write would be shadowed.
+  const seedResult = await ev(`(async()=>{
+    try {
+      const rule = { id: 'sec1', type: 'domain', value: ${JSON.stringify(SECRET)}, enabled: true };
+      await chrome.storage.sync.set({ rulesMeta: { chunks: 1, count: 1, at: Date.now() }, rulesChunk0: [rule] });
+      await chrome.storage.local.set({ rules: [rule], rulesMirror: [rule] });
+      const sync = await chrome.storage.sync.get(['rulesMeta']);
+      const local = await chrome.storage.local.get(['rules']);
+      const settings = (await chrome.storage.local.get('settings')).settings || {};
+      return JSON.stringify({
+        syncCount: sync.rulesMeta && sync.rulesMeta.count,
+        local: local.rules && local.rules[0] && local.rules[0].value,
+        lock: !!settings.lockEnabled,
+      });
+    } catch (e) {
+      return JSON.stringify({ error: String(e && e.message ? e.message : e) });
+    }
+  })()`);
+  const seededView = JSON.parse(String(seedResult));
+  record(
+    'the seed rule is in storage, and the PIN lock is still on',
+    seededView.syncCount === 1 && seededView.local === SECRET && seededView.lock === true,
+    String(seedResult).slice(0, 110)
+  );
+
+  const leakSweep = async (page, label) => {
+    const raw = await page.evaluate(`(()=>{
+      const secret = ${JSON.stringify(SECRET)};
+      const bad = [];
+      if ((document.body.innerText || '').includes(secret)) bad.push('body text');
+      for (const el of document.querySelectorAll('*')) {
+        for (const attr of ['title', 'placeholder', 'value', 'aria-label', 'content']) {
+          const v = el.getAttribute ? el.getAttribute(attr) : null;
+          if (v && String(v).includes(secret)) bad.push(el.tagName + '[' + attr + ']');
+        }
+      }
+      const rules = document.getElementById('rulesBody');
+      if (rules && rules.children.length) bad.push('rule rows still in the DOM: ' + rules.children.length);
+      const log = document.getElementById('logList');
+      if (log && (log.innerText || '').includes(secret)) bad.push('log text');
+      return JSON.stringify({ bad, locked: document.body.classList.contains('locked') });
+    })()`);
+    const r = JSON.parse(raw);
+    record(
+      `${label} while locked: the list is nowhere on the page`,
+      r.locked === true && r.bad.length === 0,
+      r.bad.join(', ') || 'clean'
+    );
+  };
+
+  const popLocked = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  await leakSweep(popLocked, 'popup');
+  await closePage(popLocked.id);
+
+  const optLocked = await openPage(`chrome-extension://${id}/options.html`);
+  await leakSweep(optLocked, 'options');
+
+  // The same sweep, after the right PIN: it has to find the rule, or it proves nothing.
+  const shown = await optLocked.evaluate(`(async()=>{
+    document.getElementById('lockPin').value='1357';
+    document.getElementById('lockUnlock').click();
+    await new Promise(r=>setTimeout(r,1200));
+    return JSON.stringify({
+      locked: document.body.classList.contains('locked'),
+      rows: document.getElementById('rulesBody').children.length,
+      named: (document.body.innerText || '').includes(${JSON.stringify(SECRET)})
+    });
+  })()`);
+  const sv = JSON.parse(shown);
+  record(
+    'the same page shows the list once the PIN is in, so the sweep is not vacuous',
+    sv.locked === false && sv.rows === 1 && sv.named === true,
+    `${sv.rows} rule row(s), named=${sv.named}`
+  );
+  await closePage(optLocked.id);
 } catch (e) {
   record('probe ran to the end', false, String(e.message || e));
 } finally {

@@ -30,7 +30,101 @@ export const DEFAULT_SETTINGS = {
   lockHash: '',
   lockSalt: '',
   lockIterations: 0,
+  // --- the extra clear -------------------------------------------------------
+  // Cookies, cache, download history and saved form text. Off by default: these
+  // are the things the listing promises never to touch, and every one of them
+  // needs the "browsingData" permission. They cannot be counted, and Chrome
+  // cannot limit history, downloads or form text to a site, so they are a
+  // separate, deliberate switch rather than part of the rule engine.
+  extraCache: false,
+  extraCookies: false,
+  extraDownloads: false,
+  extraFormData: false,
+  // How far back a clear reaches: 'hour' | 'day' | 'week' | 'month' | 'all'.
+  extraSince: 'day',
+  // 'manual': the buttons only. 'triggers': also when the browser closes and when
+  // the next session starts. Never on a visit: erasing cookies as you browse is
+  // not a cleaner.
+  extraTrigger: 'manual',
+  // The toolbar popup opens compact. 'classic' brings back the older, denser one.
+  popupLayout: 'simple',
 };
+
+/**
+ * The extra kinds, in the order they are offered. Anything not in here is not
+ * something this extension claims to erase.
+ */
+export const EXTRA_LABELS = {
+  cache: 'Cache',
+  cookies: 'Cookies and site data',
+  downloads: 'Download history',
+  formData: 'Saved form text',
+};
+
+export const EXTRA_SINCE_LABELS = {
+  hour: 'the last hour',
+  day: 'the last day',
+  week: 'the last week',
+  month: 'the last month',
+  all: 'everything, however old',
+};
+
+/** True when at least one extra kind is switched on. */
+export function extraOn(settings) {
+  return !!(
+    settings &&
+    (settings.extraCache || settings.extraCookies || settings.extraDownloads || settings.extraFormData)
+  );
+}
+
+/** The extra kinds that are on, in the order they are offered. */
+export function extraKinds(settings) {
+  const out = [];
+  if (!settings) return out;
+  if (settings.extraCache) out.push('cache');
+  if (settings.extraCookies) out.push('cookies');
+  if (settings.extraDownloads) out.push('downloads');
+  if (settings.extraFormData) out.push('formData');
+  return out;
+}
+
+export function describeExtras(settings) {
+  const kinds = extraKinds(settings);
+  return kinds.length ? kinds.map((k) => EXTRA_LABELS[k]).join(', ') : '';
+}
+
+/**
+ * The DataTypeSet for chrome.browsingData.remove(), or null when nothing is on.
+ * Cookies drag the rest of a site's storage along: clearing the cookie and
+ * leaving localStorage and IndexedDB behind is the half-cleaned state that
+ * makes a browser look broken.
+ *
+ * No passwords, ever. Chrome removed password deletion from this API in Chrome
+ * 144 and the call has had no effect since, so offering it would be a lie.
+ * Flash and WebSQL are gone from Chrome as well.
+ */
+export function extraSelection(settings) {
+  if (!extraOn(settings)) return null;
+  const withCookies = !!settings.extraCookies;
+  return {
+    cache: !!settings.extraCache,
+    cookies: withCookies,
+    downloads: !!settings.extraDownloads,
+    formData: !!settings.extraFormData,
+    localStorage: withCookies,
+    indexedDB: withCookies,
+    cacheStorage: withCookies,
+    serviceWorkers: withCookies,
+    fileSystems: withCookies,
+  };
+}
+
+/** The `since` timestamp for a clear, or 0 for "everything, however old". */
+export function extraSinceMs(settings, now = Date.now()) {
+  const spans = { hour: 3600000, day: 86400000, week: 604800000, month: 2592000000 };
+  const ms = spans[settings && settings.extraSince];
+  return ms ? now - ms : 0;
+}
 
 export const RULE_TYPES = {
   domain: 'Site / domain',

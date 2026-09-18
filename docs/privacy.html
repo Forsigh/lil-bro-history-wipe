@@ -40,6 +40,13 @@
           <b>Extension storage</b>, which holds your rules and settings, plus an optional local
           log of what was wiped.
         </li>
+        <li>
+          <b>The browser's stored browsing data</b>, through the browsing-data permission, and only
+          if you switch it on. With those switches off (the default) the extension never calls that
+          part of the browser. With them on, it can clear cache, cookies and site storage, download
+          history and saved form text, for the time span you choose, when you press the button. It
+          reads nothing from that data and sends nothing anywhere.
+        </li>
       </ul>
 
       <h2>What it does not do</h2>
@@ -49,10 +56,19 @@
           It makes no network requests of its own. There is no server behind it.
         </li>
         <li>
-          It does not read page content, and it has no access to cookies, cache, passwords,
-          downloads or site data.
+          It does not read page content, and it cannot touch passwords: Chrome removed password
+          deletion from extensions, so the extension does not offer it and never asks for it.
         </li>
       </ul>
+
+      <h2>Cookies and other browsing data</h2>
+      <p>
+        Clearing cookies, cache, download history or saved form text is off by default and stays off
+        until you turn a switch on. When it runs, it is all-or-nothing for the time span you pick,
+        because Chrome cannot narrow those data types to a single site. Cookies are removed for the
+        whole registrable domain, so signing out of that site is the normal result. The extension
+        cannot clear passwords, and does not pretend to.
+      </p>
 
       <h2>Where your data lives</h2>
       <p>

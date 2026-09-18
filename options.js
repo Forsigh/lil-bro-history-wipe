@@ -10,6 +10,9 @@ import {
   readAttempts,
   writeAttempts,
   factoryReset,
+  extraOn,
+  describeExtras,
+  EXTRA_SINCE_LABELS,
   RULE_TYPES,
 } from './store.js';
 import { findMatch } from './matcher.js';
@@ -52,6 +55,7 @@ async function load() {
   state = await getState();
   renderSettings();
   renderStats();
+  renderExtras();
   applyLock();
   if (isLocked()) {
     // While the lock is on, nothing naming a site is put into the page at all.
@@ -80,8 +84,10 @@ function applyLock() {
   const wantsOn = $('lockEnabled').checked;
   const locked = isLocked();
   document.body.classList.toggle('locked', locked);
+  $('lockedBanner').classList.toggle('hidden', !locked);
   $('lockSetupRow').classList.toggle('hidden', !(wantsOn && !configured));
   $('lockUnlockRow').classList.toggle('hidden', !configured || unlocked);
+  $('lockNowRow').classList.toggle('hidden', !configured || locked);
   $('lockHonest').textContent = LOCK_MESSAGES.honest;
   // Preview prints the URLs it matched, so it stays shut while locked.
   $('lockForgotRow').classList.toggle('hidden', !locked);
@@ -109,7 +115,7 @@ function renderSettings() {
   $('keepOnly').checked = s.listMode === 'allow';
   $('lockEnabled').checked = !!s.lockEnabled;
   $('keepWarn').textContent =
-    s.listMode === 'allow' ? 'On: everything not on your list is being wiped. Cookies and cache aside.' : '';
+    s.listMode === 'allow' ? 'On: everything not on your list is being wiped. Cookies and cache are separate.' : '';
   $('wipeNowBtn').textContent = s.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
   $('wipeAllWarn').textContent = s.wipeAllHistory
     ? 'ARMED: the entire history is erased on every trigger above, and "Wipe now" empties it immediately.'
@@ -131,6 +137,30 @@ function renderSettings() {
       : s.listMode === 'allow'
         ? 'Active: wiping all but your keep list'
         : `Active: ${modeText}`;
+}
+
+/** The extra clear: what is on, how far back it reaches, and when it runs. */
+function renderExtras() {
+  const s = state.settings;
+  $('extraCache').checked = !!s.extraCache;
+  $('extraCookies').checked = !!s.extraCookies;
+  $('extraDownloads').checked = !!s.extraDownloads;
+  $('extraFormData').checked = !!s.extraFormData;
+  $('extraSince').value = s.extraSince;
+  $('extraTrigger').value = s.extraTrigger;
+  $('extraNowBtn').disabled = !extraOn(s);
+
+  const kinds = describeExtras(s);
+  if (!kinds) {
+    setMsg($('extraWarn'), 'Nothing extra is on, so the extension never asks Chrome to clear cookies, cache, downloads or form text.');
+    return;
+  }
+  const reach = EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince;
+  const when =
+    s.extraTrigger === 'manual'
+      ? 'only when you press a button'
+      : 'on a button, and again when the browser closes or starts';
+  setMsg($('extraWarn'), `On: ${kinds}, covering ${reach}, ${when}.`, 'warn');
 }
 
 function renderRules() {
@@ -303,6 +333,73 @@ $('logEnabled').addEventListener('change', async () => {
   await saveState({ settings: state.settings });
 });
 
+// --- the extra clear -------------------------------------------------------
+
+for (const [id, key] of [
+  ['extraCache', 'extraCache'],
+  ['extraCookies', 'extraCookies'],
+  ['extraDownloads', 'extraDownloads'],
+  ['extraFormData', 'extraFormData'],
+]) {
+  $(id).addEventListener('change', async () => {
+    const wantsOn = $(id).checked;
+    if (wantsOn && key === 'extraCookies') {
+      const ok = window.confirm(
+        'Clear cookies and site data?\n\n' +
+          'Cookies are removed for the whole registrable domain, so every login on that site ends, not just the ' +
+          'page you were on. Site storage (local storage, IndexedDB, service workers) goes with them, because ' +
+          'clearing one without the other leaves a site half logged in and half not.\n\n' +
+          'This never runs while you browse. It runs when you press a button, and at close or start only if you ' +
+          'set that below.'
+      );
+      if (!ok) {
+        $(id).checked = false;
+        return;
+      }
+    }
+    state.settings[key] = wantsOn;
+    await saveState({ settings: state.settings });
+    renderExtras();
+  });
+}
+
+$('extraSince').addEventListener('change', async () => {
+  state.settings.extraSince = $('extraSince').value;
+  await saveState({ settings: state.settings });
+  renderExtras();
+});
+
+$('extraTrigger').addEventListener('change', async () => {
+  state.settings.extraTrigger = $('extraTrigger').value;
+  await saveState({ settings: state.settings });
+  renderExtras();
+});
+
+$('extraNowBtn').addEventListener('click', () => {
+  const reach = EXTRA_SINCE_LABELS[state.settings.extraSince] || state.settings.extraSince;
+  if (!window.confirm(`Clear ${describeExtras(state.settings)} now, covering ${reach}?`)) {
+    setMsg($('extraMsg'), 'Cancelled, nothing was cleared.');
+    return;
+  }
+  setMsg($('extraMsg'), 'Clearing…');
+  chrome.runtime.sendMessage({ type: 'clearExtra' }, (res) => {
+    if (chrome.runtime.lastError) {
+      setMsg($('extraMsg'), chrome.runtime.lastError.message, 'err');
+      return;
+    }
+    if (!res || !res.ok) {
+      setMsg($('extraMsg'), (res && res.error) || 'The clear failed.', 'err');
+      return;
+    }
+    setMsg(
+      $('extraMsg'),
+      `Cleared ${res.kinds} (${EXTRA_SINCE_LABELS[res.since] || res.since}). Chrome reports no count, so there is none to show.`,
+      'ok'
+    );
+    load();
+  });
+});
+
 $('ruleType').addEventListener('change', syncRuleTypeUi);
 
 $('wipeAll').addEventListener('change', async () => {
@@ -312,7 +409,7 @@ $('wipeAll').addEventListener('change', async () => {
       'Arm the whole-history wipe?\n\n' +
         'Every trigger will then erase your entire browsing history instead of only matching your rules. ' +
         'Each wipe still has to be confirmed twice on its own, and arming this does not erase anything by itself.\n\n' +
-        'Cookies, cache, passwords and site data are not touched.'
+        'This is history only. Cookies, cache and downloads answer to the "Also clear" switches above.'
     );
     if (!ok) {
       $('wipeAll').checked = false;
@@ -373,11 +470,18 @@ $('lockSave').addEventListener('click', async () => {
   await saveState({ settings: state.settings });
   $('lockPin1').value = '';
   $('lockPin2').value = '';
-  unlocked = true; // they just set it, so no point asking for it back immediately
+  // Saving a PIN hides the list straight away. Waiting for the next reload is how
+  // a working lock looks broken.
+  unlocked = false;
   pinIntent = 'unlock';
-  renderSettings();
-  applyLock();
+  await load();
   setMsg($('lockMsg'), LOCK_MESSAGES.saved, 'ok');
+});
+
+$('lockNowBtn').addEventListener('click', async () => {
+  unlocked = false;
+  await load();
+  setMsg($('lockMsg'), 'Hidden. The list comes back when you type the PIN.', 'ok');
 });
 
 $('lockUnlock').addEventListener('click', async () => {
@@ -531,6 +635,20 @@ async function runAction(type) {
     } else {
       setMsg($('sweepMsg'), `Scanned ${res.scanned}, wiped ${res.deleted}.`, res.deleted ? 'ok' : 'mini');
     }
+
+    // The extra clear cannot be counted, so it is reported by name only.
+    if (res.extra) {
+      if (res.extra.ok) {
+        setMsg(
+          $('extraMsg'),
+          `Also cleared ${res.extra.kinds} (${EXTRA_SINCE_LABELS[res.extra.since] || res.extra.since}). Chrome reports no count.`,
+          'ok'
+        );
+      } else {
+        setMsg($('extraMsg'), `Extra clear skipped: ${res.extra.error}`, 'warn');
+      }
+    }
+
     renderPreview(res.sample || []);
     if (!isPreview && res.deleted) load();
   });
@@ -617,6 +735,7 @@ $('importFile').addEventListener('change', async (e) => {
     await saveState({ rules: state.rules });
     setMsg($('importMsg'), `Imported ${added} rule(s)${skipped ? `, skipped ${skipped}` : ''}.`, 'ok');
     renderSettings();
+    renderExtras();
     renderRules();
     runTest();
   } catch (err) {

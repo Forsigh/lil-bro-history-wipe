@@ -16,6 +16,7 @@ function makeFakeChrome(seed = [], opts = {}) {
     // test can prove the extension never touches them.
     forbidden: [],
     calls: { deleteAll: 0, deleteRange: 0, browsingData: 0 },
+    browsingDataCalls: [],
   };
   const listeners = {
     onVisited: [],
@@ -96,9 +97,10 @@ function makeFakeChrome(seed = [], opts = {}) {
     // Present so that any call is recorded rather than throwing, and so the
     // manifest's lack of the "browsingData" permission is mirrored here.
     browsingData: {
-      async remove() {
+      async remove(options, set) {
         db.forbidden.push('browsingData.remove');
         db.calls.browsingData++;
+        db.browsingDataCalls.push({ options, set });
       },
       async removeCookies() {
         db.forbidden.push('browsingData.removeCookies');
@@ -1050,6 +1052,142 @@ function check(label, fn) {
     assert.equal(offline.store.local.rulesMirror[0].value, 'bad.example'));
   const offlineRead = await readRules();
   check('sync off: reading falls back to the mirror', () => assert.equal(offlineRead.length, 1));
+}
+
+// ---------------------------------------------------------------------------
+// 12. the extra clear: cache, cookies and site data, downloads, form text
+// ---------------------------------------------------------------------------
+{
+  const seedOne = () => [
+    { id: 'x1', url: 'https://match.example/a', title: 'a', lastVisitTime: NOW - 100 },
+  ];
+  const baseSettings = (extra) => ({
+    mode: 'startup',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    ...extra,
+  });
+
+  // (a) Off by default: not even a manual wipe reaches for browsing data.
+  const off = makeFakeChrome(seedOne());
+  off.store.local.rules = [{ id: 'r1', type: 'domain', value: 'match.example', enabled: true }];
+  off.store.local.settings = baseSettings({});
+  await boot(off.chrome, off.store);
+  const offReply = await new Promise((res) => off.listeners.onMessage[0]({ type: 'wipeNow' }, {}, res));
+  check('extra: a manual wipe with nothing switched on still wipes the history', () =>
+    assert.equal(offReply.deleted, 1));
+  check('extra: and never touches browsing data', () => assert.equal(off.db.calls.browsingData, 0));
+  check('extra: no extra key is reported', () => assert.equal(offReply.extra, null));
+
+  // (b) Cache + cookies on: one call, the right set, the right reach.
+  const on = makeFakeChrome(seedOne());
+  on.store.local.rules = [{ id: 'r1', type: 'domain', value: 'match.example', enabled: true }];
+  on.store.local.settings = baseSettings({
+    extraCache: true,
+    extraCookies: true,
+    extraSince: 'day',
+    extraTrigger: 'manual',
+  });
+  await boot(on.chrome, on.store);
+  const startedAt = Date.now();
+  const onReply = await new Promise((res) => on.listeners.onMessage[0]({ type: 'wipeNow' }, {}, res));
+
+  check('extra: the run reports the clear', () => assert.equal(onReply.extra.ok, true));
+  check('extra: the kinds are named for the UI', () =>
+    assert.equal(onReply.extra.kinds, 'Cache, Cookies and site data'));
+  check('extra: one call, one data set', () => assert.equal(on.db.browsingDataCalls.length, 1));
+  const call = on.db.browsingDataCalls[0];
+  check('extra: cookies drag the site storage with them', () =>
+    assert.deepEqual(
+      {
+        cookies: call.set.cookies,
+        localStorage: call.set.localStorage,
+        indexedDB: call.set.indexedDB,
+        cacheStorage: call.set.cacheStorage,
+        serviceWorkers: call.set.serviceWorkers,
+        fileSystems: call.set.fileSystems,
+      },
+      {
+        cookies: true,
+        localStorage: true,
+        indexedDB: true,
+        cacheStorage: true,
+        serviceWorkers: true,
+        fileSystems: true,
+      }
+    ));
+  check('extra: cache was asked for', () => assert.equal(call.set.cache, true));
+  check('extra: unticked kinds stay out', () =>
+    assert.deepEqual({ downloads: call.set.downloads, formData: call.set.formData }, { downloads: false, formData: false }));
+  check('extra: passwords are never in the set', () => assert.ok(!('passwords' in call.set)));
+  check('extra: dead data types are never asked for', () =>
+    assert.deepEqual({ appcache: call.set.appcache, webSQL: call.set.webSQL }, { appcache: undefined, webSQL: undefined }));
+  check('extra: "the last day" is a bound, not everything', () => {
+    assert.ok(call.options.since > startedAt - 86400000 - 5000, String(call.options.since));
+    assert.ok(call.options.since <= startedAt + 5000, String(call.options.since));
+  });
+  check('extra: the history wipe still happened', () =>
+    assert.ok(on.db.deleted.includes('https://match.example/a')));
+  check('extra: the log records the clear without naming a site', () =>
+    assert.ok(on.store.local.log.some((e) => e.rule === 'extra clear' && e.url === '(extra data)')));
+
+  // (c) The standalone button clears on its own, without touching history.
+  const deletedBefore = on.db.deleted.length;
+  const only = await new Promise((res) => on.listeners.onMessage[0]({ type: 'clearExtra' }, {}, res));
+  check('extra: the button clears without a history wipe', () => assert.equal(only.ok, true));
+  check('extra: and deletes no history', () => assert.equal(on.db.deleted.length, deletedBefore));
+  check('extra: a second press is a second clear', () => assert.equal(on.db.browsingDataCalls.length, 2));
+
+  // (d) A preview never clears anything, even with the extras on.
+  const beforePreview = on.db.browsingDataCalls.length;
+  const previewReply = await new Promise((res) => on.listeners.onMessage[0]({ type: 'preview' }, {}, res));
+  check('extra: a preview reports no clear', () => assert.equal(previewReply.extra, null));
+  check('extra: a preview clears nothing', () => assert.equal(on.db.browsingDataCalls.length, beforePreview));
+
+  // (e) 'manual' means the triggers leave it alone; 'triggers' means they do not.
+  const manualBoot = makeFakeChrome(seedOne());
+  manualBoot.store.local.rules = [{ id: 'r1', type: 'domain', value: 'match.example', enabled: true }];
+  manualBoot.store.local.settings = baseSettings({ extraCache: true, extraTrigger: 'manual' });
+  await boot(manualBoot.chrome, manualBoot.store);
+  check('extra: a manual-only clear does not fire at session start', () =>
+    assert.equal(manualBoot.db.calls.browsingData, 0));
+
+  const triggerBoot = makeFakeChrome(seedOne());
+  triggerBoot.store.local.rules = [{ id: 'r1', type: 'domain', value: 'match.example', enabled: true }];
+  triggerBoot.store.local.settings = baseSettings({
+    extraCache: true,
+    extraTrigger: 'triggers',
+    extraSince: 'all',
+  });
+  await boot(triggerBoot.chrome, triggerBoot.store);
+  await waitFor('extra clear at session start', () => triggerBoot.db.calls.browsingData === 1);
+  check('extra: the triggers reach the clear at session start', () =>
+    assert.equal(triggerBoot.db.calls.browsingData, 1));
+  check('extra: "everything, however old" sends no since bound', () =>
+    assert.deepEqual(triggerBoot.db.browsingDataCalls[0].options, {}));
+  check('extra: only the ticked kind is in the set', () =>
+    assert.deepEqual(triggerBoot.db.browsingDataCalls[0].set, {
+      cache: true,
+      cookies: false,
+      downloads: false,
+      formData: false,
+      localStorage: false,
+      indexedDB: false,
+      cacheStorage: false,
+      serviceWorkers: false,
+      fileSystems: false,
+    }));
+
+  // (f) No permission, no crash: the worker says so instead of throwing.
+  const noApi = makeFakeChrome(seedOne());
+  noApi.store.local.rules = [{ id: 'r1', type: 'domain', value: 'match.example', enabled: true }];
+  noApi.store.local.settings = baseSettings({ extraCache: true });
+  await boot(noApi.chrome, noApi.store);
+  delete noApi.chrome.browsingData;
+  const noApiReply = await new Promise((res) => noApi.listeners.onMessage[0]({ type: 'clearExtra' }, {}, res));
+  check('extra: a build without the API gets an honest error, not a throw', () =>
+    assert.equal(noApiReply.ok, false));
+  check('extra: the history path still worked', () => assert.ok(noApi.db.deleted.length >= 0));
 }
 
 console.log(`\nworker: ${pass} passed, ${fail} failed`);

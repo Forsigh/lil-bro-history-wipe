@@ -10,6 +10,10 @@ import {
   buildRule,
   normalizeDomain,
   isKeepMode,
+  extraOn,
+  extraSelection,
+  extraSinceMs,
+  describeExtras,
 } from './store.js';
 
 const SWEEP_TIME_BUDGET_MS = 4 * 60 * 1000; // stay well inside the 5 min per-request cap
@@ -81,6 +85,53 @@ async function notify(count, phase) {
   } catch (e) {
     log('notification failed', e);
   }
+}
+
+// ---------------------------------------------------------------------------
+// the extra clear: cookies, cache, download history, saved form text
+// ---------------------------------------------------------------------------
+
+/**
+ * The only place that calls chrome.browsingData. It runs when the user has
+ * switched an extra kind on, from a button or (if they asked for it) at the
+ * close / session-start triggers. Never on a visit: erasing cookies while
+ * somebody browses is not a cleaner.
+ *
+ * Chrome reports nothing back about how much it removed, and history, downloads
+ * and form text cannot be narrowed to a site, so the honest answer is which
+ * kinds were asked for and how long it took. There is no count to give, and this
+ * never touches passwords: Chrome removed password deletion from this API in
+ * Chrome 144 and the call has had no effect since.
+ */
+async function clearExtra(phase) {
+  const { settings } = await getState();
+  const selection = extraSelection(settings);
+  if (!selection) return { ok: false, error: 'No extra data is switched on.' };
+  if (!chrome.browsingData || typeof chrome.browsingData.remove !== 'function') {
+    return { ok: false, error: 'This browser build gives the extension no access to browsing data.' };
+  }
+
+  const since = extraSinceMs(settings);
+  const kinds = describeExtras(settings);
+  const started = Date.now();
+  try {
+    await chrome.browsingData.remove(since ? { since } : {}, selection);
+  } catch (e) {
+    log('browsingData.remove failed', e);
+    return { ok: false, error: 'Chrome refused the clear: ' + (e && e.message ? e.message : e) };
+  }
+
+  await pushLog([
+    { url: '(extra data)', title: kinds, rule: 'extra clear', at: Date.now(), phase },
+  ]);
+  return { ok: true, kinds, since: settings.extraSince, took: Date.now() - started };
+}
+
+/** Whether an extra clear belongs at this trigger. Manual means exactly that. */
+function extraAllowedAt(settings, phase) {
+  if (!extraOn(settings)) return false;
+  if (phase === 'manual') return true;
+  return settings.extraTrigger === 'triggers';
 }
 
 async function ensureMenus() {
@@ -347,7 +398,8 @@ async function runSessionStart(phase = 'startup') {
       const wiped = shouldWipeAtBoot ? (await wipeEverything(phase)).deleted : 0;
       await bumpStats(wiped, phase);
       await notify(wiped, phase);
-      return { deleted: wiped, wipeAll: true, skipped: !shouldWipeAtBoot };
+      const extra = extraAllowedAt(settings, phase) ? await clearExtra(phase) : null;
+      return { deleted: wiped, wipeAll: true, skipped: !shouldWipeAtBoot, extra };
     }
 
     const live = activeRules(rules);
@@ -366,7 +418,8 @@ async function runSessionStart(phase = 'startup') {
 
     await bumpStats(deleted, phase);
     await notify(deleted, phase);
-    return { deleted };
+    const extra = extraAllowedAt(settings, phase) ? await clearExtra(phase) : null;
+    return { deleted, extra };
   } finally {
     startupInFlight = false;
   }
@@ -441,9 +494,33 @@ chrome.runtime.onInstalled.addListener((details) => {
   }
 });
 
+/**
+ * The context menu can add a rule without ever opening the extension's own pages,
+ * which would be an editing route around the PIN lock. It says so instead of
+ * quietly changing the list.
+ */
+async function notifyLockedMenu() {
+  try {
+    await chrome.notifications.create('lilbro-lock-' + Date.now(), {
+      type: 'basic',
+      iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+      title: 'Lil Bro',
+      message: 'The PIN lock is on, so the list was left alone. Unlock it in the popup to add a site.',
+    });
+  } catch (e) {
+    log('notification failed', e);
+  }
+}
+
 chrome.contextMenus.onClicked.addListener(async (info) => {
   const url = info.linkUrl || info.pageUrl || '';
-  const { rules } = await getState();
+  const { settings, rules } = await getState();
+
+  if (settings.lockEnabled) {
+    await notifyLockedMenu();
+    return;
+  }
+
   const candidate =
     info.menuItemId === 'lb-add-url'
       ? buildRule({ type: 'url', value: url })
@@ -463,6 +540,10 @@ async function manualRun(dryRun) {
   const { settings, rules } = await getState();
   if (!settings.enabled) return { ok: false, error: 'Lil Bro is paused.' };
 
+  // The extra clear rides along with a manual wipe when it is switched on and the
+  // user asked for it here. A preview never clears anything.
+  const clearExtraToo = !dryRun && extraAllowedAt(settings, 'manual');
+
   if (settings.wipeAllHistory) {
     if (dryRun) {
       const counted = await countHistory();
@@ -474,6 +555,7 @@ async function manualRun(dryRun) {
         deleted: 0,
         matched: counted,
         sample: [],
+        extra: null,
       };
     }
     const res = await wipeEverything('manual');
@@ -486,6 +568,7 @@ async function manualRun(dryRun) {
       deleted: res.deleted,
       matched: res.deleted,
       sample: [],
+      extra: clearExtraToo ? await clearExtra('manual') : null,
     };
   }
 
@@ -500,7 +583,12 @@ async function manualRun(dryRun) {
 
   const res = await sweepHistory(live, dryRun ? 'preview' : 'manual', { dryRun, allow });
   if (!dryRun) await bumpStats(res.deleted, 'manual');
-  return { ok: true, dryRun: !!dryRun, ...res };
+  return {
+    ok: true,
+    dryRun: !!dryRun,
+    ...res,
+    extra: clearExtraToo ? await clearExtra('manual') : null,
+  };
 }
 
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
@@ -515,6 +603,15 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
 
   if (msg.type === 'preview') {
     manualRun(true)
+      .then(reply)
+      .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
+    return true;
+  }
+
+  // The separate button for the extra clear, so cookies and cache can go without
+  // touching the history at all.
+  if (msg.type === 'clearExtra') {
+    clearExtra('manual')
       .then(reply)
       .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
     return true;
