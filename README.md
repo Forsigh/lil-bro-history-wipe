@@ -21,21 +21,6 @@ From the Chrome Web Store, or by hand:
 2. Choose **Load unpacked** and pick this folder
 3. Pin the icon, then open **All settings**
 
-## Where things are
-
-```
-manifest.json    the one file Chrome insists on having at the root
-src/             everything the browser loads: the worker, both pages, the styles, the matcher
-_locales/        the words, English and Polish
-docs/            the policy, the landing page, and every past version with its hash
-store/           the listing artwork
-tests/ tools/    six test suites, the live probe, the packager
-```
-
-No build step and no dependencies. `npm test` runs the suites, `node tools/live_probe.mjs <port>
-<browser>` drives the real extension in a throwaway profile, and `python tools/package.py` writes the
-zip the store gets, after checking every entry against this folder.
-
 ## What it is honest about
 
 - Passwords are not touched. The browser removed that for extensions, so there is no switch for it.
