@@ -4,19 +4,25 @@ Newest first. A short note per release, and only what you would notice using it.
 
 ## 1.5.1
 
-Midnight put its cards so close to true black that the panels disappeared on a cheap screen. They are lifted now, and the border does the separating, because a shadow cannot be darker than black.
-The high contrast theme is flat: no gradients and no glows, and the borders around controls are bright enough to clear the 3:1 rule that applies to them.
+Midnight's cards sat close enough to true black that the panels vanished on a dim screen, so they are
+lifted now and a border does the separating. A shadow cannot be darker than black, which is why the
+fill has to carry it. High contrast went flat: no gradients, no glows, and outlines bright enough to
+count. Both were spotted by looking at the themes drawn, which is something no test does.
 
 ## 1.5.0
 
-The whole look was redone: every card, button, field and switch, one consistent column for the choices, and focus rings you can see with a keyboard.
-Two more themes, so there are eight. Midnight for screens that go true black, and High contrast for bad light. The rest were tuned and measured, and nothing sits below 5:1 contrast now.
-The popup line that reports on the tab in front of you says its sentence once, instead of twice, and the way into settings reads as a link.
+The look of both pages was rebuilt. Cards, buttons, fields, the switch: all new, one column for the
+choices, and a focus ring you can see with a keyboard.
+
+Two themes joined, so there are eight. Midnight suits screens that go true black, High contrast suits
+bad light. Every theme was measured and the weakest contrast anywhere is 5.16 to 1.
+
+The popup stopped printing the same sentence twice, and the way into settings reads as a link now.
 
 ## 1.4.2
 
-The name is Lil Bro Wipe – History Cleaner now, in the package, on both pages and in the store
-pictures. The build file follows the name: from this one on it is lil-bro-wipe-<version>.zip.
+The name is Lil Bro Wipe – History Cleaner now, on both pages, in the store pictures and in the
+package. The build file follows: from this version on it is named lil-bro-wipe-<version>.zip.
 
 ## 1.4.1
 
