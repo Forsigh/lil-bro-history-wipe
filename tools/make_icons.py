@@ -41,9 +41,22 @@ def font(path: str, px: int) -> ImageFont.FreeTypeFont:
     return ImageFont.load_default()
 
 
+def icon_rgb() -> Image.Image:
+    """The icon flattened onto the tile colour.
+
+    The source is a palette PNG carrying a transparency chunk. Flattening it to RGB
+    directly leaves Pillow warning about it, and keeping the alpha bleeds black into the
+    rounded corners, so it goes onto the tile's own colour instead.
+    """
+    art = Image.open(ICON).convert("RGBA")
+    flat = Image.new("RGB", art.size, BG)
+    flat.paste(art, (0, 0), art)
+    return flat
+
+
 def accent() -> tuple:
     """The icon's own colour, so the tiles sit next to the artwork instead of fighting it."""
-    mean = ImageStat.Stat(Image.open(ICON).convert("RGB").resize((16, 16))).mean
+    mean = ImageStat.Stat(icon_rgb().resize((16, 16))).mean
     return tuple(int(c) for c in mean)
 
 
@@ -71,12 +84,7 @@ def tile(width: int, height: int, lang: str):
     left = int(width * 0.055)
     top = (height - icon_size) // 2
 
-    # Composited onto the tile's own colour rather than flattened straight to RGB: the
-    # source is a palette PNG, and the other way bleeds black into the rounded corners.
-    art = Image.open(ICON).convert("RGBA")
-    flat = Image.new("RGB", art.size, BG)
-    flat.paste(art, (0, 0), art)
-    icon = flat.resize((icon_size, icon_size), Image.LANCZOS)
+    icon = icon_rgb().resize((icon_size, icon_size), Image.LANCZOS)
     mask = Image.new("L", (icon_size, icon_size), 0)
     ImageDraw.Draw(mask).rounded_rectangle(
         [0, 0, icon_size - 1, icon_size - 1], radius=int(icon_size * 0.22), fill=255
