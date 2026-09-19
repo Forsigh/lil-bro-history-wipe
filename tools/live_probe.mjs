@@ -45,7 +45,7 @@ async function launch(headless) {
       '--no-first-run',
       '--no-default-browser-check',
       '--disable-sync',
-      '--window-size=900,700',
+      '--window-size=1400,1000',
       // The UI follows the browser language, and the checks compare against English
       // strings, so the run pins the language instead of inheriting the machine's.
       '--lang=en',
@@ -854,12 +854,12 @@ try {
       stats: { wipedTotal: 4821, lastRunAt: Date.now() - 3600000, lastRunCount: 37, lastRunPhase: 'manual' },
     });
 
-    const shoot = async (page, file, width, height, full) => {
+    const shoot = async (page, file, width, height, full, scale = 2) => {
       await page.send('Page.enable');
       await page.send('Emulation.setDeviceMetricsOverride', {
         width,
         height,
-        deviceScaleFactor: 2,
+        deviceScaleFactor: scale,
         mobile: false,
       });
       await sleep(400);
@@ -877,15 +877,18 @@ try {
       record(`screenshot ${file}`, true, out);
     };
 
+    // The store takes 1280x800 or 640x400. The pages are shot at 1280x800 with
+    // scale 1; the popup is a 360px panel, so it is shot at 2x and put on that
+    // canvas afterwards, which is what tools/make_shot_sheets.mjs does.
     const shotPopup = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
     await shoot(shotPopup, 'popup-compact.png', 360, 520, false);
-    await shotPopup.evaluate("document.getElementById('layoutBtn').click()");
-    await sleep(300);
-    await shoot(shotPopup, 'popup-classic.png', 360, 760, false);
     await closePage(shotPopup.id);
 
     const shotOptions = await openPage(`chrome-extension://${id}/options.html`);
-    await shoot(shotOptions, 'options.png', 900, 1100, true);
+    await shoot(shotOptions, 'options.png', 1280, 800, false, 1);
+    await shotOptions.evaluate('window.scrollTo(0, 900)');
+    await sleep(400);
+    await shoot(shotOptions, 'options-lower.png', 1280, 800, false, 1);
     await closePage(shotOptions.id);
 
     // The same options page with a PIN set, which is what the lock looks like.
@@ -899,7 +902,7 @@ try {
       return 'ok';
     })()`);
     const shotLocked = await openPage(`chrome-extension://${id}/options.html`);
-    await shoot(shotLocked, 'options-locked.png', 900, 700, false);
+    await shoot(shotLocked, 'options-locked.png', 1280, 800, false, 1);
     await closePage(shotLocked.id);
   }
 } catch (e) {
