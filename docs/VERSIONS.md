@@ -24,6 +24,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.3.1.
 | 1.3.9 | 19 Sep 07:35 | `01f9c66` | `c76700d51a93b624` | your new icons, the four from graphics/icons. Full bleed and opaque where the old mark was a transparent glyph. Same filenames, so nothing in the manifest moved |
 | 1.3.10 | 19 Sep 16:58 | `1294f39` | `7c47c8f9ce7bdfcc` | the icon replaces the "LB" tile in the popup header and the settings header |
 | 1.3.11 | 19 Sep 18:40 | `49762c3` | `bdda335ffc7476c2` | one link out: Buy me a coffee, bottom of the settings page. Plain anchor, no script and no remote image, so the remote-code answer stays no |
+| 1.4.0 | 19 Sep 19:26 | `2e45954` | `02d5d06575d334e9` | the popup says what happens to the tab in front of you, red for a page that goes, calm for one that stays. The dead compact/classic code is gone from the page, the tests and the probe. README and the landing page rewritten shorter, and the packager taught the files it had been missing |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
 Desktop. A zip is the contract: if the bytes differ, the version has to.
