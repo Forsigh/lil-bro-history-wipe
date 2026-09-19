@@ -71,9 +71,12 @@ def tile(width: int, height: int, lang: str):
     left = int(width * 0.055)
     top = (height - icon_size) // 2
 
-    # The icons are opaque, so RGB is the honest read of them and Pillow stops warning
-    # about the palette chunk the PNG came with.
-    icon = Image.open(ICON).convert("RGB").resize((icon_size, icon_size), Image.LANCZOS)
+    # Composited onto the tile's own colour rather than flattened straight to RGB: the
+    # source is a palette PNG, and the other way bleeds black into the rounded corners.
+    art = Image.open(ICON).convert("RGBA")
+    flat = Image.new("RGB", art.size, BG)
+    flat.paste(art, (0, 0), art)
+    icon = flat.resize((icon_size, icon_size), Image.LANCZOS)
     mask = Image.new("L", (icon_size, icon_size), 0)
     ImageDraw.Draw(mask).rounded_rectangle(
         [0, 0, icon_size - 1, icon_size - 1], radius=int(icon_size * 0.22), fill=255
