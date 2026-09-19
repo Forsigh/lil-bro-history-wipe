@@ -50,8 +50,8 @@ zip the store gets, after checking every entry against this folder.
 ## Support
 
 One person, no server bill, just the hours: [Buy me a coffee](https://buymeacoffee.com/forsigh).
-Something broken, or a Polish line that reads like a machine wrote it?
-[Open an issue](https://github.com/Forsigh/lil-bro-history-wipe/issues).
+
+Something broken? [Open an issue](https://github.com/Forsigh/lil-bro-history-wipe/issues).
 
 ## Privacy
 
