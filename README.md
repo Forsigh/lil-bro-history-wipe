@@ -2,8 +2,8 @@
 
 # Lil Bro - History Wipe
 
-Keeps the sites and words you choose out of your browsing history. Chrome and Brave. No account, no
-server, nothing sent anywhere.
+Keeps the sites and words you choose out of your browsing history, in any Chromium browser. No
+account, no server, nothing sent anywhere.
 
 You give it a list: a site, a word, one page, a pattern. It takes the matching entries out of your
 history while you browse, or at the start of your next session, without you thinking about it. Open
@@ -38,11 +38,11 @@ zip the store gets, after checking every entry against this folder.
 
 ## What it is honest about
 
-- Passwords are not touched. Chrome removed that for extensions, so there is no switch for it.
-- Chrome cannot narrow history, downloads or form text to one site, so those go for the span you
-  chose, not per site.
-- Chrome will not run anything at the exact moment the browser closes, so a clean set for close
-  happens at your next start instead.
+- Passwords are not touched. The browser removed that for extensions, so there is no switch for it.
+- The browser cannot narrow history, downloads or form text to one site, so those go for the span
+  you chose, not per site.
+- The browser will not run anything at the exact moment it closes, so a clean set for close happens
+  at your next start instead.
 - A deleted address can still appear in the address bar suggestions.
 - Cookies go for the whole site, so you are signed out there afterwards.
 - Your list travels between your computers through your own browser account. The log stays local.
@@ -59,6 +59,6 @@ Everything ships inside the package: no remote code, no analytics, no network re
 The one link out is the support page, and your browser opens it in a new tab only if you click it.
 The long version is [the policy](https://forsigh.github.io/lil-bro-history-wipe/privacy.html).
 
-Permissions: `history` (the only one Chrome warns about), `storage`, `notifications`,
+Permissions: `history` (the only one that shows a warning), `storage`, `notifications`,
 `contextMenus`, `activeTab`, `browsingData`, `cookies`. `tabs` is optional and asked for only by the
 cookie-on-tab-close setting. No host permissions, no content scripts.
