@@ -6,8 +6,7 @@ hashes live in [docs/VERSIONS.md](docs/VERSIONS.md).
 ## 1.4.0 - 19 September 2026
 
 - The popup now says what happens to the page you are on: red with a dot when that page is one of the
-  ones that gets cleaned, calm when it stays. It asks the same matcher the cleaner asks, so it cannot
-  say one thing and do another.
+  ones that gets cleaned, calm when it stays, from the same matcher the cleaner uses.
 - The dead compact/classic popup switch came out of the page, the tests and the probe.
 - The README and the landing page were rewritten shorter, and the packager learned the files it had
   been missing.
@@ -50,7 +49,7 @@ hashes live in [docs/VERSIONS.md](docs/VERSIONS.md).
 
 - The popup is four things now: the state, add to filter list, wipe now, scan.
 - The compact/classic switch, "more controls" and the counters came out of it.
-- The Polish button reads "Skanuj".
+- "Skanuj" in Polish.
 
 ## 1.3.4 - 18 September 2026
 
