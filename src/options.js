@@ -94,11 +94,14 @@ function applyLock() {
   $('lockUnlockRow').classList.toggle('hidden', !configured || unlocked);
   $('lockNowRow').classList.toggle('hidden', !configured || locked);
   $('lockHonest').textContent = LOCK_MESSAGES.honest;
-  // Preview prints the URLs it matched, so it stays shut while locked.
+  // Preview prints the URLs it matched, so it stays shut while locked. The tester
+  // answers with a rule name, so it does the same, inputs included.
   $('lockForgotRow').classList.toggle('hidden', !locked);
   if (!locked) $('lockRecoverRow').classList.add('hidden');
   $('previewBtn').disabled = locked;
   $('previewList').classList.toggle('hidden', locked);
+  $('testUrl').disabled = locked;
+  $('testTitle').disabled = locked;
 }
 
 function showUnlock(intent, message) {
@@ -317,6 +320,12 @@ function renderLog() {
 }
 
 function runTest() {
+  // The tester answers with the name of the rule that matched, which is exactly
+  // what the lock keeps off this page. So while the PIN is on it says nothing.
+  if (isLocked()) {
+    setMsg($('testOut'), '');
+    return;
+  }
   const url = $('testUrl').value.trim();
   const title = $('testTitle').value.trim();
   if (!url && !title) {
@@ -623,7 +632,11 @@ $('addBtn').addEventListener('click', async () => {
   state.rules.push(result.rule);
   await saveState({ rules: state.rules });
   $('ruleValue').value = '';
-  setMsg($('addMsg'), result.warning || `Added: ${describeRule(result.rule)}`, result.warning ? 'warn' : 'ok');
+  const msg = result.warning || (isLocked() ? t('addedOnly') || 'Added.' : '');
+  // Unlocked, the new row appearing in the list is the confirmation, and a line
+  // repeating it is noise. While the lock is on the page may not name what was
+  // added, so it says the bare word the popup says and nothing more.
+  setMsg($('addMsg'), msg, msg ? (result.warning ? 'warn' : 'ok') : 'mini');
   renderRules();
   runTest();
 });

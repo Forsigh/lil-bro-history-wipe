@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.5.1', m.version === '1.5.1', m.version);
+  record('version is 1.5.2', m.version === '1.5.2', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -819,6 +819,37 @@ try {
   const optLocked = await openPage(`chrome-extension://${id}/src/options.html`);
   await leakSweep(optLocked, 'options');
 
+  // Adding while the lock is on must not name what was added. The confirmation
+  // reads the bare word, and the tester stays quiet, since it answers with the
+  // name of the rule that matched.
+  const NEW = 'another-secret.example';
+  const addWhileLocked = JSON.parse(
+    await optLocked.evaluate(`(async()=>{
+      document.getElementById('ruleValue').value = ${JSON.stringify(NEW)};
+      document.getElementById('addBtn').click();
+      await new Promise(r=>setTimeout(r,700));
+      const testUrl = document.getElementById('testUrl');
+      testUrl.value = 'https://' + ${JSON.stringify(NEW)} + '/x';
+      testUrl.dispatchEvent(new Event('input'));
+      await new Promise(r=>setTimeout(r,400));
+      return JSON.stringify({
+        msg: document.getElementById('addMsg').textContent.trim(),
+        testOut: document.getElementById('testOut').textContent.trim(),
+        namesIt: (document.body.innerText || '').includes(${JSON.stringify(NEW)}),
+        testDisabled: testUrl.disabled,
+        rows: document.getElementById('rulesBody').children.length
+      });
+    })()`)
+  );
+  record(
+    'adding while locked names nothing, and the tester stays quiet',
+    addWhileLocked.namesIt === false &&
+      /^Added\.?$/.test(addWhileLocked.msg) &&
+      addWhileLocked.testOut === '' &&
+      addWhileLocked.testDisabled === true,
+    JSON.stringify(addWhileLocked)
+  );
+
   // The same sweep, after the right PIN: it has to find the rule, or it proves nothing.
   const shown = await optLocked.evaluate(`(async()=>{
     document.getElementById('lockPin').value='1357';
@@ -833,7 +864,8 @@ try {
   const sv = JSON.parse(shown);
   record(
     'the same page shows the list once the PIN is in, so the sweep is not vacuous',
-    sv.locked === false && sv.rows === 1 && sv.named === true,
+    // Two rules by now: the seeded one, and the one added while the lock was on.
+    sv.locked === false && sv.rows >= 2 && sv.named === true,
     `${sv.rows} rule row(s), named=${sv.named}`
   );
   await closePage(optLocked.id);
