@@ -205,7 +205,7 @@ async function waitFor(label, fn, timeout = 5000) {
 async function boot(chromeFake, store) {
   await sleep(80); // let any previous scenario's async tail drain before swapping the global
   globalThis.chrome = chromeFake;
-  const mod = await import(`../service-worker.js?case=${++importCounter}`);
+  const mod = await import(`../src/service-worker.js?case=${++importCounter}`);
   assert.ok(mod, 'worker module loaded');
   // Wait until the boot run has finished writing stats.
   await waitFor('boot run to finish', () => store.local.stats && store.local.stats.lastRunAt);
@@ -215,7 +215,7 @@ async function boot(chromeFake, store) {
 async function bootNoWait(chromeFake) {
   await sleep(80);
   globalThis.chrome = chromeFake;
-  const mod = await import(`../service-worker.js?case=${++importCounter}`);
+  const mod = await import(`../src/service-worker.js?case=${++importCounter}`);
   assert.ok(mod, 'worker module loaded');
   await sleep(80);
 }
@@ -687,7 +687,7 @@ function check(label, fn) {
 // 14. the wipe-all toggle
 // ---------------------------------------------------------------------------
 {
-  const { DEFAULT_SETTINGS } = await import('../store.js');
+  const { DEFAULT_SETTINGS } = await import('../src/store.js');
   check('wipe-all: off by default', () => assert.equal(DEFAULT_SETTINGS.wipeAllHistory, false));
 
   const start = [
@@ -832,9 +832,9 @@ function check(label, fn) {
 // ---------------------------------------------------------------------------
 {
   const { DEFAULT_SETTINGS, readRules, writeRules, chunkRules, saveState, factoryReset, getState } = await import(
-    '../store.js'
+    '../src/store.js'
   );
-  const { isLockConfigured } = await import('../lock.js');
+  const { isLockConfigured } = await import('../src/lock.js');
   check('keep list: off by default', () => assert.equal(DEFAULT_SETTINGS.listMode, 'block'));
 
   // Instant mode: listed sites stay, everything else dies on visit.

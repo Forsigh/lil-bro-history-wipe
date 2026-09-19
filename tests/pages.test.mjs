@@ -21,8 +21,8 @@ function refsOf(js) {
 }
 
 const pairs = [
-  ['options.html', 'options.js'],
-  ['popup.html', 'popup.js'],
+  ['src/options.html', 'src/options.js'],
+  ['src/popup.html', 'src/popup.js'],
 ];
 
 for (const [htmlFile, jsFile] of pairs) {
@@ -65,14 +65,14 @@ console.log(`  manifest: v${manifest.version}, permissions [${manifest.permissio
 
 // A setting written by the UI but never read (or misspelled) is invisible at
 // runtime, so cross-check every settings key against store.js defaults.
-const storeSrc = readFileSync(join(root, 'store.js'), 'utf8');
+const storeSrc = readFileSync(join(root, 'src/store.js'), 'utf8');
 const defaultsBlock = storeSrc.match(/export const DEFAULT_SETTINGS = \{([\s\S]*?)\n\};/);
 if (!defaultsBlock) {
   console.log('  FAIL could not find DEFAULT_SETTINGS in store.js');
   fail++;
 } else {
   const known = new Set([...defaultsBlock[1].matchAll(/^\s*([A-Za-z_][A-Za-z0-9_]*)\s*:/gm)].map((m) => m[1]));
-  const sources = ['options.js', 'popup.js', 'service-worker.js', 'lock.js', 'store.js'];
+  const sources = ['src/options.js', 'src/popup.js', 'src/service-worker.js', 'src/lock.js', 'src/store.js'];
   const used = new Set();
   for (const file of sources) {
     const src = readFileSync(join(root, file), 'utf8');
@@ -92,7 +92,7 @@ if (!defaultsBlock) {
 // Rule types offered in the UI must exist in the engine's vocabulary. Only the
 // rule builder's own select counts: the page has other selects now.
 const typeBlock = storeSrc.match(/export const RULE_TYPES = \{([\s\S]*?)\n\};/);
-const ruleTypeBlock = readFileSync(join(root, 'options.html'), 'utf8').match(
+const ruleTypeBlock = readFileSync(join(root, 'src/options.html'), 'utf8').match(
   /<select id="ruleType">([\s\S]*?)<\/select>/
 );
 if (!ruleTypeBlock) {
@@ -148,7 +148,7 @@ if (manifest.permissions.includes('tabs')) {
   console.log('  FAIL tabs must not be a required permission');
   fail++;
 }
-const workerSrc = readFileSync(join(root, 'service-worker.js'), 'utf8');
+const workerSrc = readFileSync(join(root, 'src/service-worker.js'), 'utf8');
 // Comments explain the rules and may name the very APIs the code must not call,
 // so every "must not appear" check runs against the code with comments removed.
 const stripComments = (src) =>
@@ -203,7 +203,7 @@ if (cookieOutside.includes('chrome.cookies')) {
   console.log('  FAIL cookie code lives outside the cookie section');
   fail++;
 }
-for (const page of ['options.js', 'popup.js']) {
+for (const page of ['src/options.js', 'src/popup.js']) {
   if (readFileSync(join(root, page), 'utf8').includes('chrome.cookies')) {
     console.log(`  FAIL ${page} touches chrome.cookies — pages only send messages`);
     fail++;
@@ -213,7 +213,7 @@ if (workerCode.includes('chrome.permissions.request')) {
   console.log('  FAIL the worker asks for permissions; only a page can, and only from a click');
   fail++;
 }
-if (!readFileSync(join(root, 'options.js'), 'utf8').includes('chrome.permissions.request')) {
+if (!readFileSync(join(root, 'src/options.js'), 'utf8').includes('chrome.permissions.request')) {
   console.log('  FAIL nothing asks for the optional tabs permission');
   fail++;
 }
@@ -270,17 +270,17 @@ console.log('  extra clear: four kinds off by default, manual trigger, one funne
 // Every destructive surface must go through the confirmation gates. Each page has
 // exactly two sendMessage call sites now: the wipe funnel, and the extra clear
 // with its own confirmation.
-const optionsSrc = readFileSync(join(root, 'options.js'), 'utf8');
-const popupSrc = readFileSync(join(root, 'popup.js'), 'utf8');
+const optionsSrc = readFileSync(join(root, 'src/options.js'), 'utf8');
+const popupSrc = readFileSync(join(root, 'src/popup.js'), 'utf8');
 
 for (const [file, src, needed] of [
   [
-    'options.js',
+    'src/options.js',
     optionsSrc,
     ['confirm-gate.js', 'doubleConfirm', 'singleConfirm', 'await confirmDestructive()', 'MESSAGES.wipeAllStep1', 'MESSAGES.wipeNowConfirm', 'MESSAGES.clearLogConfirm', 'MESSAGES.removeRule', 'MESSAGES.importConfirm', 'now, covering', 'describeExtras(state.settings)'],
   ],
   [
-    'popup.js',
+    'src/popup.js',
     popupSrc,
     ['confirm-gate.js', 'requestRun(', 'checkPhrase(', 'secondClickWithin(', 'MESSAGES.wipeAllStep2', "sendMessage({ type: 'clearExtra' }", 'extraOn('],
   ],
@@ -292,7 +292,7 @@ for (const [file, src, needed] of [
     }
   }
   const sends = (src.match(/chrome\.runtime\.sendMessage\(/g) || []).length;
-  const expected = file === 'options.js' ? 3 : 2;
+  const expected = file === 'src/options.js' ? 3 : 2;
   if (sends !== expected) {
     console.log(`  FAIL ${file} has ${sends} sendMessage call sites, expected ${expected}`);
     fail++;
@@ -302,7 +302,7 @@ if (!optionsSrc.includes('Clear cookies for everything except') || !optionsSrc.i
   console.log('  FAIL the manual cookie clear lost its confirmation or its message');
   fail++;
 }
-if (!readFileSync(join(root, 'service-worker.js'), 'utf8').includes('settings.wipeAllHistory')) {
+if (!readFileSync(join(root, 'src/service-worker.js'), 'utf8').includes('settings.wipeAllHistory')) {
   console.log('  FAIL the worker no longer reads the wipe-all setting');
   fail++;
 }
@@ -311,18 +311,18 @@ console.log('  confirmations: gates wired in options.js and popup.js, two sendMe
 // The lock is only a lock if (a) the sections that name a site are marked for it,
 // (b) both pages verify a PIN, (c) the PIN is hashed rather than stored, and
 // (d) the list goes off the screen the moment a PIN is set, not on the next reload.
-const lockSrc = readFileSync(join(root, 'lock.js'), 'utf8');
-for (const file of ['options.html', 'popup.html']) {
+const lockSrc = readFileSync(join(root, 'src/lock.js'), 'utf8');
+for (const file of ['src/options.html', 'src/popup.html']) {
   if (!/class="[^"]*\blockable\b/.test(readFileSync(join(root, file), 'utf8'))) {
     console.log(`  FAIL ${file} marks no section as lockable — the lock would hide nothing`);
     fail++;
   }
 }
-if (!readFileSync(join(root, 'styles.css'), 'utf8').includes('body.locked .lockable')) {
+if (!readFileSync(join(root, 'src/styles.css'), 'utf8').includes('body.locked .lockable')) {
   console.log('  FAIL styles.css does not hide .lockable sections while locked');
   fail++;
 }
-for (const file of ['options.js', 'popup.js']) {
+for (const file of ['src/options.js', 'src/popup.js']) {
   const src = readFileSync(join(root, file), 'utf8');
   if (!src.includes("from './lock.js'") || !src.includes('verifyPin(')) {
     console.log(`  FAIL ${file} does not ask for a PIN before showing the list`);
@@ -353,7 +353,7 @@ if (!workerSrc.includes('notifyLockedMenu') || !/settings\.lockEnabled[\s\S]{0,1
   console.log('  FAIL the context menu can edit the list while the lock is on');
   fail++;
 }
-const popupHtml = readFileSync(join(root, 'popup.html'), 'utf8');
+const popupHtml = readFileSync(join(root, 'src/popup.html'), 'utf8');
 if (!popupHtml.includes('id="scopeList"') || !popupHtml.includes('id="scopeAll"')) {
   console.log('  FAIL the popup no longer offers both ways to run (list / everything)');
   fail++;
@@ -370,7 +370,7 @@ if (!storeSrc.includes('export async function factoryReset')) {
   console.log('  FAIL store.js has no factoryReset — the recovery path would have nothing to call');
   fail++;
 }
-for (const file of ['options.js', 'popup.js']) {
+for (const file of ['src/options.js', 'src/popup.js']) {
   const src = readFileSync(join(root, file), 'utf8');
   if (!src.includes('checkRecovery(') || !src.includes('factoryReset(')) {
     console.log(`  FAIL ${file} lost the forgotten-PIN way out`);

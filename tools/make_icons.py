@@ -17,7 +17,7 @@ import os
 
 from PIL import Image, ImageDraw, ImageFont, ImageStat
 
-ICON = "icons/icon128.png"
+ICON = "src/icons/icon128.png"
 BG = (11, 18, 32)
 TEXT = (232, 238, 252)
 MUTED = (147, 163, 191)

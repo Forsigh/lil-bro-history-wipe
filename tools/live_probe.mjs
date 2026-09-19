@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.4.0', m.version === '1.4.0', m.version);
+  record('version is 1.4.1', m.version === '1.4.1', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -240,7 +240,7 @@ try {
     await seed(urls);
     await sleep(400); // let the visit events be processed (queued, never deleted)
     await ev('chrome.storage.local.set({pending: []})'); // the queue is not what we are testing
-    return openPage(`chrome-extension://${id}/options.html`);
+    return openPage(`chrome-extension://${id}/src/options.html`);
   }
 
   // --- 3. block mode: wipe what matches, keep the lookalikes ---------------
@@ -341,7 +341,7 @@ try {
   // --- 8. the PIN lock, in the real page ----------------------------------
   await resetStore();
   await setStore({ rules: [{ id: 'r1', type: 'domain', value: 'private.example', enabled: true }] });
-  const opts6 = await openPage(`chrome-extension://${id}/options.html`);
+  const opts6 = await openPage(`chrome-extension://${id}/src/options.html`);
   const pinned = await opts6.evaluate(`(async()=>{
     const hex=(b)=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');
     const salt=crypto.getRandomValues(new Uint8Array(16));
@@ -353,7 +353,7 @@ try {
   })()`);
   record('a PIN can be set on the real page', pinned === 'ok', pinned);
 
-  const locked = await openPage(`chrome-extension://${id}/options.html`);
+  const locked = await openPage(`chrome-extension://${id}/src/options.html`);
   const lockView = await locked.evaluate(`JSON.stringify({
     bodyLocked: document.body.classList.contains('locked'),
     rulesHidden: getComputedStyle(document.querySelector('.card.lockable')).display === 'none',
@@ -395,7 +395,7 @@ try {
   await closePage(locked.id);
 
   // --- 9. the forgotten-PIN way out, in the real page ----------------------
-  const forgot = await openPage(`chrome-extension://${id}/options.html`);
+  const forgot = await openPage(`chrome-extension://${id}/src/options.html`);
   const recovery = await forgot.evaluate(`(async()=>{
     document.getElementById('lockForgot').click();
     await new Promise(r=>setTimeout(r,150));
@@ -451,7 +451,7 @@ try {
   await sleep(400);
   await ev('chrome.storage.local.set({pending: []})');
 
-  const pop = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  const pop = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
   const view = JSON.parse(
     await pop.evaluate(`JSON.stringify({
       title: document.title,
@@ -519,7 +519,7 @@ try {
       extraTrigger: 'manual',
     },
   });
-  const popExtra = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  const popExtra = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
   const extraView = JSON.parse(
     await popExtra.evaluate(`JSON.stringify({
       rowShown: !document.getElementById('extraRow').classList.contains('hidden'),
@@ -598,7 +598,7 @@ try {
   await seed(['https://gone.example/a', 'https://gone.example/b']);
   await sleep(400);
   await ev('chrome.storage.local.set({pending: []})');
-  const pop2 = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  const pop2 = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
   const armedView = JSON.parse(
     await pop2.evaluate(`JSON.stringify({
       status: document.getElementById('status').textContent.trim(),
@@ -668,7 +668,7 @@ try {
       wipeAllHistory: false,
     },
   });
-  const pop3 = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  const pop3 = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
   const dialogsBefore = dialogs.length;
   await pop3.evaluate("document.getElementById('scopeAll').click()");
   await sleep(500);
@@ -700,7 +700,7 @@ try {
       wipeAllHistory: false,
     },
   });
-  const pop4 = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  const pop4 = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
   const keepView = JSON.parse(
     await pop4.evaluate(`JSON.stringify({
       status: document.getElementById('status').textContent.trim(),
@@ -733,7 +733,7 @@ try {
     await chrome.storage.local.set({settings:{...cur,advanced:true,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
     return 'ok';
   })()`);
-  const pop5 = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  const pop5 = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
   const lockView2 = JSON.parse(
     await pop5.evaluate(`JSON.stringify({
       bodyLocked: document.body.classList.contains('locked'),
@@ -809,11 +809,11 @@ try {
     );
   };
 
-  const popLocked = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+  const popLocked = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
   await leakSweep(popLocked, 'popup');
   await closePage(popLocked.id);
 
-  const optLocked = await openPage(`chrome-extension://${id}/options.html`);
+  const optLocked = await openPage(`chrome-extension://${id}/src/options.html`);
   await leakSweep(optLocked, 'options');
 
   // The same sweep, after the right PIN: it has to find the rule, or it proves nothing.
@@ -889,11 +889,11 @@ try {
     // The store takes 1280x800 or 640x400. The pages are shot at 1280x800 with
     // scale 1; the popup is a 360px panel, so it is shot at 2x and put on that
     // canvas afterwards, which is what tools/make_shot_sheets.mjs does.
-    const shotPopup = await openPage(`chrome-extension://${id}/popup.html`, dialogs);
+    const shotPopup = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
     await shoot(shotPopup, 'popup-compact.png', 360, 520, false);
     await closePage(shotPopup.id);
 
-    const shotOptions = await openPage(`chrome-extension://${id}/options.html`);
+    const shotOptions = await openPage(`chrome-extension://${id}/src/options.html`);
     await shoot(shotOptions, 'options.png', 1280, 800, false, 1);
     await shotOptions.evaluate('window.scrollTo(0, 900)');
     await sleep(400);
@@ -910,7 +910,7 @@ try {
       await chrome.storage.local.set({settings:{...cur,advanced:true,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
       return 'ok';
     })()`);
-    const shotLocked = await openPage(`chrome-extension://${id}/options.html`);
+    const shotLocked = await openPage(`chrome-extension://${id}/src/options.html`);
     await shoot(shotLocked, 'options-locked.png', 1280, 800, false, 1);
     await closePage(shotLocked.id);
   }

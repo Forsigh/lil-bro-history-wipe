@@ -78,7 +78,7 @@ async function notify(count, phase) {
   try {
     await chrome.notifications.create('lilbro-' + Date.now(), {
       type: 'basic',
-      iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+      iconUrl: chrome.runtime.getURL('src/icons/icon128.png'),
       title: 'Lil Bro',
       message: `Wiped ${count} ${count === 1 ? 'entry' : 'entries'} from history (${phase}).`,
     });
@@ -650,7 +650,7 @@ async function notifyLockedMenu() {
   try {
     await chrome.notifications.create('lilbro-lock-' + Date.now(), {
       type: 'basic',
-      iconUrl: chrome.runtime.getURL('icons/icon128.png'),
+      iconUrl: chrome.runtime.getURL('src/icons/icon128.png'),
       title: 'Lil Bro',
       message: 'The PIN lock is on, so the list was left alone. Unlock it in the popup to add a site.',
     });

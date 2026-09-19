@@ -13,8 +13,8 @@ import {
   MAX_ATTEMPTS,
   LOCKOUT_MS,
   RECOVERY_WORD,
-} from '../lock.js';
-import { DEFAULT_SETTINGS } from '../store.js';
+} from '../src/lock.js';
+import { DEFAULT_SETTINGS } from '../src/store.js';
 
 let pass = 0;
 let fail = 0;

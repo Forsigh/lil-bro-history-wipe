@@ -15,11 +15,11 @@ const en = readLocale('en');
 let fail = 0;
 const used = new Set();
 
-for (const page of ['popup.html', 'options.html']) {
+for (const page of ['src/popup.html', 'src/options.html']) {
   const html = readFileSync(join(root, page), 'utf8');
   for (const m of html.matchAll(/data-i18n(?:-placeholder|-title)?="([A-Za-z0-9_]+)"/g)) used.add(m[1]);
 }
-for (const js of ['popup.js', 'options.js']) {
+for (const js of ['src/popup.js', 'src/options.js']) {
   const src = readFileSync(join(root, js), 'utf8');
   for (const m of src.matchAll(/\bt\('([A-Za-z0-9_]+)'\)/g)) used.add(m[1]);
 }

@@ -9,7 +9,7 @@ import {
   MESSAGES,
   WIPE_ALL_PHRASE,
   ARM_WINDOW_MS,
-} from '../confirm-gate.js';
+} from '../src/confirm-gate.js';
 
 let pass = 0;
 let fail = 0;

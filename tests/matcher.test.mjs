@@ -12,8 +12,8 @@ import {
   resetSkippedRegexes,
   REGEX_MAX_PATTERN,
   REGEX_MAX_TEXT,
-} from '../matcher.js';
-import { buildRule, normalizeDomain } from '../store.js';
+} from '../src/matcher.js';
+import { buildRule, normalizeDomain } from '../src/store.js';
 
 let pass = 0;
 let fail = 0;
