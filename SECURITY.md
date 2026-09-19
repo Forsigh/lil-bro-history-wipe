@@ -5,7 +5,7 @@ requests of its own, which takes most of the usual attack surface away with it. 
 list of sites and words you keep, which is exactly what someone else on your computer would want to
 read.
 
-That makes two things security issues worth reporting privately:
+So two things count as security issues, and both go in privately:
 
 - a way to make it delete something it should not, or to keep something it should
 - a way to read or change the rule list while the PIN is on

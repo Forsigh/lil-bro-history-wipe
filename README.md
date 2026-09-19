@@ -7,7 +7,7 @@ account, no server, nothing sent anywhere.
 
 You give it a list: a site, a word, one page, a pattern. It takes the matching entries out of your
 history while you browse, or at the start of your next session, without you thinking about it. Open
-the popup on any page and it tells you straight away whether that page is one of the ones that goes.
+the popup on any page and it tells you straight away whether that page is on the list.
 
 Cache, cookies, the download list and typed form text sit behind four presets, off until you switch
 one on. A PIN hides the list from anyone else using the same computer, and a keep list covers the
@@ -36,7 +36,7 @@ Or by hand:
 
 ## Support
 
-One person, no server bill, just the hours: [Buy me a coffee](https://buymeacoffee.com/forsigh).
+Like my work? [Buy me a coffee](https://buymeacoffee.com/forsigh).
 
 Something broken? [Open an issue](https://github.com/Forsigh/lil-bro-history-wipe/issues).
 
