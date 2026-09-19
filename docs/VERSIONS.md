@@ -22,6 +22,8 @@ different builds called themselves 1.3.0. The current code is numbered 1.3.1.
 | 1.3.7 | 18 Sep 21:55 | `9af2307` | `f51df3e6cc2eb82f` | popup labels now actually translate (the label pass ran before the language loaded, so Polish showed "Scan"); "Added." without the site name while the PIN is on |
 | 1.3.8 | 18 Sep 22:58 | `6cc4021` | `10c6d8edafc126d3` | both languages rewritten in the plain register: "Arm" is now "Full wipe", each preset line says what changes for you, definitions sit in the sentence that uses the word. Polish keeps Wł. / Wył. |
 | 1.3.9 | 19 Sep 07:35 | `01f9c66` | `c76700d51a93b624` | your new icons, the four from graphics/icons. Full bleed and opaque where the old mark was a transparent glyph. Same filenames, so nothing in the manifest moved |
+| 1.3.10 | 19 Sep 16:58 | `1294f39` | `7c47c8f9ce7bdfcc` | the icon replaces the "LB" tile in the popup header and the settings header |
+| 1.3.11 | 19 Sep 18:40 | `49762c3` | `bdda335ffc7476c2` | one link out: Buy me a coffee, bottom of the settings page. Plain anchor, no script and no remote image, so the remote-code answer stays no |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
 Desktop. A zip is the contract: if the bytes differ, the version has to.
