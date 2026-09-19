@@ -3,7 +3,7 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 1.3.1.
+different builds called themselves 1.3.0. The current code is numbered 1.4.2.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
@@ -26,6 +26,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.3.1.
 | 1.3.11 | 19 Sep 18:40 | `49762c3` | `bdda335ffc7476c2` | one link out: Buy me a coffee, bottom of the settings page. Plain anchor, no script and no remote image, so the remote-code answer stays no |
 | 1.4.0 | 19 Sep 19:26 | `2e45954` | `02d5d06575d334e9` | the popup says what happens to the tab in front of you, red for a page that goes, calm for one that stays. The dead compact/classic code is gone from the page, the tests and the probe. README and the landing page rewritten shorter, and the packager taught the files it had been missing |
 | 1.4.1 | 19 Sep 20:01 | `386c99b` | `1a0d59b7a63fdc6d` | the code moved into src/ and the copy stops naming one browser brand: it says the browser, since every Chromium one behaves the same. Nothing about the extension itself changed |
+| 1.4.2 | 19 Sep 23:23 | `4ee110a` | `b31577a4605893ed` | the name: Lil Bro Wipe – History Cleaner, in the package, on both pages, in the listing copy and in the build file name |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
 Desktop. A zip is the contract: if the bytes differ, the version has to.

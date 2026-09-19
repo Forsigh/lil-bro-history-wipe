@@ -2,6 +2,11 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.4.2
+
+The name is Lil Bro Wipe – History Cleaner now, in the package, on both pages and in the store
+pictures. The build file follows the name: from this one on it is lil-bro-wipe-<version>.zip.
+
 ## 1.4.1
 
 The code moved into `src/`. Nothing about the extension itself changed: a browser still gets the same
