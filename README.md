@@ -15,7 +15,7 @@ sites you never want touched.
 
 ## Install
 
-[**Get it on the Chrome Web Store**](https://chromewebstore.google.com/detail/lil-bro-czyszczenie-histo/fbdfjomihgegaemjljbcmmdmgmadlebg)
+[**Get it on the Chrome Web Store**](https://chromewebstore.google.com/detail/lil-bro-history-wipe/fbdfjomihgegaemjljbcmmdmgmadlebg)
 
 Or by hand:
 
