@@ -15,7 +15,9 @@ sites you never want touched.
 
 ## Install
 
-From the Chrome Web Store, or by hand:
+[**Get it on the Chrome Web Store**](https://chromewebstore.google.com/detail/lil-bro-czyszczenie-histo/fbdfjomihgegaemjljbcmmdmgmadlebg)
+
+Or by hand:
 
 1. Open `chrome://extensions` and turn on Developer mode
 2. Choose **Load unpacked** and pick this folder
