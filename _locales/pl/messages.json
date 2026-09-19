@@ -109,6 +109,7 @@
   "optCookieNow": { "message": "Wyczyść cookies teraz" },
   "optLook": { "message": "Wygląd" },
   "optLang": { "message": "Język" },
+  "bmcLabel": { "message": "Postaw mi kawę" },
   "optLangHint": { "message": "Auto idzie za twoją przeglądarką. Kolejne języki dodajemy, gdy są napisane." },
   "langAuto": { "message": "Auto (moja przeglądarka)" },
   "langEn": { "message": "English" },

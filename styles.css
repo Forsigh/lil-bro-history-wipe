@@ -151,6 +151,34 @@ button.ghost:hover {
   background: transparent;
 }
 
+/* The one link out of the extension: the support page, opened in a new tab.
+   Plain anchor on purpose, no script and no remote image, so the package still
+   makes no network request and the store's remote-code answer stays "no". */
+a.bmc {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 18px 0 6px;
+  padding: 7px 14px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 13px;
+  text-decoration: none;
+}
+
+a.bmc:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+a.bmc svg {
+  width: 15px;
+  height: 15px;
+  flex: none;
+}
+
 button.danger {
   background: transparent;
   color: var(--danger);

@@ -109,6 +109,7 @@
   "optCookieNow": { "message": "Clear cookies now" },
   "optLook": { "message": "Look" },
   "optLang": { "message": "Language" },
+  "bmcLabel": { "message": "Buy me a coffee" },
   "optLangHint": { "message": "Auto follows your browser. More languages get added as they are written." },
   "langAuto": { "message": "Auto (my browser)" },
   "langEn": { "message": "English" },
