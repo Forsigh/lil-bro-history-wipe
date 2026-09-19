@@ -833,6 +833,9 @@ try {
   // --- 12. optional screenshots: the compact popup, the classic one, the options --
   // node tools/live_probe.mjs <port> <browser> <output-dir>
   const shotsDir = process.argv[4];
+  // The language for the screenshots. The checks above run pinned to English; the
+  // shots follow this, so the same run can produce the Polish store images.
+  const shotLang = process.argv[5] || 'en';
   if (shotsDir) {
     mkdirSync(shotsDir, { recursive: true });
     await resetStore();
@@ -844,6 +847,7 @@ try {
       settings: {
         enabled: true,
         mode: 'realtime',
+        lang: shotLang,
         sweepExistingOnStartup: true,
         notifyOnWipe: false,
         listMode: 'block',
