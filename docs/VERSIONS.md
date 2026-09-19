@@ -27,7 +27,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.5.0.
 | 1.4.0 | 19 Sep 19:26 | `2e45954` | `02d5d06575d334e9` | the popup says what happens to the tab in front of you, red for a page that goes, calm for one that stays. The dead compact/classic code is gone from the page, the tests and the probe. README and the landing page rewritten shorter, and the packager taught the files it had been missing |
 | 1.4.1 | 19 Sep 20:01 | `386c99b` | `1a0d59b7a63fdc6d` | the code moved into src/ and the copy stops naming one browser brand: it says the browser, since every Chromium one behaves the same. Nothing about the extension itself changed |
 | 1.4.2 | 19 Sep 23:23 | `4ee110a` | `b31577a4605893ed` | the name: Lil Bro Wipe – History Cleaner, in the package, on both pages, in the listing copy and in the build file name |
-| 1.5.0 | 19 wrz 23:58 | `1b1b2ce` | `0176d9b603b2e704` | the look: a new sheet, eight themes with measured contrast, and the popup stops saying the same sentence twice |
+| 1.5.0 | 19 Sep 23:58 | `1b1b2ce` | `0176d9b603b2e704` | the look: a new sheet, eight themes with measured contrast, and the popup stops saying the same sentence twice |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
 Desktop. A zip is the contract: if the bytes differ, the version has to.
