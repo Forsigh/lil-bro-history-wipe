@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.5.0', m.version === '1.5.0', m.version);
+  record('version is 1.5.1', m.version === '1.5.1', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -839,11 +839,13 @@ try {
   await closePage(optLocked.id);
 
   // --- 12. optional screenshots: the compact popup, the classic one, the options --
-  // node tools/live_probe.mjs <port> <browser> <output-dir>
+  // node tools/live_probe.mjs <port> <browser> <output-dir> [en|pl] [theme]
   const shotsDir = process.argv[4];
   // The language for the screenshots. The checks above run pinned to English; the
   // shots follow this, so the same run can produce the Polish store images.
   const shotLang = process.argv[5] || 'en';
+  // The theme for the screenshots, so a run can photograph any of the eight.
+  const shotTheme = process.argv[6] || 'auto';
   if (shotsDir) {
     mkdirSync(shotsDir, { recursive: true });
     await resetStore();
@@ -856,6 +858,7 @@ try {
         enabled: true,
         mode: 'realtime',
         lang: shotLang,
+        theme: shotTheme,
         sweepExistingOnStartup: true,
         notifyOnWipe: false,
         listMode: 'block',

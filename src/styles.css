@@ -1130,16 +1130,18 @@ body.popup #openOptions:hover {
   --shadow-2: 0 2px 5px rgba(0, 0, 0, 0.35), 0 18px 36px -18px rgba(0, 0, 0, 0.6);
 }
 
-/* True black, for the screens that switch pixels off. */
+/* True black, for the screens that switch pixels off. The cards are lifted well
+   clear of the page, because a shadow cannot be darker than #000 and would do
+   nothing here. */
 :root[data-theme='midnight'] {
   color-scheme: dark;
   --bg: #000000;
   --bg-2: #050508;
-  --card: #0a0a0e;
-  --card-2: #101017;
-  --line: #1b1b25;
+  --card: #14141a;
+  --card-2: #1b1b23;
+  --line: #2a2a36;
   --text: #f2f2f7;
-  --muted: #8f90a6;
+  --muted: #9a9bb2;
   --accent: #a78bfa;
   --accent-dim: #8b5cf6;
   --accent-soft: rgba(167, 139, 250, 0.13);
@@ -1160,7 +1162,7 @@ body.popup #openOptions:hover {
   --bg-2: #000000;
   --card: #0b0b0b;
   --card-2: #141414;
-  --line: #5a5a5a;
+  --line: #808080;
   --text: #ffffff;
   --muted: #d4d4d4;
   --accent: #ffd400;
@@ -1205,4 +1207,33 @@ body.popup #openOptions:hover {
     transition: none !important;
     animation: none !important;
   }
+}
+
+/* The high contrast theme stays flat. Gradients and glows smear the edges a reader
+   may be relying on, and a border is the thing they can actually see. */
+:root[data-theme='contrast'] body {
+  background: var(--bg);
+}
+
+:root[data-theme='contrast'] .card,
+:root[data-theme='contrast'] .hero,
+:root[data-theme='contrast'] .stat,
+:root[data-theme='contrast'] label.radio,
+:root[data-theme='contrast'] .preset,
+:root[data-theme='contrast'] .banner {
+  background: var(--card);
+  box-shadow: none;
+}
+
+:root[data-theme='contrast'] .hero::before {
+  display: none;
+}
+
+:root[data-theme='contrast'] .brand-mark {
+  box-shadow: none;
+}
+
+:root[data-theme='contrast'] button {
+  background: var(--accent);
+  box-shadow: none;
 }
