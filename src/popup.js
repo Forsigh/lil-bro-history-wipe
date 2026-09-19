@@ -181,7 +181,9 @@ async function loadCurrentTab() {
   }
   const domain = normalizeDomain(currentUrl);
   const usable = /^https?:/i.test(currentUrl) && domain;
-  $('sitePreview').textContent = usable ? `Current tab: ${domain}` : 'This tab has no wipeable site.';
+  $('sitePreview').textContent = usable
+    ? `${t('siteCurrentTab') || 'Current tab'}: ${domain}`
+    : t('siteNoSite') || 'This tab has no wipeable site.';
   $('addDomainBtn').disabled = !usable;
   $('addUrlBtn').disabled = !usable;
   updateVerdict();
@@ -204,23 +206,27 @@ function updateVerdict() {
   const s = state.settings;
   const keepMode = s.listMode === 'allow';
   const usable = isWipeableUrl(currentUrl);
-  const hit = usable ? findMatch({ url: currentUrl, title: currentTitle }, state.rules) : null;
+  if (!usable) {
+    // The line above already says this tab cannot be wiped. Saying it twice, in
+    // two voices, was the first thing anyone noticed about this screen.
+    el.textContent = '';
+    el.className = 'row verdict';
+    return;
+  }
+  const hit = findMatch({ url: currentUrl, title: currentTitle }, state.rules);
   const goes = keepMode ? !hit : !!hit;
 
-  let key = 'siteNoSite';
-  let kind = 'mini';
-  if (usable && !s.enabled) {
+  let key = keepMode ? 'siteKept' : 'siteNotListed';
+  let kind = 'ok';
+  if (!s.enabled) {
     key = 'sitePaused';
     kind = 'warn';
-  } else if (usable && s.wipeAllHistory) {
+  } else if (s.wipeAllHistory) {
     key = 'siteAll';
     kind = 'danger';
-  } else if (usable && goes) {
+  } else if (goes) {
     key = s.mode === 'realtime' ? 'siteCleanedNow' : 'siteCleanedStart';
     kind = 'danger';
-  } else if (usable) {
-    key = keepMode ? 'siteKept' : 'siteNotListed';
-    kind = 'ok';
   }
 
   el.textContent = t(key) || '';

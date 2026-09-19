@@ -326,6 +326,9 @@
   "sitePaused": {
     "message": "Cleaning is off, so nothing is being erased right now."
   },
+  "siteCurrentTab": {
+    "message": "Current tab"
+  },
   "siteNoSite": {
     "message": "This tab has no wipeable site."
   },
@@ -358,6 +361,12 @@
   },
   "optThemeSlate": {
     "message": "Slate"
+  },
+  "optThemeMidnight": {
+    "message": "Midnight"
+  },
+  "optThemeContrast": {
+    "message": "High contrast"
   },
   "optStatus": {
     "message": "Right now"

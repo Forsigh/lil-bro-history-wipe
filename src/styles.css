@@ -1,64 +1,209 @@
+/* Lil Bro Wipe: the whole look lives here.
+   Every theme sets the same tokens, so no component knows which one is on.
+   Tokens first, then the shared bits, then the settings page, then the popup,
+   then one block per theme at the end. */
+
 :root {
-  --bg: #0b1220;
-  --card: #131c2e;
-  --card-2: #182339;
-  --line: #24314b;
-  --text: #e8eefc;
-  --muted: #93a3bf;
+  /* colour, overridden per theme below */
+  --bg: #0a1018;
+  --bg-2: #0e1622;
+  --card: #111a28;
+  --card-2: #16202f;
+  --line: #1f2b3d;
+  --text: #e9eefb;
+  --muted: #a2b2cb;
   --accent: #2dd4bf;
   --accent-dim: #14b8a6;
-  --danger: #f87171;
+  --accent-soft: rgba(45, 212, 191, 0.12);
+  --on-accent: #04211d;
+  --danger: #ff6b6b;
+  --danger-soft: rgba(255, 107, 107, 0.12);
   --warn: #fbbf24;
-  --radius: 12px;
+  --ring: rgba(45, 212, 191, 0.55);
+
+  /* shape and depth */
+  --r: 12px;
+  --r-in: 10px;
+  --r-lg: 16px;
+  --r-sm: 9px;
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.28), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.3), 0 16px 36px -16px rgba(0, 0, 0, 0.7);
+  --glow: 0 0 0 1px var(--accent-soft), 0 8px 28px -14px var(--accent-soft);
+  --ease: cubic-bezier(0.32, 0.72, 0, 1);
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
-  background: var(--bg);
+  background:
+    radial-gradient(1100px 520px at 12% -8%, var(--accent-soft), transparent 62%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+  background-attachment: fixed;
   color: var(--text);
-  font: 14px/1.5 "Segoe UI", system-ui, -apple-system, sans-serif;
+  font: 14.5px/1.55 "Segoe UI Variable Text", "Segoe UI", system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.006em;
+  -webkit-font-smoothing: antialiased;
+}
+
+::selection {
+  background: var(--accent-soft);
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+
+/* thin, themed scrollbars, because a chrome scrollbar in a dark theme is ugly */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--muted);
+  background-clip: content-box;
 }
 
 .wrap {
-  max-width: 780px;
+  max-width: 800px;
   margin: 0 auto;
-  padding: 28px 20px 60px;
+  padding: 30px 20px 72px;
+}
+
+/* --- headings and the brand block ---------------------------------------- */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.brand-mark {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 9px;
+  object-fit: cover;
+  background: linear-gradient(155deg, var(--accent), var(--accent-dim));
+  color: var(--on-accent);
+  font-weight: 700;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  box-shadow: 0 6px 18px -8px var(--accent);
 }
 
 h1 {
-  font-size: 22px;
-  margin: 0 0 4px;
-  letter-spacing: -0.2px;
+  font-size: 23px;
+  margin: 0 0 2px;
+  letter-spacing: -0.022em;
+  font-weight: 680;
+  line-height: 1.2;
 }
 
 h1 span {
   color: var(--accent);
+  font-weight: 500;
 }
 
 h2 {
-  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12.5px;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--muted);
-  margin: 28px 0 10px;
+  letter-spacing: 0.07em;
+  color: var(--text);
+  margin: 34px 0 12px;
+}
+
+/* a hairline that runs from the label to the edge, which groups the page */
+h2::after {
+  content: '';
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--line);
+  opacity: 0.85;
 }
 
 .sub {
   color: var(--muted);
-  margin: 0 0 22px;
+  margin: 12px 0 4px;
+  max-width: 62ch;
 }
 
+/* --- surfaces ------------------------------------------------------------ */
+
 .card {
-  background: var(--card);
+  position: relative;
+  background: linear-gradient(180deg, var(--card-2), var(--card) 42%);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 16px;
+  border-radius: var(--r-lg);
+  padding: 18px;
   margin-bottom: 12px;
+  box-shadow: var(--shadow-1), inset 0 1px 0 rgba(255, 255, 255, 0.03);
 }
+
+.card.danger {
+  border-color: var(--danger);
+  background: linear-gradient(180deg, var(--danger-soft), var(--card) 60%);
+}
+
+.card.danger .mini b {
+  color: var(--danger);
+}
+
+.lockbox {
+  border-color: var(--accent-dim);
+  background: linear-gradient(180deg, var(--accent-soft), var(--card) 55%);
+}
+
+.banner {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  flex-wrap: wrap;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--r);
+  padding: 13px 15px;
+  color: var(--muted);
+  background: linear-gradient(180deg, var(--accent-soft), var(--card-2) 70%);
+  font-size: 13px;
+}
+
+.banner b {
+  color: var(--text);
+}
+
+.lockbanner {
+  margin-bottom: 4px;
+}
+
+/* --- rows, labels, small type -------------------------------------------- */
 
 .row {
   display: flex;
@@ -73,21 +218,59 @@ h2 {
 
 .grow {
   flex: 1 1 auto;
+  min-width: 0;
 }
+
+.card .mini {
+  max-width: 72ch;
+}
+
+.mini {
+  font-size: 12px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.empty {
+  color: var(--muted);
+  padding: 16px 2px;
+  font-size: 13px;
+}
+
+.err {
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.warn {
+  color: var(--warn);
+  font-size: 13px;
+}
+
+.ok {
+  color: var(--accent);
+  font-size: 13px;
+}
+
+/* --- the choice rows, one per mode and preset ---------------------------- */
 
 label.radio {
   display: flex;
-  gap: 10px;
+  gap: 11px;
   align-items: flex-start;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: var(--r-in);
   cursor: pointer;
-  background: var(--card-2);
+  background: var(--card);
+  transition: border-color 0.16s var(--ease), background 0.16s var(--ease),
+    transform 0.16s var(--ease), box-shadow 0.16s var(--ease);
 }
 
 label.radio:hover {
   border-color: var(--accent-dim);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-1);
 }
 
 label.radio input {
@@ -96,59 +279,216 @@ label.radio input {
 
 label.radio b {
   display: block;
-  font-weight: 600;
+  font-weight: 640;
+  letter-spacing: -0.008em;
 }
 
 label.radio small {
   color: var(--muted);
+  display: block;
+  margin-top: 1px;
 }
 
-input[type="text"],
-input[type="url"],
-input[type="password"],
+label.radio:has(input:checked) {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-soft), var(--card) 70%);
+  box-shadow: var(--glow);
+}
+
+label.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+/* On the settings page every choice is the same object: one row, one border.
+   In the popup the same element stays bare, because there it sits beside a button. */
+body:not(.popup) label.pill {
+  flex: 1 1 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-in);
+  background: var(--card);
+  font-size: 13px;
+  color: var(--text);
+  transition: border-color 0.16s var(--ease), background 0.16s var(--ease),
+    transform 0.16s var(--ease);
+}
+
+body:not(.popup) label.pill:hover {
+  border-color: var(--accent-dim);
+  transform: translateY(-1px);
+}
+
+body:not(.popup) label.pill:has(input:checked) {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-soft), var(--card) 76%);
+  /* A ticked box is not a chosen option, so it marks itself with a bar down the
+     edge instead of taking the glow the mode rows use. */
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+body:not(.popup) .card > .row.mini {
+  padding-left: 14px;
+}
+
+body:not(.popup) label.pill small {
+  color: var(--muted);
+}
+
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: var(--accent);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+  flex: none;
+}
+
+/* --- fields -------------------------------------------------------------- */
+
+input[type='text'],
+input[type='url'],
+input[type='password'],
 select,
 textarea {
-  background: #0d1526;
+  background: var(--bg);
   color: var(--text);
   border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 9px 11px;
+  border-radius: var(--r-sm);
+  padding: 10px 12px;
   font: inherit;
   min-width: 0;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.18);
+  transition: border-color 0.16s var(--ease), box-shadow 0.16s var(--ease);
 }
 
-input[type="text"]:focus,
-input[type="password"]:focus,
+input::placeholder,
+textarea::placeholder {
+  color: var(--muted);
+  opacity: 0.75;
+}
+
+input[type='text']:hover,
+input[type='url']:hover,
+input[type='password']:hover,
+select:hover,
+textarea:hover {
+  border-color: var(--muted);
+}
+
+input[type='text']:focus,
+input[type='url']:focus,
+input[type='password']:focus,
 select:focus,
 textarea:focus {
   outline: none;
   border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft), inset 0 1px 2px rgba(0, 0, 0, 0.12);
 }
 
+select {
+  padding-right: 30px;
+  appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%),
+    linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+}
+
+textarea {
+  width: 100%;
+  font: 13px/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace;
+  resize: vertical;
+}
+
+/* --- buttons ------------------------------------------------------------- */
+
 button {
-  background: var(--accent);
-  color: #04201c;
+  background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dim) 100%);
+  color: var(--on-accent);
   border: 0;
-  border-radius: 9px;
-  padding: 9px 14px;
+  border-radius: var(--r-sm);
+  padding: 10px 15px;
   font: inherit;
-  font-weight: 600;
+  font-weight: 640;
+  letter-spacing: -0.008em;
   cursor: pointer;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25), 0 8px 18px -16px var(--accent);
+  transition: transform 0.14s var(--ease), box-shadow 0.16s var(--ease),
+    filter 0.16s var(--ease), background 0.16s var(--ease), border-color 0.16s var(--ease),
+    color 0.16s var(--ease);
 }
 
 button:hover {
-  background: var(--accent-dim);
+  filter: brightness(1.07);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.28), 0 12px 24px -16px var(--accent);
+}
+
+button:active {
+  transform: translateY(0) scale(0.994);
+  filter: brightness(0.97);
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 button.ghost {
-  background: transparent;
+  background: var(--card);
   color: var(--text);
   border: 1px solid var(--line);
+  box-shadow: none;
 }
 
 button.ghost:hover {
-  border-color: var(--accent);
+  border-color: var(--accent-dim);
+  background: var(--card-2);
+  color: var(--text);
+  filter: none;
+}
+
+button.danger {
   background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  box-shadow: none;
+}
+
+button.danger:hover {
+  border-color: var(--danger);
+  background: var(--danger-soft);
+  color: var(--danger);
+  filter: none;
+}
+
+.chip-btn {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 11px;
+  font-size: 11px;
+  font-weight: 560;
+  box-shadow: none;
+}
+
+.chip-btn:hover {
+  color: var(--text);
+  border-color: var(--accent-dim);
+  background: var(--accent-soft);
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 2px;
 }
 
 /* The one link out of the extension: the support page, opened in a new tab.
@@ -158,19 +498,24 @@ a.bmc {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  margin: 18px 0 6px;
-  padding: 7px 14px;
+  margin: 20px 0 6px;
+  padding: 8px 15px;
   border: 1px solid var(--line);
   border-radius: 999px;
   background: var(--card);
   color: var(--text);
   font-size: 13px;
   text-decoration: none;
+  box-shadow: var(--shadow-1);
+  transition: transform 0.16s var(--ease), border-color 0.16s var(--ease),
+    color 0.16s var(--ease), box-shadow 0.16s var(--ease);
 }
 
 a.bmc:hover {
   border-color: var(--accent);
   color: var(--accent);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-2);
 }
 
 a.bmc svg {
@@ -179,9 +524,461 @@ a.bmc svg {
   flex: none;
 }
 
+/* --- the presets: one row each, name left, cost right -------------------- */
+
+.preset {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  align-items: flex-start;
+  padding: 11px 15px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card-2);
+  color: var(--text);
+  font: inherit;
+  font-weight: 400;
+  letter-spacing: normal;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: none;
+  transition: border-color 0.16s var(--ease), background 0.16s var(--ease),
+    transform 0.16s var(--ease), box-shadow 0.16s var(--ease);
+}
+
+.preset:hover {
+  border-color: var(--accent-dim);
+  transform: translateY(-1px);
+  filter: none;
+  box-shadow: var(--shadow-1);
+}
+
+.preset small {
+  color: var(--muted);
+}
+
+.preset b {
+  font-weight: 640;
+}
+
+.rows {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.rows .preset {
+  flex-direction: row;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 14px;
+  width: 100%;
+  position: relative;
+}
+
+.rows .preset small {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.preset[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-soft), var(--card) 75%);
+  box-shadow: var(--glow);
+}
+
+.preset[aria-pressed='true'] b::before {
+  content: '●';
+  font-size: 10px;
+  margin-right: 7px;
+  color: var(--accent);
+  vertical-align: 1px;
+}
+
+.preset.danger[aria-pressed='true'] {
+  border-color: var(--danger);
+  background: linear-gradient(180deg, var(--danger-soft), var(--card) 75%);
+  box-shadow: 0 0 0 1px var(--danger-soft), 0 8px 28px -14px var(--danger-soft);
+}
+
+.preset.danger[aria-pressed='true'] b::before {
+  color: var(--danger);
+}
+
+/* FULL is the one that takes everything, so its name says so in red. */
+.preset.danger b {
+  color: var(--danger);
+}
+
+/* --- the theme picker ---------------------------------------------------- */
+
+.themes {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.theme {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 8px 13px 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 520;
+  box-shadow: none;
+  transition: border-color 0.16s var(--ease), transform 0.16s var(--ease),
+    box-shadow 0.16s var(--ease), background 0.16s var(--ease);
+}
+
+.theme:hover {
+  border-color: var(--accent-dim);
+  transform: translateY(-1px);
+  filter: none;
+  box-shadow: var(--shadow-1);
+}
+
+.theme[aria-pressed='true'] {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+  box-shadow: var(--glow);
+}
+
+.theme i {
+  width: 18px;
+  height: 18px;
+  border-radius: 6px;
+  border: 1px solid rgba(127, 127, 127, 0.35);
+  display: inline-block;
+  flex: none;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+}
+
+/* --- tables and the log -------------------------------------------------- */
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  padding: 0 8px 9px 0;
+  font-weight: 660;
+}
+
+td {
+  padding: 10px 8px 10px 0;
+  border-top: 1px solid var(--line);
+  vertical-align: middle;
+}
+
+tbody tr {
+  transition: background 0.14s var(--ease);
+}
+
+tbody tr:hover {
+  background: var(--accent-soft);
+}
+
+td.value {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 13px;
+  word-break: break-all;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 560;
+  padding: 2px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  color: var(--muted);
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.tag.on {
+  color: var(--accent);
+  border-color: var(--accent-dim);
+  background: var(--accent-soft);
+}
+
+.logline {
+  padding: 8px 0;
+  border-top: 1px solid var(--line);
+  font-size: 13px;
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+}
+
+.logline .u {
+  flex: 1 1 auto;
+  word-break: break-all;
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.logline .r {
+  color: var(--accent);
+  white-space: nowrap;
+  font-weight: 560;
+}
+
+/* --- status dots, pills, counters --------------------------------------- */
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.dot.off {
+  background: var(--muted);
+  box-shadow: none;
+}
+
+.dot.danger {
+  background: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+.pill.danger {
+  color: var(--danger);
+}
+
+.stat {
+  flex: 1 1 140px;
+  background: linear-gradient(180deg, var(--card-2), var(--card) 70%);
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  padding: 12px 14px;
+  box-shadow: var(--shadow-1);
+}
+
+.stat b {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  color: var(--accent);
+  line-height: 1.1;
+}
+
+.stat small {
+  color: var(--muted);
+  font-size: 11.5px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* While the PIN lock is on, every section that names a site is taken off the page. */
+body.locked .lockable {
+  display: none !important;
+}
+
+/* --- the popup ----------------------------------------------------------- */
+
+body.popup {
+  width: 340px;
+  background:
+    radial-gradient(520px 260px at 20% -20%, var(--accent-soft), transparent 70%),
+    linear-gradient(180deg, var(--bg), var(--bg-2));
+}
+
+.popup-wrap {
+  padding: 14px;
+}
+
+.popup h1 {
+  font-size: 16px;
+  margin-bottom: 10px;
+}
+
+.phead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 13px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.brand-text b {
+  font-size: 14.5px;
+  font-weight: 660;
+  letter-spacing: -0.015em;
+}
+
+.brand-text small {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.hero {
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, var(--card-2), var(--card));
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  padding: 15px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow-1);
+}
+
+/* a thin accent line along the top, so the card reads as the live state */
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), transparent);
+}
+
+.hero-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.hero-title {
+  font-weight: 660;
+  letter-spacing: -0.01em;
+}
+
+.hero-line {
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.hero-line.muted {
+  color: var(--muted);
+}
+
+.danger-text {
+  color: var(--danger);
+  margin-top: 8px;
+  font-size: 12.5px;
+}
+
+.danger-text:empty {
+  display: none;
+}
+
+.hero .pill {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 620;
+}
+
+.popup .card {
+  padding: 13px;
+  border-radius: var(--r);
+}
+
+/* the on/off switch, so the state and the control are the same object */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 660;
+  letter-spacing: 0.02em;
+  box-shadow: none;
+}
+
+.switch:hover {
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.switch .knob {
+  position: relative;
+  width: 42px;
+  height: 23px;
+  border-radius: 999px;
+  background: var(--line);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
+  transition: background 0.2s var(--ease);
+}
+
+.switch .knob::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: var(--muted);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s var(--ease), background 0.2s var(--ease);
+}
+
+.switch[aria-checked='true'] .knob {
+  background: var(--accent-dim);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 3px var(--accent-soft);
+}
+
+.switch[aria-checked='true'] .knob::after {
+  transform: translateX(19px);
+  background: var(--on-accent);
+}
+
+.switch[aria-checked='true'] .switch-label {
+  color: var(--accent);
+}
+
+.switch[aria-checked='false'] .switch-label {
+  color: var(--muted);
+}
+
 /* The verdict in the popup: red with a dot when this tab goes, calm when it stays. */
 .row.verdict {
-  font-weight: 600;
+  font-weight: 620;
+  font-size: 13px;
+  margin-top: 8px;
+}
+
+.row.verdict:empty {
+  display: none;
 }
 
 .row.verdict.danger {
@@ -204,618 +1001,208 @@ a.bmc svg {
   margin-right: 7px;
   border-radius: 50%;
   background: var(--danger);
+  box-shadow: 0 0 0 3px var(--danger-soft);
   vertical-align: middle;
-}
-
-button.danger {
-  background: transparent;
-  color: var(--danger);
-  border: 1px solid var(--line);
-  padding: 5px 9px;
-}
-
-button.danger:hover {
-  border-color: var(--danger);
-  background: transparent;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th {
-  text-align: left;
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  color: var(--muted);
-  padding: 0 8px 8px 0;
-  font-weight: 600;
-}
-
-td {
-  padding: 9px 8px 9px 0;
-  border-top: 1px solid var(--line);
-  vertical-align: middle;
-}
-
-td.value {
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 13px;
-  word-break: break-all;
-}
-
-.tag {
-  display: inline-block;
-  font-size: 11px;
-  padding: 2px 7px;
-  border-radius: 20px;
-  border: 1px solid var(--line);
-  color: var(--muted);
-  margin-left: 6px;
-  white-space: nowrap;
-}
-
-.tag.on {
-  color: var(--accent);
-  border-color: var(--accent-dim);
-}
-
-.empty {
-  color: var(--muted);
-  padding: 14px 0;
-}
-
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: var(--accent);
-}
-
-.dot.off {
-  background: var(--muted);
-}
-
-.dot.danger {
-  background: var(--danger);
-}
-
-.card.danger {
-  border-color: #7f1d1d;
-  background: #1b1114;
-}
-
-.card.danger .mini b {
-  color: var(--danger);
-}
-
-.banner {
-  border: 1px solid var(--line);
-  border-left: 3px solid var(--accent);
-  border-radius: 8px;
-  padding: 12px 14px;
-  color: var(--muted);
-  background: var(--card-2);
-  font-size: 13px;
-}
-
-.banner b {
-  color: var(--text);
-}
-
-.hidden {
-  display: none !important;
-}
-
-/* While the PIN lock is on, every section that names a site is taken off the page. */
-body.locked .lockable {
-  display: none !important;
-}
-
-.pill.danger {
-  color: var(--danger);
-}
-
-.err {
-  color: var(--danger);
-  font-size: 13px;
-}
-
-.warn {
-  color: var(--warn);
-  font-size: 13px;
-}
-
-.ok {
-  color: var(--accent);
-  font-size: 13px;
-}
-
-.logline {
-  padding: 7px 0;
-  border-top: 1px solid var(--line);
-  font-size: 13px;
-  display: flex;
-  gap: 10px;
-}
-
-.logline .u {
-  flex: 1 1 auto;
-  word-break: break-all;
-  font-family: ui-monospace, Consolas, monospace;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-.logline .r {
-  color: var(--accent);
-  white-space: nowrap;
-}
-
-/* popup */
-body.popup {
-  width: 320px;
-  background: var(--bg);
-}
-
-.popup-wrap {
-  padding: 14px;
-}
-
-.popup h1 {
-  font-size: 16px;
-  margin-bottom: 10px;
-}
-
-.stat-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 12px 0;
-}
-
-.stat {
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  padding: 9px 11px;
-}
-
-.stat b {
-  display: block;
-  font-size: 18px;
-}
-
-.stat small {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.popup .card {
-  padding: 12px;
-}
-
-.mini {
-  font-size: 12px;
-  color: var(--muted);
-}
-
-a {
-  color: var(--accent);
-}
-
-/* --- themes ---------------------------------------------------------------
-   auto follows the system, the rest are fixed. Every theme sets the same
-   tokens, so no component needs to know about themes. */
-
-:root {
-  color-scheme: dark;
-}
-
-:root[data-theme="light"] {
-  color-scheme: light;
-  --bg: #f4f6fa;
-  --card: #ffffff;
-  --card-2: #eef1f7;
-  --line: #d8dfea;
-  --text: #16202e;
-  --muted: #5d6b82;
-  --accent: #0f766e;
-  --accent-dim: #0d9488;
-  --danger: #b91c1c;
-  --warn: #a16207;
-}
-
-:root[data-theme="paper"] {
-  color-scheme: light;
-  --bg: #f7f3ea;
-  --card: #fffdf7;
-  --card-2: #f1ebdd;
-  --line: #ddd3bf;
-  --text: #2a2620;
-  --muted: #6f675a;
-  --accent: #9a6b2f;
-  --accent-dim: #b07d3a;
-  --danger: #a13a2f;
-  --warn: #8a6d1f;
-}
-
-:root[data-theme="neon"] {
-  color-scheme: dark;
-  --bg: #05060a;
-  --card: #0c0f18;
-  --card-2: #10141f;
-  --line: #1e2533;
-  --text: #eaf6ff;
-  --muted: #7f8ea8;
-  --accent: #22d3ee;
-  --accent-dim: #0ea5b7;
-  --danger: #ff5c7a;
-  --warn: #f5d90a;
-}
-
-:root[data-theme="slate"] {
-  color-scheme: dark;
-  --bg: #1b1f24;
-  --card: #23282e;
-  --card-2: #2a3037;
-  --line: #363d45;
-  --text: #e3e7ec;
-  --muted: #98a2ad;
-  --accent: #7c9cbf;
-  --accent-dim: #6b8aab;
-  --danger: #d98b8b;
-  --warn: #cbb173;
-}
-
-@media (prefers-color-scheme: light) {
-  :root[data-theme="auto"] {
-    color-scheme: light;
-    --bg: #f4f6fa;
-    --card: #ffffff;
-    --card-2: #eef1f7;
-    --line: #d8dfea;
-    --text: #16202e;
-    --muted: #5d6b82;
-    --accent: #0f766e;
-    --accent-dim: #0d9488;
-    --danger: #b91c1c;
-    --warn: #a16207;
-  }
-}
-
-.themes {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.preset {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  align-items: flex-start;
-  padding: 10px 14px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--card-2);
-  color: var(--text);
-  font: inherit;
-  cursor: pointer;
-  text-align: left;
-}
-
-.preset small {
-  color: var(--muted);
-}
-
-/* Each preset reads as one line: the name on the left, what it clears on the right. */
-.rows {
-  flex-direction: column;
-  align-items: stretch;
-}
-
-.rows .preset {
-  flex-direction: row;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 14px;
-  width: 100%;
-}
-
-.rows .preset small {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.preset[aria-pressed="true"] {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
-}
-
-.preset.danger[aria-pressed="true"] {
-  border-color: var(--danger);
-  box-shadow: inset 0 0 0 1px var(--danger);
-}
-
-/* FULL is the one that takes everything, so its name says so in red. */
-.preset.danger b {
-  color: var(--danger);
-}
-
-textarea {
-  width: 100%;
-  background: var(--bg);
-  color: var(--text);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 10px;
-  font: 13px/1.5 ui-monospace, "Cascadia Mono", Consolas, monospace;
-  resize: vertical;
-}
-
-.theme {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--card);
-  color: var(--text);
-  cursor: pointer;
-  font: inherit;
-}
-
-.theme[aria-pressed="true"] {
-  border-color: var(--accent);
-  box-shadow: inset 0 0 0 1px var(--accent);
-}
-
-.theme i {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  border: 1px solid rgba(127, 127, 127, 0.4);
-  display: inline-block;
-}
-
-/* --- popup, second pass: compact by default, classic on request ------------- */
-
-body.popup {
-  width: 340px;
-}
-
-.phead {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  margin-bottom: 14px;
-}
-
-.brand {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-}
-
-.brand-mark {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 9px;
-  object-fit: cover;
-  background: linear-gradient(155deg, var(--accent), var(--accent-dim));
-  color: #04201c;
-  font-weight: 700;
-  font-size: 12px;
-  letter-spacing: 0.02em;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.15;
-}
-
-.brand-text b {
-  font-size: 14px;
-  font-weight: 650;
-}
-
-.brand-text small {
-  color: var(--muted);
-  font-size: 11px;
-}
-
-.chip-btn {
-  background: transparent;
-  color: var(--muted);
-  border: 1px solid var(--line);
-  border-radius: 20px;
-  padding: 4px 10px;
-  font-size: 11px;
-  font-weight: 500;
-}
-
-.chip-btn:hover {
-  color: var(--text);
-  border-color: var(--accent-dim);
-  background: transparent;
-}
-
-.hero {
-  background: linear-gradient(180deg, var(--card-2), var(--card));
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 14px;
-  margin-bottom: 12px;
-}
-
-.hero-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.hero-line {
-  margin: 10px 0 0;
-  font-size: 12.5px;
-  line-height: 1.45;
-}
-
-.hero-line.muted,
-.muted {
-  color: var(--muted);
-}
-
-.danger-text {
-  color: var(--danger);
-  margin-top: 8px;
-}
-
-.danger-text:empty {
-  display: none;
-}
-
-.hero .pill {
-  color: var(--text);
-  font-size: 13px;
-  font-weight: 600;
-}
-
-/* the on/off switch, so the state and the control are the same object */
-.switch {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  background: transparent;
-  border: 0;
-  padding: 0;
-  color: var(--muted);
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.switch .knob {
-  position: relative;
-  width: 38px;
-  height: 21px;
-  border-radius: 20px;
-  background: var(--line);
-  transition: background 0.18s ease;
-}
-
-.switch .knob::after {
-  content: '';
-  position: absolute;
-  top: 2.5px;
-  left: 2.5px;
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #8fa1c0;
-  transition: transform 0.18s ease, background 0.18s ease;
-}
-
-.switch[aria-checked='true'] .knob {
-  background: var(--accent-dim);
-}
-
-.switch[aria-checked='true'] .knob::after {
-  transform: translateX(17px);
-  background: #04201c;
-}
-
-.switch[aria-checked='true'] .switch-label {
-  color: var(--accent);
-}
-
-.switch[aria-checked='false'] .switch-label {
-  color: var(--muted);
-}
-
-.more-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  background: transparent;
-  border: 1px dashed var(--line);
-  color: var(--muted);
-  border-radius: 10px;
-  padding: 8px 12px;
-  font-size: 12px;
-  font-weight: 500;
-  margin-bottom: 10px;
-}
-
-.more-btn:hover {
-  color: var(--text);
-  border-color: var(--accent-dim);
-  background: transparent;
-}
-
-.more-btn .caret {
-  transition: transform 0.18s ease;
-}
-
-.more-btn[aria-expanded='true'] .caret {
-  transform: rotate(180deg);
-}
-
-.more {
-  display: none;
-}
-
-.more.open {
-  display: block;
-}
-
-.lockbox {
-  border-color: var(--accent-dim);
-  background: var(--card-2);
 }
 
 .pfoot {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+/* The way into settings reads as a link, because it is one. */
+body.popup #openOptions {
+  background: transparent;
+  border-color: transparent;
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 560;
+}
+
+body.popup #openOptions:hover {
+  color: var(--accent);
+  border-color: var(--line);
+  background: var(--card);
 }
 
 .pfoot .mini {
   text-align: center;
 }
 
-/* The classic layout is the popup as it was: everything on screen, no disclosure. */
-body.layout-classic .more {
-  display: block;
+/* --- themes --------------------------------------------------------------
+   auto follows the system, the rest are fixed. Every block sets the same
+   tokens, so no component needs to know about themes. */
+
+:root {
+  color-scheme: dark;
 }
 
-body.layout-classic .more-btn {
-  display: none;
+:root[data-theme='dark'] {
+  color-scheme: dark;
 }
 
-body.layout-classic .hero {
-  background: var(--card);
+:root[data-theme='light'] {
+  color-scheme: light;
+  --bg: #f5f7fb;
+  --bg-2: #eef2f8;
+  --card: #ffffff;
+  --card-2: #f4f7fb;
+  --line: #dfe5ee;
+  --text: #131b26;
+  --muted: #5b6a80;
+  --accent: #0f766e;
+  --accent-dim: #0d9488;
+  --accent-soft: rgba(15, 118, 110, 0.1);
+  --on-accent: #ffffff;
+  --danger: #c02626;
+  --danger-soft: rgba(192, 38, 38, 0.1);
+  --warn: #a16207;
+  --ring: rgba(15, 118, 110, 0.35);
+  --shadow-1: 0 1px 2px rgba(20, 30, 50, 0.06), 0 10px 26px -16px rgba(20, 30, 50, 0.35);
+  --shadow-2: 0 2px 6px rgba(20, 30, 50, 0.08), 0 18px 38px -18px rgba(20, 30, 50, 0.4);
+  --glow: 0 0 0 1px var(--accent-soft), 0 10px 26px -16px rgba(15, 118, 110, 0.5);
 }
 
-/* An unfolded section keeps its own spacing once the disclosure is open. */
-.more .card:last-of-type {
-  margin-bottom: 12px;
+:root[data-theme='paper'] {
+  color-scheme: light;
+  --bg: #f8f4ea;
+  --bg-2: #f2ebdc;
+  --card: #fffdf8;
+  --card-2: #f6f0e3;
+  --line: #e2d8c3;
+  --text: #2b2620;
+  --muted: #6f665a;
+  --accent: #8f6129;
+  --accent-dim: #b58234;
+  --accent-soft: rgba(154, 107, 47, 0.1);
+  --on-accent: #fffaf0;
+  --danger: #a13a2f;
+  --danger-soft: rgba(161, 58, 47, 0.1);
+  --warn: #8a6d1f;
+  --ring: rgba(154, 107, 47, 0.35);
+  --shadow-1: 0 1px 2px rgba(80, 60, 30, 0.07), 0 10px 26px -16px rgba(80, 60, 30, 0.35);
+  --shadow-2: 0 2px 6px rgba(80, 60, 30, 0.09), 0 18px 38px -18px rgba(80, 60, 30, 0.4);
+  --glow: 0 0 0 1px var(--accent-soft), 0 10px 26px -16px rgba(154, 107, 47, 0.45);
 }
 
+:root[data-theme='neon'] {
+  color-scheme: dark;
+  --bg: #04050a;
+  --bg-2: #080b14;
+  --card: #0b0f1a;
+  --card-2: #111826;
+  --line: #1c2436;
+  --text: #eaf7ff;
+  --muted: #7f8ea8;
+  --accent: #22d3ee;
+  --accent-dim: #0891b2;
+  --accent-soft: rgba(34, 211, 238, 0.13);
+  --on-accent: #04191f;
+  --danger: #ff5c7a;
+  --danger-soft: rgba(255, 92, 122, 0.13);
+  --warn: #f5d90a;
+  --ring: rgba(34, 211, 238, 0.5);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5), 0 10px 30px -14px rgba(34, 211, 238, 0.22);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.55), 0 18px 40px -16px rgba(34, 211, 238, 0.3);
+  --glow: 0 0 0 1px var(--accent-soft), 0 10px 30px -14px rgba(34, 211, 238, 0.45);
+}
+
+:root[data-theme='slate'] {
+  color-scheme: dark;
+  --bg: #1b2027;
+  --bg-2: #1e242c;
+  --card: #242b33;
+  --card-2: #2b333c;
+  --line: #39424c;
+  --text: #e6eaf0;
+  --muted: #9aa6b4;
+  --accent: #86a8cc;
+  --accent-dim: #6f93bb;
+  --accent-soft: rgba(134, 168, 204, 0.14);
+  --on-accent: #10161d;
+  --danger: #e09393;
+  --danger-soft: rgba(224, 147, 147, 0.14);
+  --warn: #d1b97e;
+  --ring: rgba(134, 168, 204, 0.45);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.3), 0 10px 26px -16px rgba(0, 0, 0, 0.55);
+  --shadow-2: 0 2px 5px rgba(0, 0, 0, 0.35), 0 18px 36px -18px rgba(0, 0, 0, 0.6);
+}
+
+/* True black, for the screens that switch pixels off. */
+:root[data-theme='midnight'] {
+  color-scheme: dark;
+  --bg: #000000;
+  --bg-2: #050508;
+  --card: #0a0a0e;
+  --card-2: #101017;
+  --line: #1b1b25;
+  --text: #f2f2f7;
+  --muted: #8f90a6;
+  --accent: #a78bfa;
+  --accent-dim: #8b5cf6;
+  --accent-soft: rgba(167, 139, 250, 0.13);
+  --on-accent: #14092b;
+  --danger: #fb7185;
+  --danger-soft: rgba(251, 113, 133, 0.13);
+  --warn: #fbbf24;
+  --ring: rgba(167, 139, 250, 0.5);
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.6), 0 12px 30px -16px rgba(167, 139, 250, 0.18);
+  --shadow-2: 0 2px 6px rgba(0, 0, 0, 0.65), 0 20px 44px -18px rgba(167, 139, 250, 0.26);
+  --glow: 0 0 0 1px var(--accent-soft), 0 10px 30px -14px rgba(167, 139, 250, 0.4);
+}
+
+/* Pure black and pure white, so the text is never the thing you squint at. */
+:root[data-theme='contrast'] {
+  color-scheme: dark;
+  --bg: #000000;
+  --bg-2: #000000;
+  --card: #0b0b0b;
+  --card-2: #141414;
+  --line: #5a5a5a;
+  --text: #ffffff;
+  --muted: #d4d4d4;
+  --accent: #ffd400;
+  --accent-dim: #ffe45c;
+  --accent-soft: rgba(255, 212, 0, 0.16);
+  --on-accent: #000000;
+  --danger: #ff5252;
+  --danger-soft: rgba(255, 82, 82, 0.16);
+  --warn: #ffd400;
+  --ring: #ffd400;
+  --shadow-1: 0 0 0 1px var(--line);
+  --shadow-2: 0 0 0 1px var(--accent);
+  --glow: 0 0 0 2px var(--accent);
+}
+
+@media (prefers-color-scheme: light) {
+  :root[data-theme='auto'] {
+    color-scheme: light;
+    --bg: #f5f7fb;
+    --bg-2: #eef2f8;
+    --card: #ffffff;
+    --card-2: #f4f7fb;
+    --line: #dfe5ee;
+    --text: #131b26;
+    --muted: #5b6a80;
+    --accent: #0f766e;
+    --accent-dim: #0d9488;
+    --accent-soft: rgba(15, 118, 110, 0.1);
+    --on-accent: #ffffff;
+    --danger: #c02626;
+    --danger-soft: rgba(192, 38, 38, 0.1);
+    --warn: #a16207;
+    --ring: rgba(15, 118, 110, 0.35);
+    --shadow-1: 0 1px 2px rgba(20, 30, 50, 0.06), 0 10px 26px -16px rgba(20, 30, 50, 0.35);
+    --shadow-2: 0 2px 6px rgba(20, 30, 50, 0.08), 0 18px 38px -18px rgba(20, 30, 50, 0.4);
+    --glow: 0 0 0 1px var(--accent-soft), 0 10px 26px -16px rgba(15, 118, 110, 0.5);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -326,6 +326,9 @@
   "sitePaused": {
     "message": "Czyszczenie jest wyłączone, więc teraz nic nie znika."
   },
+  "siteCurrentTab": {
+    "message": "Ta karta"
+  },
   "siteNoSite": {
     "message": "Ta karta nie ma strony do czyszczenia."
   },
@@ -358,6 +361,12 @@
   },
   "optThemeSlate": {
     "message": "Grafit"
+  },
+  "optThemeMidnight": {
+    "message": "Noc"
+  },
+  "optThemeContrast": {
+    "message": "Wysoki kontrast"
   },
   "optStatus": {
     "message": "Teraz"

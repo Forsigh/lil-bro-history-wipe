@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.4.2', m.version === '1.4.2', m.version);
+  record('version is 1.5.0', m.version === '1.5.0', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -476,11 +476,14 @@ try {
   record('popup starts on "only my list"', view.scopeList === true && view.scopeAll === false, view.wipeBtn);
   record('popup shows a lock card only when a PIN exists', view.lockCardHidden === true);
   // The popup itself runs in a tab here, so the tab it looks at has no wipeable
-  // site: the verdict line has to say exactly that.
+  // site: the preview line carries that fact, and the verdict stays empty rather
+  // than printing the same sentence a second time in a louder weight.
   record(
     'popup says what happens to the tab it is looking at',
-    /no wipeable site/.test(view.verdict) && /\bverdict\b/.test(view.verdictClass),
-    `${view.verdict} (${view.verdictClass})`
+    /no wipeable site/.test(view.sitePreview) &&
+      view.verdict === '' &&
+      /\bverdict\b/.test(view.verdictClass),
+    `${view.sitePreview} / verdict "${view.verdict}" (${view.verdictClass})`
   );
   record('the switch carries the state it controls', view.switchState === 'true', String(view.switchState));
   record(
