@@ -179,6 +179,34 @@ a.bmc svg {
   flex: none;
 }
 
+/* The verdict in the popup: red with a dot when this tab goes, calm when it stays. */
+.row.verdict {
+  font-weight: 600;
+}
+
+.row.verdict.danger {
+  color: var(--danger);
+}
+
+.row.verdict.ok {
+  color: var(--accent);
+}
+
+.row.verdict.warn {
+  color: var(--warn);
+}
+
+.row.verdict.danger::before {
+  content: '';
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin-right: 7px;
+  border-radius: 50%;
+  background: var(--danger);
+  vertical-align: middle;
+}
+
 button.danger {
   background: transparent;
   color: var(--danger);

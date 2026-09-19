@@ -28,6 +28,7 @@
 
       <div class="card">
         <div class="row mini" id="sitePreview">Checking this tab…</div>
+        <div class="row verdict" id="siteVerdict"></div>
         <div class="row">
           <button id="addDomainBtn" class="grow" data-i18n="addSite">Add to filter list</button>
         </div>
@@ -71,10 +72,9 @@
         <div class="mini" id="version"></div>
       </footer>
 
-      <!-- The popup shows three things. The script still keeps these in sync, so they
-           stay here, hidden, until their handlers come out with the next change. -->
+      <!-- Still wired, still off screen: the script writes to these, and the two
+           scope inputs are the popup's own way of arming the full wipe. -->
       <div class="hidden" aria-hidden="true">
-        <button id="layoutBtn" class="chip-btn"><span data-i18n="layoutBtn">Classic</span></button>
         <p id="extraLine"></p>
         <p id="wipeAllWarn"></p>
         <div id="extraRow"><button id="extraBtn"></button></div>
@@ -83,7 +83,6 @@
           <input type="radio" name="scope" id="scopeList" />
           <input type="radio" name="scope" id="scopeAll" />
         </div>
-        <div id="moreBtn"><span></span></div>
         <b id="statTotal">0</b><b id="statLast">0</b>
       </div>
     </div>

@@ -1,8 +1,7 @@
 // Lil Bro: toolbar popup
 //
-// Two layouts, one set of controls. 'simple' opens with the state, the switch and
-// the two runs; everything else sits behind "More controls". 'classic' is the
-// denser popup as it was, for anyone who wants it all on screen at once.
+// What it shows: the state, the switch, whether the tab in front of you is one of
+// the ones that gets cleaned, the two runs, and the lock card when there is one.
 
 import {
   getState,
@@ -33,12 +32,14 @@ import {
   MAX_ATTEMPTS,
   LOCKOUT_MS,
 } from './lock.js';
+import { findMatch, isWipeableUrl } from './matcher.js';
 import { applyI18n, setLang, t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
 let state = null;
 let currentUrl = '';
+let currentTitle = '';
 let armAt = null;
 let phraseOk = false;
 let armTimer = null;
@@ -64,7 +65,6 @@ async function load() {
   applyI18n();
   render();
   applyLock();
-  applyLayout(state.settings.popupLayout);
   await loadCurrentTab();
   $('version').textContent = 'Lil Bro v' + chrome.runtime.getManifest().version;
 }
@@ -83,29 +83,9 @@ function applyLock() {
   $('lockNote').textContent = LOCK_MESSAGES.listHidden;
   $('previewList').innerHTML = '';
   $('wipeMsg').textContent = '';
+  // The verdict says what happens to this tab, so it goes with the rest.
+  $('siteVerdict').textContent = '';
   setLockMsg('');
-}
-
-/**
- * The layout lives in settings, so it survives closing the popup. Nothing that
- * names a site is affected by it: both layouts hold the same controls.
- */
-function applyLayout(layout) {
-  const classic = layout === 'classic';
-  document.body.classList.toggle('layout-classic', classic);
-  document.body.classList.toggle('layout-simple', !classic);
-  $('layoutBtn').textContent = classic ? 'Compact' : 'Classic';
-  $('layoutBtn').title = classic
-    ? 'Switch back to the compact popup'
-    : 'Switch to the classic popup, with everything on screen';
-  if (classic) setMore(true);
-}
-
-function setMore(open) {
-  const btn = $('moreBtn');
-  $('more').classList.toggle('open', !!open);
-  btn.setAttribute('aria-expanded', open ? 'true' : 'false');
-  btn.firstElementChild.textContent = open ? 'Fewer controls' : 'More controls';
 }
 
 function render() {
@@ -179,6 +159,8 @@ function render() {
       : `${queued} ${queued === 1 ? 'entry' : 'entries'} queued, wiped ${
           s.mode === 'onclose' ? 'when you close the browser' : 'at your next start'
         }.`;
+
+  updateVerdict();
 }
 
 async function loadCurrentTab() {
@@ -192,14 +174,57 @@ async function loadCurrentTab() {
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     currentUrl = (tab && tab.url) || '';
+    currentTitle = (tab && tab.title) || '';
   } catch {
     currentUrl = '';
+    currentTitle = '';
   }
   const domain = normalizeDomain(currentUrl);
   const usable = /^https?:/i.test(currentUrl) && domain;
   $('sitePreview').textContent = usable ? `Current tab: ${domain}` : 'This tab has no wipeable site.';
   $('addDomainBtn').disabled = !usable;
   $('addUrlBtn').disabled = !usable;
+  updateVerdict();
+}
+
+/**
+ * The line this whole screen exists for: is the tab in front of you one of the
+ * ones about to be cleaned? It asks the same matcher the worker asks, with the
+ * same rules, so the answer cannot drift from what really happens. In keep mode
+ * the answer inverts: the page that goes is the one that is not on your list.
+ * While the lock is on it says nothing, like everything else here.
+ */
+function updateVerdict() {
+  const el = $('siteVerdict');
+  if (isLocked()) {
+    el.textContent = '';
+    el.className = 'row verdict';
+    return;
+  }
+  const s = state.settings;
+  const keepMode = s.listMode === 'allow';
+  const usable = isWipeableUrl(currentUrl);
+  const hit = usable ? findMatch({ url: currentUrl, title: currentTitle }, state.rules) : null;
+  const goes = keepMode ? !hit : !!hit;
+
+  let key = 'siteNoSite';
+  let kind = 'mini';
+  if (usable && !s.enabled) {
+    key = 'sitePaused';
+    kind = 'warn';
+  } else if (usable && s.wipeAllHistory) {
+    key = 'siteAll';
+    kind = 'danger';
+  } else if (usable && goes) {
+    key = s.mode === 'realtime' ? 'siteCleanedNow' : 'siteCleanedStart';
+    kind = 'danger';
+  } else if (usable) {
+    key = keepMode ? 'siteKept' : 'siteNotListed';
+    kind = 'ok';
+  }
+
+  el.textContent = t(key) || '';
+  el.className = 'row verdict ' + kind;
 }
 
 function addRule(rule) {
@@ -222,17 +247,6 @@ $('toggleBtn').addEventListener('click', async () => {
   state.settings.enabled = !state.settings.enabled;
   await saveState({ settings: state.settings });
   render();
-});
-
-$('layoutBtn').addEventListener('click', async () => {
-  const next = state.settings.popupLayout === 'classic' ? 'simple' : 'classic';
-  state.settings.popupLayout = next;
-  applyLayout(next);
-  await saveState({ settings: state.settings });
-});
-
-$('moreBtn').addEventListener('click', () => {
-  setMore(!$('more').classList.contains('open'));
 });
 
 $('subdomains').addEventListener('change', async () => {

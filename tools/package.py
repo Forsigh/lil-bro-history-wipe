@@ -24,12 +24,15 @@ FILES = [
     "store.js",
     "confirm-gate.js",
     "lock.js",
+    "i18n.js",
     "options.html",
     "options.js",
     "popup.html",
     "popup.js",
     "styles.css",
     "README.md",
+    "_locales/en/messages.json",
+    "_locales/pl/messages.json",
     "icons/icon16.png",
     "icons/icon32.png",
     "icons/icon48.png",
@@ -46,7 +49,8 @@ def sha256(data: bytes) -> str:
 def main() -> int:
     manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
     version = manifest["version"]
-    out = ROOT / f"lil-bro-history-wipe-{version}.zip"
+    out = ROOT / "builds" / f"lil-bro-history-wipe-{version}.zip"
+    out.parent.mkdir(exist_ok=True)
 
     crlf = []
     for name in FILES:

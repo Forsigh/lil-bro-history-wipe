@@ -7,47 +7,52 @@
     <style>
       body { margin: 0; background: #0b1220; color: #e8eefc;
              font: 16px/1.7 "Segoe UI", system-ui, sans-serif; }
-      main { max-width: 680px; margin: 0 auto; padding: 56px 20px 80px; }
+      main { max-width: 640px; margin: 0 auto; padding: 56px 20px 80px; }
       h1 { font-size: 28px; margin: 0 0 4px; letter-spacing: -.3px; }
       h1 span { color: #2dd4bf; }
       .sub { color: #93a3bf; margin: 0 0 32px; }
       h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em;
-           color: #93a3bf; margin: 32px 0 8px; }
+           color: #93a3bf; margin: 34px 0 8px; }
       ul { padding-left: 22px; }
       li { margin-bottom: 6px; }
       a { color: #2dd4bf; }
       .links { list-style: none; padding: 0; }
       .links li { margin-bottom: 10px; }
-      footer { margin-top: 44px; color: #93a3bf; font-size: 14px; }
+      footer { margin-top: 46px; color: #93a3bf; font-size: 14px; }
     </style>
   </head>
   <body>
     <main>
       <h1>Lil Bro <span>- History Wipe</span></h1>
-      <p class="sub">A browser extension that keeps chosen sites and words out of your browsing history.</p>
+      <p class="sub">Keeps the sites and words you choose out of your browsing history.</p>
 
       <p>
-        You give it a list: a site, a site plus its subdomains, a single page, a keyword, or a regular
-        expression. It matches that list against your browsing history and erases the matches, either as
-        you browse, when you close the browser, or at your next start. Preview first if you like: preview
-        reads, reports and deletes nothing.
+        You give it a list: a site, a word, one page, or a pattern. It takes the matching entries out
+        of your history while you browse, when you close the browser, or at your next start. Open the
+        popup on any page and it tells you whether that page is one of the ones that goes.
       </p>
 
       <p>
-        History is what it clears by default. Cache, cookies, download history and saved form text sit
-        behind four presets, off until you pick one, and they only run when you press a button or, if you
-        ask for it, at close and start. Passwords are not on the list at all: Chrome removed that from
-        extensions. Six themes, an optional PIN lock for the rule list, and a keep list for the sites you
-        want left alone.
+        Cache, cookies, the download list and typed form text sit behind four presets, off until you
+        switch one on. Six themes, a PIN if you want the list hidden from other people on the same
+        computer, and a keep list for the sites you never want touched.
       </p>
+
+      <h2>What it does not do</h2>
+      <ul>
+        <li>No account, no analytics, no network requests of its own.</li>
+        <li>Passwords are never touched. Chrome removed that from extensions.</li>
+        <li>Nothing is sold or shared, because nothing leaves your computer.</li>
+      </ul>
 
       <h2>Links</h2>
       <ul class="links">
-        <!-- TODO: swap the line below for the store link once the listing is approved -->
-        <li>Chrome Web Store listing: in review</li>
+        <!-- TODO: swap the search link for the direct listing URL once you have it -->
+        <li><a href="https://chromewebstore.google.com/search/lil%20bro%20history%20wipe">Chrome Web Store</a></li>
+        <li><a href="https://github.com/Forsigh/lil-bro-history-wipe">Source code and install notes</a></li>
         <li><a href="privacy.html">Privacy policy</a></li>
-        <li><a href="https://github.com/Forsigh/lil-bro-history-wipe">Source code</a></li>
         <li><a href="https://github.com/Forsigh/lil-bro-history-wipe/issues">Report a problem</a></li>
+        <li><a href="https://buymeacoffee.com/forsigh">Buy me a coffee</a></li>
       </ul>
 
       <footer>Not affiliated with Google or Brave.</footer>

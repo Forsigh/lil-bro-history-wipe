@@ -1,145 +1,80 @@
 # Lil Bro - History Wipe
 
-A Manifest V3 extension for Chrome and Brave. Give it a list of sites and words, and it erases the
-matching entries from your browsing history: as you browse, when you close the browser, or at your
-next start. No account, no server, no network requests.
+A Chrome and Brave extension that keeps the sites and words you choose out of your browsing history.
+It works while you browse, when you close the browser, or at your next start. No account, no server,
+nothing sent anywhere.
 
-If you have browser sync on, the rule list itself travels between your computers through Chrome's
-synced storage. Your history, the log and every switch stay on this device.
+## What it does
+
+You give it a list, and anything on that list is what it goes after:
+
+- a site, `example.com`, with or without its subdomains
+- one page, `https://example.com/private`
+- a word, matched against the address and the page title
+- a pattern, when you want to be exact
+
+Matching entries leave your history. Nothing else moves.
+
+Chrome holds more than history. Cache, cookies, the download list and text you typed into forms sit
+behind four presets, off until you switch one on, and they run when you press a button or, if you
+ask, at close and start.
 
 ## Install
 
-1. Open `chrome://extensions`.
-2. Turn on **Developer mode**.
-3. **Load unpacked**, pick this folder.
-4. Pin the icon, then open **All rules & settings**.
+From the Chrome Web Store, or by hand:
 
-Chrome warns that the extension can read and change your browsing history. That warning comes from the
-`history` permission, and Chrome does not allow narrower wording. Nothing else here adds a warning.
+1. Open `chrome://extensions` and turn on Developer mode
+2. Choose **Load unpacked** and pick this folder
+3. Pin the icon, then open **All settings**
 
-## When it wipes
+## Knowing what will be cleaned
 
-| Mode | What happens |
-| --- | --- |
-| **As I browse** | Each entry is deleted the moment Chrome records it. Heaviest of the three. |
-| **When the browser closes** | Matches stay for the session, then go. Chrome gives no shutdown hook, so it runs at close when it can and at the next start otherwise. |
-| **At browser start** | Matches are queued during the session and cleared at the next start. |
+Open the popup on any page and it tells you what happens to that page: whether it is one of the ones
+that goes, and whether it goes as you browse or at your next start. From the same screen, one click
+adds the page to your list or takes the site off it.
 
-**Deep-scan** (on by default) walks the existing history database too, so entries older than a rule
-get cleaned as well.
+## What it is honest about
 
-## Rules
+- Passwords are not touched. Chrome removed that for extensions, so there is no switch for it.
+- Chrome cannot narrow history, downloads or form text to a single site, so those go for the span
+  you chose rather than per site.
+- Chrome will not run anything at the exact moment the browser closes, so a clean set for close
+  happens at your next start. You will not notice.
+- An address you deleted can still appear in the address bar suggestions.
+- A deleted cookie takes the whole site with it, so you are signed out there afterwards.
+- Your list can travel between your computers through your own browser account. The log of what was
+  cleaned never leaves this one.
 
-| Type | Matches |
-| --- | --- |
-| **Site** | `example.com` covers `example.com` and `www.example.com`. Tick *subdomains too* for `shop.example.com`. |
-| **URL or prefix** | `https://example.com/private` covers that URL and anything under it, not `/privateering`. |
-| **Keyword** | `shoes` hits `google.com/search?q=shoes` and `shoes - Google Search`, title included. *Whole words* stops `shoesupply.com`. |
-| **Regular expression** | Capped at 200 characters. Nested repeats like `(a+)+` are refused. |
+There is a PIN you can put on the list, so nobody using the same computer can read it, and six
+themes if you care how it looks.
 
-Export the list to JSON, import it elsewhere, switch a rule off or delete it. The tester on the
-options page tells you which rule would catch a URL before you trust it.
+## Support
 
-There is also a **keep list**: tick `Keep only the sites I list` and a page is wiped when it is *not*
-on your list. Off by default, and it refuses to switch on with an empty list.
+One person, no server bill, just the hours: [Buy me a coffee](https://buymeacoffee.com/forsigh).
 
-## Clearing: pick a preset
+Something broken, or a Polish line that reads like a machine wrote it?
+[Open an issue](https://github.com/Forsigh/lil-bro-history-wipe/issues).
 
-The history wipe is separate and always on. Next to it, pick how much else goes:
+## Privacy
 
-| Preset | What it clears |
-| --- | --- |
-| **Off** | History only. |
-| **Light** | Cache. |
-| **Standard** | Cache, cookies and site data, saved form text. |
-| **Nuclear** | All of the above plus download history, and all of your history. |
-| **Custom** | The four switches, your own mix. |
+Everything ships inside the package. No remote code, no analytics, no network requests of its own.
+The one link out is the support page, and your browser opens it in a new tab only if you click it.
+The long version is in [the policy](https://forsigh.github.io/lil-bro-history-wipe/privacy.html).
 
-Two more choices: how far back (an hour, a day, a week, a month, everything) and when (only on the
-button, or also at browser close and start). A clear also rides along with `Wipe now`.
+Permissions: `history` (the only one Chrome warns about), `storage`, `notifications`,
+`contextMenus`, `activeTab`, `browsingData`, `cookies`. No host permissions, no content scripts.
+`tabs` is optional and asked for only by the cookie-on-tab-close setting.
 
-Worth knowing: Chrome reports nothing back, so there is no count. Cookies go for the whole site, so
-logins there end. Download history is the list, not the files. History, download and form text cannot
-be narrowed to one site. Passwords are not offered at all: Chrome removed password deletion from the
-extension API in 144.
+## Under the hood
 
-## Cookies
-
-Two triggers of their own, both off by default:
-
-- **Clear cookies at browser start**, keeping the sites in the keep list.
-- **Clear a site's cookies when I close its tab.** This needs tab access, which Chrome asks for only
-  when you switch it on. It is an optional permission, so it never appears at install.
-
-The keep list is one domain per line. Those sites are never touched. `Clear cookies now` does a pass
-on demand.
-
-## PIN lock
-
-`Ask for a PIN before showing or editing my list` hides the rules, the tester, the log, the backup and
-the danger zone until the PIN is entered, and the popup drops the preview and add buttons. The lock
-takes hold the moment the PIN is saved, and `Hide the list now` puts it back without a reload. The
-right-click item that adds a site only sends a notification while the lock is on.
-
-The PIN is salted, stretched with PBKDF2-SHA256 150 000 times, and stored locally only. Five wrong
-tries park the pad for 30 seconds. Forgot it? `Forgot the PIN?`, type `lilbro`, and the PIN goes,
-along with the list and everything else the extension saved. It keeps the list off the screen and
-encrypts nothing; anyone who can open `chrome://extensions` can still remove the extension.
-
-## Popup
-
-Compact by default: state, on/off switch, `Wipe now`, `Preview`, and a line saying what else is being
-cleared. Everything else sits behind `More controls`. The header button switches to the classic
-denser layout and remembers the choice.
-
-## Themes
-
-Six: Auto (follows your system), Dark, Light, Neon, Paper, Slate. Pick one on the options page; both
-pages and the popup follow it.
-
-## Tests
-
-No build step, no dependencies.
+No build step and no dependencies.
 
 ```
-npm test
-node tests/matcher.test.mjs   # matching engine and the regex guards: 68 cases
-node tests/gate.test.mjs      # confirmation gates and their wording: 31 cases
-node tests/lock.test.mjs      # PIN lock, hashing, throttle, recovery: 38 cases
-node tests/worker.test.mjs    # the worker against a fake chrome.* and history DB: 166 cases
-node tests/pages.test.mjs     # ids, manifest, settings and rule-type consistency, deletion scope
+npm test                       # all six suites
+node tools/live_probe.mjs 1234 <browser>   # the extension itself, in a throwaway profile
+python tools/package.py        # the zip, verified entry by entry against this folder
 ```
 
-The worker suite runs the real `service-worker.js`: instant deletion, the deferred queue, the
-last-window flush, pagination over a large fake history, the keep-list matrix, rule sync including
-the 8 KB chunking, the wipe-all matrix, the extra clear, and the cookie paths (keep list, start
-trigger, tab close, and a build with no permission at all).
-
-```
-node tools/live_probe.mjs     # 78 checks in a real browser
-node tools/packager.mjs       # build the zip
-```
-
-The probe stages a copy of this folder in a throwaway profile and drives the real extension against a
-real history database: the manifest the browser loaded, the permission surface, exact-match deletion,
-keep mode, the armed wipe-all with both gates, the extra clear against the real browsing-data API, the
-cookie keep list, the three themes and presets as rendered, both popup layouts, and the PIN lock.
-It never touches your own profile.
-
-## Limits
-
-- No shutdown hook exists in MV3, so close-mode runs at close when it can and at the next start
-  otherwise.
-- A deleted entry can still appear in address-bar suggestions. That store has no extension API.
-- `history.deleteUrl` removes every visit to a URL, not just the matching one.
-- With history sync on, a deletion propagates to your other devices, and a too-broad rule travels.
-- A deep scan is budgeted to about four minutes per run; a huge history finishes over several runs.
-- Cookie and cache clearing can be per site. History, downloads and form text cannot.
-- No password clearing, ever.
-
-## Permissions
-
-`history` (the only one that warns), `storage` (rules sync, switches local), `notifications`,
-`contextMenus`, `activeTab` (the popup reads the current tab's URL), `browsingData` (the clearing
-presets), `cookies` (the keep list and cookie triggers, no warning of its own). `tabs` is optional and
-asked for only by the tab-close feature. No host permissions, no content scripts, no network access.
+`matcher.js` decides what matches, `service-worker.js` does the deleting, and both pages take their
+words from `_locales`. `docs/VERSIONS.md` lists every zip with its hash, because one version number
+means one zip and nothing gets rebuilt under an old name.

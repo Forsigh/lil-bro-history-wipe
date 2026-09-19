@@ -379,16 +379,48 @@ for (const file of ['options.js', 'popup.js']) {
 }
 console.log('  lock: list sections gated, PIN hashed, lock takes hold at once, menu cannot edit around it');
 
-// The popup is compact by default and can be put back to the classic layout, so a
-// redesign never hides a control away with no way to see the old one again.
-if (!popupHtml.includes('id="layoutBtn"') || !popupSrc.includes("popupLayout")) {
-  console.log('  FAIL the popup lost its compact/classic switch');
+// The popup says what happens to the tab in front of you, and it asks the same
+// matcher the worker asks, so that line cannot drift from what really happens.
+if (!popupHtml.includes('id="siteVerdict"')) {
+  console.log('  FAIL the popup no longer says what happens to the current tab');
   fail++;
 }
-if (!readFileSync(join(root, 'styles.css'), 'utf8').includes('body.layout-classic .more')) {
-  console.log('  FAIL styles.css cannot show the classic popup layout');
+if (!popupSrc.includes("from './matcher.js'") || !popupSrc.includes('findMatch(')) {
+  console.log('  FAIL the popup verdict no longer goes through the matcher');
   fail++;
 }
+if (/layoutBtn|moreBtn|applyLayout|setMore/.test(popupSrc) || popupHtml.includes('id="layoutBtn"')) {
+  console.log('  FAIL the dead compact/classic layout is still wired up');
+  fail++;
+}
+
+// The verdict keys are chosen at runtime (t(key)), so a typo in the code would
+// reach the screen as an empty line. Both halves are checked: the key has to be
+// in popup.js, and in every bundle.
+const bundleFor = (loc) =>
+  JSON.parse(readFileSync(join(root, '_locales', loc, 'messages.json'), 'utf8'));
+const VERDICT_KEYS = [
+  'siteCleanedNow',
+  'siteCleanedStart',
+  'siteKept',
+  'siteNotListed',
+  'siteAll',
+  'sitePaused',
+  'siteNoSite',
+];
+for (const key of VERDICT_KEYS) {
+  if (!popupSrc.includes(`'${key}'`)) {
+    console.log(`  FAIL popup.js never asks for the verdict key "${key}"`);
+    fail++;
+  }
+  for (const loc of ['en', 'pl']) {
+    if (!bundleFor(loc)[key]) {
+      console.log(`  FAIL the verdict key "${key}" is missing from _locales/${loc}`);
+      fail++;
+    }
+  }
+}
+console.log(`  popup verdict: ${VERDICT_KEYS.length} keys wired, present in both bundles`);
 
 console.log(fail === 0 ? '\npages: ok' : `\npages: ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

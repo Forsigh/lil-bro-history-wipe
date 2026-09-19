@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.3.11', m.version === '1.3.11', m.version);
+  record('version is 1.4.0', m.version === '1.4.0', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -463,8 +463,9 @@ try {
       wipeBtn: document.getElementById('wipeBtn').textContent.trim(),
       addDomain: document.getElementById('addDomainBtn').textContent.trim(),
       lockCardHidden: document.getElementById('lockCard').classList.contains('hidden'),
-      layout: document.body.className,
-      moreOpen: document.getElementById('more').classList.contains('open'),
+      verdict: document.getElementById('siteVerdict').textContent.trim(),
+      verdictClass: document.getElementById('siteVerdict').className,
+      sitePreview: document.getElementById('sitePreview').textContent.trim(),
       switchState: document.getElementById('toggleBtn').getAttribute('aria-checked'),
       extraLine: document.getElementById('extraLine').textContent.trim(),
       extraRowHidden: document.getElementById('extraRow').classList.contains('hidden')
@@ -474,7 +475,13 @@ try {
   record('popup shows the active state', view.status === 'Active' && view.dot === 'dot', `${view.status} (${view.dot})`);
   record('popup starts on "only my list"', view.scopeList === true && view.scopeAll === false, view.wipeBtn);
   record('popup shows a lock card only when a PIN exists', view.lockCardHidden === true);
-  record('popup opens compact, with the rest behind a disclosure', /layout-simple/.test(view.layout) && view.moreOpen === false, view.layout);
+  // The popup itself runs in a tab here, so the tab it looks at has no wipeable
+  // site: the verdict line has to say exactly that.
+  record(
+    'popup says what happens to the tab it is looking at',
+    /no wipeable site/.test(view.verdict) && /\bverdict\b/.test(view.verdictClass),
+    `${view.verdict} (${view.verdictClass})`
+  );
   record('the switch carries the state it controls', view.switchState === 'true', String(view.switchState));
   record(
     'the popup says what is not being cleared',
@@ -482,25 +489,20 @@ try {
     view.extraLine
   );
 
-  // The compact and the classic layout are one click apart, and the choice sticks.
-  const layouts = JSON.parse(
-    await pop.evaluate(`(async()=>{
-      document.getElementById('moreBtn').click();
-      await new Promise(r=>setTimeout(r,80));
-      const opened = document.getElementById('more').classList.contains('open');
-      document.getElementById('layoutBtn').click();
-      await new Promise(r=>setTimeout(r,150));
-      const classic = document.body.classList.contains('layout-classic');
-      const shown = getComputedStyle(document.getElementById('more')).display !== 'none';
-      const stored = (await chrome.storage.local.get('settings')).settings.popupLayout;
-      document.getElementById('layoutBtn').click();
-      await new Promise(r=>setTimeout(r,150));
-      return JSON.stringify({ opened, classic, shown, stored, back: document.body.classList.contains('layout-simple') });
-    })()`)
+  // The compact/classic switch was removed in 1.4.0, and the popup verdict replaced
+  // it. Both of the controls it used are gone rather than merely hidden.
+  const leftovers = JSON.parse(
+    await pop.evaluate(`JSON.stringify({
+      layoutBtn: !!document.getElementById('layoutBtn'),
+      moreBtn: !!document.getElementById('moreBtn'),
+      bodyLayout: document.body.className
+    })`)
   );
-  record('the compact popup unfolds on demand', layouts.opened === true);
-  record('the classic layout shows everything at once, and is remembered', layouts.classic && layouts.shown && layouts.stored === 'classic', `stored=${layouts.stored}`);
-  record('and it switches back', layouts.back === true);
+  record(
+    'the compact/classic switch is gone, not just hidden',
+    leftovers.layoutBtn === false && leftovers.moreBtn === false && !/layout-/.test(leftovers.bodyLayout),
+    leftovers.bodyLayout
+  );
 
   // The extra clear, driven from the popup, against the real browser.
   await setStore({
@@ -739,6 +741,7 @@ try {
       forgot: !document.getElementById('forgotRow').classList.contains('hidden'),
       recover: document.getElementById('recoverRow').classList.contains('hidden'),
       addHidden: getComputedStyle(document.getElementById('addDomainBtn').closest('.card')).display === 'none',
+      verdict: document.getElementById('siteVerdict').textContent.trim(),
       status: document.getElementById('status').textContent.trim()
     })`)
   );
@@ -747,6 +750,8 @@ try {
   // Adding is allowed while the lock is on: the button names no site, so it gives
   // nothing away. What stays hidden is anything that lists what is being cleaned.
   record('popup can still add while locked', lockView2.addHidden === false);
+  // The verdict names what happens to this tab, so it says nothing while locked.
+  record('popup says nothing about the tab while locked', lockView2.verdict === '', `"${lockView2.verdict}"`);
   await closePage(pop5.id);
 
   // --- 11. while the lock is on, nothing on either page names the list --------
