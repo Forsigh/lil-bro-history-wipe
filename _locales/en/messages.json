@@ -1,6 +1,6 @@
 {
   "name": {
-    "message": "Lil Bro - History Wipe"
+    "message": "Lil Bro Wipe – History Cleaner"
   },
   "description": {
     "message": "Wipes the sites and words you pick out of your history: as you browse, or the next time you open the browser."
@@ -8,188 +8,544 @@
   "actionTitle": {
     "message": "Lil Bro"
   },
-
-  "brandSub": { "message": "History Wipe" },
-  "layoutBtn": { "message": "Classic" },
-  "layoutTitle": { "message": "Switch between the small popup and the classic one" },
-  "switchOn": { "message": "On" },
-  "switchOff": { "message": "Off" },
-  "wipeNow": { "message": "Wipe now" },
-  "wipeAllNow": { "message": "Wipe ALL history now" },
-  "preview": { "message": "Scan" },
-  "clearExtra": { "message": "Clear the extra kinds" },
-  "arm": { "message": "Full wipe" },
-  "pinPlaceholder": { "message": "PIN" },
-  "unlock": { "message": "Unlock" },
-  "forgotPin": { "message": "Forgot the PIN?" },
-  "reset": { "message": "Reset" },
-  "moreControls": { "message": "More controls" },
-  "scopeList": { "message": "Only my list" },
-  "scopeAll": { "message": "Everything, always" },
-  "includeSubdomains": { "message": "include subdomains" },
-  "cleaningTitle": { "message": "Cleaning" },
-  "addedOnly": { "message": "Added." },
-  "keptOnly": { "message": "Kept." },
-  "noWipeableSite": { "message": "This tab has nothing to clean." },
-  "currentTab": { "message": "This tab: $1" },
-  "lockHidden": { "message": "Hidden while the PIN is on." },
-  "addSite": { "message": "Add to filter list" },
-  "keepSite": { "message": "Keep this site" },
-  "addPage": { "message": "Add just this page" },
-  "keepPage": { "message": "Keep this exact page only" },
-  "statTotal": { "message": "cleaned so far" },
-  "statLast": { "message": "last clean" },
-  "openOptions": { "message": "All rules & settings" },
-
-  "optSub": { "message": "Pick what it should forget. Your rules follow you to your other computers. Everything else stays on this one." },
-  "optLockedTag": { "message": "Locked." },
-  "optLockedBody": { "message": "Your list is hidden until you unlock it below. Cleaning carries on." },
-  "optWhenToWipe": { "message": "When should it clean?" },
-  "optModeRealtime": { "message": "While I browse" },
-  "optModeRealtimeHint": { "message": "It cleans each visit as it happens." },
-  "optModeOnClose": { "message": "When I close the browser" },
-  "optModeOnCloseHint": { "message": "Quiet while you surf. It cleans when you close the browser, or the next time you open it if that moment is missed." },
-  "optModeStartup": { "message": "When I open the browser" },
-  "optModeStartupHint": { "message": "One pass each time you open the browser." },
-  "optSweep": { "message": "Also clean the history that is already saved, at browser start" },
-  "optNotify": { "message": "Tell me when it has cleaned" },
-  "optKeepLog": { "message": "Keep a list of what was cleaned" },
-  "optWhatToWipe": { "message": "Your list" },
-  "optListHint": { "message": "Anything on this list is cleaned. Sites, words, or address beginnings, whichever suits you." },
-  "optKeepOnly": { "message": "Keep only the sites on my list, clean everything else" },
-  "optTypeDomain": { "message": "Site" },
-  "optTypeUrl": { "message": "Address starts with" },
-  "optTypeKeyword": { "message": "Word in the address or title" },
-  "optTypeRegex": { "message": "Pattern" },
-  "optAdd": { "message": "Add" },
-  "optSubdomainsToo": { "message": "subdomains too" },
-  "optWholeWords": { "message": "whole words" },
-  "optColType": { "message": "Type" },
-  "optColValue": { "message": "Value" },
-  "optColActive": { "message": "Active" },
-  "optRulesEmpty": { "message": "Nothing on the list yet. Add a site or a word above." },
-  "optTryUrl": { "message": "Check an address against the list" },
-  "optTestUrlPlaceholder": { "message": "https://shop.example.com/cart" },
-  "optTestTitlePlaceholder": { "message": "title (optional)" },
-  "optTestNone": { "message": "Nothing checked yet." },
-  "optStayOnList": { "message": "Staying on your list" },
-  "optExtras": { "message": "The extra kinds" },
-  "optClearing": { "message": "What gets cleaned" },
-  "optClearingHint": { "message": "Pick a level. History is the list of pages you visited. Cache is the saved copy of a page, the thing that makes it open faster. Cookies are the small files that keep you logged in." },
-  "optPresetOff": { "message": "Off" },
-  "optPresetOffSub": { "message": "Your rules decide. History only." },
-  "optPresetLight": { "message": "Light" },
-  "optPresetLightSub": { "message": "History and cache. Pages will load a little slower." },
-  "optPresetStandard": { "message": "Standard" },
-  "optPresetStandardSub": { "message": "History, cache and cookies. Sites will not remember you, so you'll log in again." },
-  "optPresetNuclear": { "message": "FULL" },
-  "optPresetNuclearSub": { "message": "Everything the browser will let it touch. Saved passwords stay." },
-  "optPresetCustom": { "message": "Custom" },
-  "optPresetCustomSub": { "message": "Pick each kind yourself." },
-  "optExtraCache": { "message": "Saved page files" },
-  "optExtraCookies": { "message": "Cookies (what keeps me logged in)" },
-  "optExtraDownloads": { "message": "The list of downloads" },
-  "optExtraFormData": { "message": "Text I typed in forms" },
-  "optReachBack": { "message": "Reach back" },
-  "optSinceHour": { "message": "an hour" },
-  "optSinceDay": { "message": "a day" },
-  "optSinceWeek": { "message": "a week" },
-  "optSinceMonth": { "message": "a month" },
-  "optSinceAll": { "message": "everything" },
-  "optRunWhen": { "message": "Run" },
-  "optTriggerManual": { "message": "when I press the button" },
-  "optTriggerTriggers": { "message": "also at close and start" },
-  "optClearNow": { "message": "Clear now" },
-  "optClearingNote": { "message": "The browser does not report how much it cleared, so there is no number to show. Clearing cookies logs you out of that site. Downloads means the list, not your files. Passwords are not included: the browser removed that in version 144." },
-  "optCookies": { "message": "Cookies" },
-  "optCookiesOnStart": { "message": "Clear cookies at browser start" },
-  "optCookiesOnTabClose": { "message": "Clear a site's cookies when I close its tab" },
-  "optAllowTabs": { "message": "Allow tab access" },
-  "optCookieKeepLabel": { "message": "Stay logged in on these sites, one per line" },
-  "optCookieNow": { "message": "Clear cookies now" },
-  "optLook": { "message": "Look" },
-  "optLang": { "message": "Language" },
-  "bmcLabel": { "message": "Buy me a coffee" },
-  "siteCleanedNow": { "message": "This one goes. It is erased as you browse." },
-  "siteCleanedStart": { "message": "This one goes. It is erased at your next start." },
-  "siteKept": { "message": "This one stays. It is on your keep list." },
-  "siteNotListed": { "message": "This one stays. It is not on your list." },
-  "siteAll": { "message": "Full wipe is on. This one goes with the rest." },
-  "sitePaused": { "message": "Cleaning is off, so nothing is being erased right now." },
-  "siteNoSite": { "message": "This tab has no wipeable site." },
-  "optLangHint": { "message": "Auto follows your browser. More languages get added as they are written." },
-  "langAuto": { "message": "Auto (my browser)" },
-  "langEn": { "message": "English" },
-  "langPl": { "message": "Polski" },
-  "optThemeAuto": { "message": "Auto" },
-  "optThemeDark": { "message": "Dark" },
-  "optThemeLight": { "message": "Light" },
-  "optThemeNeon": { "message": "Neon" },
-  "optThemePaper": { "message": "Paper" },
-  "optThemeSlate": { "message": "Slate" },
-  "optStatus": { "message": "Right now" },
-  "optStatTotal": { "message": "cleaned, all time" },
-  "optStatLastCount": { "message": "in the last clean" },
-  "optWipeNow": { "message": "Wipe now" },
-  "optPreview": { "message": "Scan" },
-  "optLastRunNone": { "message": "No runs yet." },
-  "optWipedSoFar": { "message": "What it has cleaned" },
-  "optLogEmpty": { "message": "Nothing cleaned yet." },
-  "optClearLog": { "message": "Clear this list" },
-  "optRulesFile": { "message": "Your list as a file" },
-  "optExport": { "message": "Export" },
-  "optImport": { "message": "Import" },
-  "optLock": { "message": "Lock" },
-  "optLockEnable": { "message": "Hide the list behind a PIN" },
-  "optLockPinNew": { "message": "new PIN" },
-  "optLockPinRepeat": { "message": "repeat it" },
-  "optSavePin": { "message": "Save PIN" },
-  "optLockUnlock": { "message": "Unlock" },
-  "optLockHideNow": { "message": "Hide the list now" },
-  "optLockForgot": { "message": "Forgot the PIN?" },
-  "optLockRecoverBtn": { "message": "Remove the PIN and wipe my list" },
-  "optLockNote": { "message": "You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site only shows a notification." },
-  "optAdvanced": { "message": "Show the advanced controls" },
-  "optAdvancedHint": { "message": "Cookies, the address tester, import and export, the switch that ignores your list." },
-  "optAllOfIt": { "message": "Everything" },
-  "optWipeAll": { "message": "Clean all history, not just what is on my list" },
-  "optWipeAllHint": { "message": "Your list stops mattering: every clean takes the whole history. The list stays where it is and counts again the moment this is off." },
-  "optLimitsBanner": { "message": "Two things the browser won't let any cleaner do. It can't run at the exact moment the browser closes, so a missed close means the clean happens the next time you open it. And a page you deleted can still show up in the address bar suggestions." },
-
-  "statusPaused": { "message": "Paused" },
-  "statusArmed": { "message": "Full wipe is on: all of your history goes" },
-  "statusKeep": { "message": "Wiping all but your keep list" },
-  "statusActive": { "message": "Active" },
-  "pauseTitle": { "message": "Pause Lil Bro" },
-  "resumeTitle": { "message": "Start wiping again" },
-  "wipeSite": { "message": "Wipe this site" },
-  "wipePage": { "message": "Wipe this exact page only" },
-  "wipeAllOn": { "message": "Wipe-all is ON: your whole history goes, not just your rules." },
-  "keepOn": { "message": "Everything not on your list is wiped." },
-  "modeInstant": { "message": "Wiping instantly, as you browse." },
-  "modeInstantArmed": { "message": "Every visit is erased the moment it happens." },
-  "modeClose": { "message": "Matches go when you close the browser." },
-  "modeCloseArmed": { "message": "Everything goes when you close the browser." },
-  "modeStart": { "message": "Matches go at the start of your next session." },
-  "modeStartArmed": { "message": "Everything goes at the start of your next session." },
-  "keepInstant": { "message": "Every other site is erased as you visit it." },
-  "keepClose": { "message": "Everything else goes when you close the browser." },
-  "keepStart": { "message": "Everything else goes at your next start." },
-  "clearNow": { "message": "Clear now" },
-  "alsoClearing": { "message": "Also clearing: $1." },
-  "historyOnly": { "message": "History only." },
-  "stateArmed": { "message": "Full wipe is on: all of your history goes" },
-  "statePaused": { "message": "Paused" },
-  "stateKeep": { "message": "Active: wiping all but your keep list" },
-  "stateActive": { "message": "Active: $1" },
-  "lastRunAt": { "message": "Last clean: $1 ($2)" },
-  "queueLine": { "message": "waiting: $1, cleaned $2" },
-  "queueWhenClose": { "message": "when you close the browser" },
-  "queueWhenStart": { "message": "at your next start" },
-
-  "ruleDomain": { "message": "Site / domain" },
-  "ruleUrl": { "message": "Address starts with" },
-  "ruleKeyword": { "message": "Word in the address or title" },
-  "ruleRegex": { "message": "Pattern" },
-  "wouldBeWiped": { "message": "Your list catches this: $1 to $2" }
+  "brandSub": {
+    "message": "History Cleaner"
+  },
+  "layoutBtn": {
+    "message": "Classic"
+  },
+  "layoutTitle": {
+    "message": "Switch between the small popup and the classic one"
+  },
+  "switchOn": {
+    "message": "On"
+  },
+  "switchOff": {
+    "message": "Off"
+  },
+  "wipeNow": {
+    "message": "Wipe now"
+  },
+  "wipeAllNow": {
+    "message": "Wipe ALL history now"
+  },
+  "preview": {
+    "message": "Scan"
+  },
+  "clearExtra": {
+    "message": "Clear the extra kinds"
+  },
+  "arm": {
+    "message": "Full wipe"
+  },
+  "pinPlaceholder": {
+    "message": "PIN"
+  },
+  "unlock": {
+    "message": "Unlock"
+  },
+  "forgotPin": {
+    "message": "Forgot the PIN?"
+  },
+  "reset": {
+    "message": "Reset"
+  },
+  "moreControls": {
+    "message": "More controls"
+  },
+  "scopeList": {
+    "message": "Only my list"
+  },
+  "scopeAll": {
+    "message": "Everything, always"
+  },
+  "includeSubdomains": {
+    "message": "include subdomains"
+  },
+  "cleaningTitle": {
+    "message": "Cleaning"
+  },
+  "addedOnly": {
+    "message": "Added."
+  },
+  "keptOnly": {
+    "message": "Kept."
+  },
+  "noWipeableSite": {
+    "message": "This tab has nothing to clean."
+  },
+  "currentTab": {
+    "message": "This tab: $1"
+  },
+  "lockHidden": {
+    "message": "Hidden while the PIN is on."
+  },
+  "addSite": {
+    "message": "Add to filter list"
+  },
+  "keepSite": {
+    "message": "Keep this site"
+  },
+  "addPage": {
+    "message": "Add just this page"
+  },
+  "keepPage": {
+    "message": "Keep this exact page only"
+  },
+  "statTotal": {
+    "message": "cleaned so far"
+  },
+  "statLast": {
+    "message": "last clean"
+  },
+  "openOptions": {
+    "message": "All rules & settings"
+  },
+  "optSub": {
+    "message": "Pick what it should forget. Your rules follow you to your other computers. Everything else stays on this one."
+  },
+  "optLockedTag": {
+    "message": "Locked."
+  },
+  "optLockedBody": {
+    "message": "Your list is hidden until you unlock it below. Cleaning carries on."
+  },
+  "optWhenToWipe": {
+    "message": "When should it clean?"
+  },
+  "optModeRealtime": {
+    "message": "While I browse"
+  },
+  "optModeRealtimeHint": {
+    "message": "It cleans each visit as it happens."
+  },
+  "optModeOnClose": {
+    "message": "When I close the browser"
+  },
+  "optModeOnCloseHint": {
+    "message": "Quiet while you surf. It cleans when you close the browser, or the next time you open it if that moment is missed."
+  },
+  "optModeStartup": {
+    "message": "When I open the browser"
+  },
+  "optModeStartupHint": {
+    "message": "One pass each time you open the browser."
+  },
+  "optSweep": {
+    "message": "Also clean the history that is already saved, at browser start"
+  },
+  "optNotify": {
+    "message": "Tell me when it has cleaned"
+  },
+  "optKeepLog": {
+    "message": "Keep a list of what was cleaned"
+  },
+  "optWhatToWipe": {
+    "message": "Your list"
+  },
+  "optListHint": {
+    "message": "Anything on this list is cleaned. Sites, words, or address beginnings, whichever suits you."
+  },
+  "optKeepOnly": {
+    "message": "Keep only the sites on my list, clean everything else"
+  },
+  "optTypeDomain": {
+    "message": "Site"
+  },
+  "optTypeUrl": {
+    "message": "Address starts with"
+  },
+  "optTypeKeyword": {
+    "message": "Word in the address or title"
+  },
+  "optTypeRegex": {
+    "message": "Pattern"
+  },
+  "optAdd": {
+    "message": "Add"
+  },
+  "optSubdomainsToo": {
+    "message": "subdomains too"
+  },
+  "optWholeWords": {
+    "message": "whole words"
+  },
+  "optColType": {
+    "message": "Type"
+  },
+  "optColValue": {
+    "message": "Value"
+  },
+  "optColActive": {
+    "message": "Active"
+  },
+  "optRulesEmpty": {
+    "message": "Nothing on the list yet. Add a site or a word above."
+  },
+  "optTryUrl": {
+    "message": "Check an address against the list"
+  },
+  "optTestUrlPlaceholder": {
+    "message": "https://shop.example.com/cart"
+  },
+  "optTestTitlePlaceholder": {
+    "message": "title (optional)"
+  },
+  "optTestNone": {
+    "message": "Nothing checked yet."
+  },
+  "optStayOnList": {
+    "message": "Staying on your list"
+  },
+  "optExtras": {
+    "message": "The extra kinds"
+  },
+  "optClearing": {
+    "message": "What gets cleaned"
+  },
+  "optClearingHint": {
+    "message": "Pick a level. History is the list of pages you visited. Cache is the saved copy of a page, the thing that makes it open faster. Cookies are the small files that keep you logged in."
+  },
+  "optPresetOff": {
+    "message": "Off"
+  },
+  "optPresetOffSub": {
+    "message": "Your rules decide. History only."
+  },
+  "optPresetLight": {
+    "message": "Light"
+  },
+  "optPresetLightSub": {
+    "message": "History and cache. Pages will load a little slower."
+  },
+  "optPresetStandard": {
+    "message": "Standard"
+  },
+  "optPresetStandardSub": {
+    "message": "History, cache and cookies. Sites will not remember you, so you'll log in again."
+  },
+  "optPresetNuclear": {
+    "message": "FULL"
+  },
+  "optPresetNuclearSub": {
+    "message": "Everything the browser will let it touch. Saved passwords stay."
+  },
+  "optPresetCustom": {
+    "message": "Custom"
+  },
+  "optPresetCustomSub": {
+    "message": "Pick each kind yourself."
+  },
+  "optExtraCache": {
+    "message": "Saved page files"
+  },
+  "optExtraCookies": {
+    "message": "Cookies (what keeps me logged in)"
+  },
+  "optExtraDownloads": {
+    "message": "The list of downloads"
+  },
+  "optExtraFormData": {
+    "message": "Text I typed in forms"
+  },
+  "optReachBack": {
+    "message": "Reach back"
+  },
+  "optSinceHour": {
+    "message": "an hour"
+  },
+  "optSinceDay": {
+    "message": "a day"
+  },
+  "optSinceWeek": {
+    "message": "a week"
+  },
+  "optSinceMonth": {
+    "message": "a month"
+  },
+  "optSinceAll": {
+    "message": "everything"
+  },
+  "optRunWhen": {
+    "message": "Run"
+  },
+  "optTriggerManual": {
+    "message": "when I press the button"
+  },
+  "optTriggerTriggers": {
+    "message": "also at close and start"
+  },
+  "optClearNow": {
+    "message": "Clear now"
+  },
+  "optClearingNote": {
+    "message": "The browser does not report how much it cleared, so there is no number to show. Clearing cookies logs you out of that site. Downloads means the list, not your files. Passwords are not included: the browser removed that in version 144."
+  },
+  "optCookies": {
+    "message": "Cookies"
+  },
+  "optCookiesOnStart": {
+    "message": "Clear cookies at browser start"
+  },
+  "optCookiesOnTabClose": {
+    "message": "Clear a site's cookies when I close its tab"
+  },
+  "optAllowTabs": {
+    "message": "Allow tab access"
+  },
+  "optCookieKeepLabel": {
+    "message": "Stay logged in on these sites, one per line"
+  },
+  "optCookieNow": {
+    "message": "Clear cookies now"
+  },
+  "optLook": {
+    "message": "Look"
+  },
+  "optLang": {
+    "message": "Language"
+  },
+  "bmcLabel": {
+    "message": "Buy me a coffee"
+  },
+  "siteCleanedNow": {
+    "message": "This one goes. It is erased as you browse."
+  },
+  "siteCleanedStart": {
+    "message": "This one goes. It is erased at your next start."
+  },
+  "siteKept": {
+    "message": "This one stays. It is on your keep list."
+  },
+  "siteNotListed": {
+    "message": "This one stays. It is not on your list."
+  },
+  "siteAll": {
+    "message": "Full wipe is on. This one goes with the rest."
+  },
+  "sitePaused": {
+    "message": "Cleaning is off, so nothing is being erased right now."
+  },
+  "siteNoSite": {
+    "message": "This tab has no wipeable site."
+  },
+  "optLangHint": {
+    "message": "Auto follows your browser. More languages get added as they are written."
+  },
+  "langAuto": {
+    "message": "Auto (my browser)"
+  },
+  "langEn": {
+    "message": "English"
+  },
+  "langPl": {
+    "message": "Polski"
+  },
+  "optThemeAuto": {
+    "message": "Auto"
+  },
+  "optThemeDark": {
+    "message": "Dark"
+  },
+  "optThemeLight": {
+    "message": "Light"
+  },
+  "optThemeNeon": {
+    "message": "Neon"
+  },
+  "optThemePaper": {
+    "message": "Paper"
+  },
+  "optThemeSlate": {
+    "message": "Slate"
+  },
+  "optStatus": {
+    "message": "Right now"
+  },
+  "optStatTotal": {
+    "message": "cleaned, all time"
+  },
+  "optStatLastCount": {
+    "message": "in the last clean"
+  },
+  "optWipeNow": {
+    "message": "Wipe now"
+  },
+  "optPreview": {
+    "message": "Scan"
+  },
+  "optLastRunNone": {
+    "message": "No runs yet."
+  },
+  "optWipedSoFar": {
+    "message": "What it has cleaned"
+  },
+  "optLogEmpty": {
+    "message": "Nothing cleaned yet."
+  },
+  "optClearLog": {
+    "message": "Clear this list"
+  },
+  "optRulesFile": {
+    "message": "Your list as a file"
+  },
+  "optExport": {
+    "message": "Export"
+  },
+  "optImport": {
+    "message": "Import"
+  },
+  "optLock": {
+    "message": "Lock"
+  },
+  "optLockEnable": {
+    "message": "Hide the list behind a PIN"
+  },
+  "optLockPinNew": {
+    "message": "new PIN"
+  },
+  "optLockPinRepeat": {
+    "message": "repeat it"
+  },
+  "optSavePin": {
+    "message": "Save PIN"
+  },
+  "optLockUnlock": {
+    "message": "Unlock"
+  },
+  "optLockHideNow": {
+    "message": "Hide the list now"
+  },
+  "optLockForgot": {
+    "message": "Forgot the PIN?"
+  },
+  "optLockRecoverBtn": {
+    "message": "Remove the PIN and wipe my list"
+  },
+  "optLockNote": {
+    "message": "You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site only shows a notification."
+  },
+  "optAdvanced": {
+    "message": "Show the advanced controls"
+  },
+  "optAdvancedHint": {
+    "message": "Cookies, the address tester, import and export, the switch that ignores your list."
+  },
+  "optAllOfIt": {
+    "message": "Everything"
+  },
+  "optWipeAll": {
+    "message": "Clean all history, not just what is on my list"
+  },
+  "optWipeAllHint": {
+    "message": "Your list stops mattering: every clean takes the whole history. The list stays where it is and counts again the moment this is off."
+  },
+  "optLimitsBanner": {
+    "message": "Two things the browser won't let any cleaner do. It can't run at the exact moment the browser closes, so a missed close means the clean happens the next time you open it. And a page you deleted can still show up in the address bar suggestions."
+  },
+  "statusPaused": {
+    "message": "Paused"
+  },
+  "statusArmed": {
+    "message": "Full wipe is on: all of your history goes"
+  },
+  "statusKeep": {
+    "message": "Wiping all but your keep list"
+  },
+  "statusActive": {
+    "message": "Active"
+  },
+  "pauseTitle": {
+    "message": "Pause Lil Bro"
+  },
+  "resumeTitle": {
+    "message": "Start wiping again"
+  },
+  "wipeSite": {
+    "message": "Wipe this site"
+  },
+  "wipePage": {
+    "message": "Wipe this exact page only"
+  },
+  "wipeAllOn": {
+    "message": "Wipe-all is ON: your whole history goes, not just your rules."
+  },
+  "keepOn": {
+    "message": "Everything not on your list is wiped."
+  },
+  "modeInstant": {
+    "message": "Wiping instantly, as you browse."
+  },
+  "modeInstantArmed": {
+    "message": "Every visit is erased the moment it happens."
+  },
+  "modeClose": {
+    "message": "Matches go when you close the browser."
+  },
+  "modeCloseArmed": {
+    "message": "Everything goes when you close the browser."
+  },
+  "modeStart": {
+    "message": "Matches go at the start of your next session."
+  },
+  "modeStartArmed": {
+    "message": "Everything goes at the start of your next session."
+  },
+  "keepInstant": {
+    "message": "Every other site is erased as you visit it."
+  },
+  "keepClose": {
+    "message": "Everything else goes when you close the browser."
+  },
+  "keepStart": {
+    "message": "Everything else goes at your next start."
+  },
+  "clearNow": {
+    "message": "Clear now"
+  },
+  "alsoClearing": {
+    "message": "Also clearing: $1."
+  },
+  "historyOnly": {
+    "message": "History only."
+  },
+  "stateArmed": {
+    "message": "Full wipe is on: all of your history goes"
+  },
+  "statePaused": {
+    "message": "Paused"
+  },
+  "stateKeep": {
+    "message": "Active: wiping all but your keep list"
+  },
+  "stateActive": {
+    "message": "Active: $1"
+  },
+  "lastRunAt": {
+    "message": "Last clean: $1 ($2)"
+  },
+  "queueLine": {
+    "message": "waiting: $1, cleaned $2"
+  },
+  "queueWhenClose": {
+    "message": "when you close the browser"
+  },
+  "queueWhenStart": {
+    "message": "at your next start"
+  },
+  "ruleDomain": {
+    "message": "Site / domain"
+  },
+  "ruleUrl": {
+    "message": "Address starts with"
+  },
+  "ruleKeyword": {
+    "message": "Word in the address or title"
+  },
+  "ruleRegex": {
+    "message": "Pattern"
+  },
+  "wouldBeWiped": {
+    "message": "Your list catches this: $1 to $2"
+  }
 }

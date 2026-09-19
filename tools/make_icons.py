@@ -27,7 +27,7 @@ FONT_REG = "C:/Windows/Fonts/segoeui.ttf"
 
 # title, subtitle, one plain line about what it does
 COPY = {
-    "en": ("Lil Bro", "History Wipe", "Wipes the sites and words you pick out of your history."),
+    "en": ("Lil Bro Wipe", "History Cleaner", "Wipes the sites and words you pick out of your history."),
     "pl": ("Lil Bro", "Czyszczenie historii", "Czyści z historii wybrane strony i słowa."),
 }
 

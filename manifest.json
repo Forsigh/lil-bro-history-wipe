@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_name__",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "__MSG_description__",
   "default_locale": "en",
   "minimum_chrome_version": "110",
@@ -20,7 +20,7 @@
     "type": "module"
   },
   "action": {
-    "default_title": "Lil Bro — History Wipe",
+    "default_title": "Lil Bro Wipe – History Cleaner",
     "default_popup": "src/popup.html",
     "default_icon": {
       "16": "src/icons/icon16.png",

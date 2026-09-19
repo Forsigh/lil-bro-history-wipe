@@ -1,4 +1,4 @@
-// Lil Bro: History Wipe
+// Lil Bro Wipe: History Cleaner
 // Shared state helpers. Used by the service worker and every extension page.
 
 import { hasNestedQuantifier, REGEX_MAX_PATTERN } from './matcher.js';

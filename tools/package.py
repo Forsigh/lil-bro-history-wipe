@@ -48,7 +48,7 @@ def sha256(data: bytes) -> str:
 def main() -> int:
     manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
     version = manifest["version"]
-    out = ROOT / "builds" / f"lil-bro-history-wipe-{version}.zip"
+    out = ROOT / "builds" / f"lil-bro-wipe-{version}.zip"
     out.parent.mkdir(exist_ok=True)
 
     crlf = []

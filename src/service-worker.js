@@ -1,4 +1,4 @@
-// Lil Bro: History Wipe
+// Lil Bro Wipe: History Cleaner
 // Service worker. The only place that deletes anything.
 
 import { findMatch, isWipeableUrl } from './matcher.js';

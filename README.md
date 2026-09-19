@@ -1,6 +1,6 @@
-![Lil Bro - History Wipe](store/marquee-1400x560.png)
+![Lil Bro Wipe – History Cleaner](store/marquee-1400x560.png)
 
-# Lil Bro - History Wipe
+# Lil Bro Wipe – History Cleaner
 
 Keeps the sites and words you choose out of your browsing history, in any Chromium browser. No
 account, no server, nothing sent anywhere.

@@ -1,4 +1,4 @@
-// Lil Bro: History Wipe
+// Lil Bro Wipe: History Cleaner
 // The optional PIN lock, and the wording that goes with it. Pure crypto helpers so
 // the pages stay thin and the rules can be tested under node (WebCrypto is there too).
 
