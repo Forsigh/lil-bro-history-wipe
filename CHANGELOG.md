@@ -2,6 +2,10 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.5.3
+
+Nothing you can see: this one is about what happens to your settings when the extension updates itself. A profile that was running 1.3.5 comes through with its switches, its keep list, its PIN, its theme, its log and its counters intact, and that is now covered by a test that feeds that old profile to the current build. One thing did change: if your list only ever lived in sync, it now keeps a local copy from the first read, so it still shows if sync goes away. The old close-the-browser trigger, dropped from the interface long ago, moves quietly to the next start.
+
 ## 1.5.2
 
 Adding a site in the settings page printed the site, even with the PIN on, which is the one thing the PIN is there to hide. With the PIN off that line is gone: the new row in the list already says it. With the PIN on it reads Added and nothing more, and the address tester stays quiet too, because it answers with the name of the rule that matched.
