@@ -23,7 +23,7 @@ Or by hand:
 2. Choose **Load unpacked** and pick this folder
 3. Pin the icon, then open **All settings**
 
-## What it is honest about
+## Limits
 
 - Passwords are not touched. The browser removed that for extensions, so there is no switch for it.
 - The browser cannot narrow history, downloads or form text to one site, so those go for the span
