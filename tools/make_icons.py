@@ -107,6 +107,13 @@ def main() -> None:
                 img.save(root, "PNG", optimize=True)
                 print("wrote %s  (the all-languages copy)" % root)
 
+    # GitHub's social preview, same 2:1 shape the marquee uses. English only: the repo
+    # is read in English, and the store is where the Polish tile lives.
+    img, sizes = tile(1280, 640, "en")
+    out = os.path.join("store", "social-preview-1280x640.png")
+    img.save(out, "PNG", optimize=True)
+    print("wrote %s  (1280x640, upload it under Settings, Social preview; text %s px)" % (out, sizes))
+
 
 if __name__ == "__main__":
     main()
