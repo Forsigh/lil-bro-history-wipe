@@ -15,7 +15,7 @@ Run from the extension root:  python tools/make_icons.py
 
 import os
 
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw, ImageFont, ImageStat
 
 ICON = "icons/icon128.png"
 BG = (11, 18, 32)
@@ -43,9 +43,8 @@ def font(path: str, px: int) -> ImageFont.FreeTypeFont:
 
 def accent() -> tuple:
     """The icon's own colour, so the tiles sit next to the artwork instead of fighting it."""
-    im = Image.open(ICON).convert("RGB").resize((16, 16))
-    px = list(im.getdata())
-    return tuple(int(sum(c[i] for c in px) / len(px)) for i in range(3))
+    mean = ImageStat.Stat(Image.open(ICON).convert("RGB").resize((16, 16))).mean
+    return tuple(int(c) for c in mean)
 
 
 def fit(draw: ImageDraw.ImageDraw, text: str, path: str, px: int, limit: int):
@@ -72,7 +71,9 @@ def tile(width: int, height: int, lang: str):
     left = int(width * 0.055)
     top = (height - icon_size) // 2
 
-    icon = Image.open(ICON).convert("RGBA").resize((icon_size, icon_size), Image.LANCZOS)
+    # The icons are opaque, so RGB is the honest read of them and Pillow stops warning
+    # about the palette chunk the PNG came with.
+    icon = Image.open(ICON).convert("RGB").resize((icon_size, icon_size), Image.LANCZOS)
     mask = Image.new("L", (icon_size, icon_size), 0)
     ImageDraw.Draw(mask).rounded_rectangle(
         [0, 0, icon_size - 1, icon_size - 1], radius=int(icon_size * 0.22), fill=255
