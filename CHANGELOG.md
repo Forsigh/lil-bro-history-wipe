@@ -2,6 +2,12 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.5.0
+
+The whole look was redone: every card, button, field and switch, one consistent column for the choices, and focus rings you can see with a keyboard.
+Two more themes, so there are eight. Midnight for screens that go true black, and High contrast for bad light. The rest were tuned and measured, and nothing sits below 5:1 contrast now.
+The popup line that reports on the tab in front of you says its sentence once, instead of twice, and the way into settings reads as a link.
+
 ## 1.4.2
 
 The name is Lil Bro Wipe – History Cleaner now, in the package, on both pages and in the store
