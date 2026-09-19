@@ -364,7 +364,17 @@ export async function readRules() {
       if (Array.isArray(part)) out.push(...part);
     }
     // A declared-but-empty list means the user deleted every rule.
-    if (out.length || (info.count === 0 && Object.keys(bag).length)) return out;
+    if (out.length || (info.count === 0 && Object.keys(bag).length)) {
+      // A profile that came from an older build can hold its list in sync with no
+      // local copy at all, since a machine that synced from another one never wrote
+      // one. Cache it here, so the list still shows if sync goes away later.
+      const localBag = (await areaGet('local', [RULES_MIRROR_KEY])) || {};
+      const mirror = localBag[RULES_MIRROR_KEY];
+      if (!Array.isArray(mirror) || JSON.stringify(mirror) !== JSON.stringify(out)) {
+        await writeRules(out);
+      }
+      return out;
+    }
   }
 
   const local = (await areaGet('local', ['rules', RULES_MIRROR_KEY])) || {};

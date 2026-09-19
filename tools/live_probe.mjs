@@ -166,7 +166,7 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.5.2', m.version === '1.5.2', m.version);
+  record('version is 1.5.3', m.version === '1.5.3', m.version);
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -870,7 +870,96 @@ try {
   );
   await closePage(optLocked.id);
 
-  // --- 12. optional screenshots: the compact popup, the classic one, the options --
+  // --- 12. a profile that came from 1.3.5, opened by this build ---------------
+  // The blob is written the way 1.3.5 wrote it: settings in local, the rule list in
+  // sync chunks, and no local mirror, because a machine that synced from another one
+  // never wrote one. Then both pages have to come up showing the user's own choices
+  // rather than the defaults. mode is the legacy 'onclose', which the page is meant
+  // to move to the next start, since that is what it did in practice.
+  await resetStore();
+  await ev(`(async()=>{
+    await chrome.storage.local.set({
+      settings: {
+        enabled: true, mode: 'onclose', sweepExistingOnStartup: false, notifyOnWipe: false,
+        logEnabled: true, logLimit: 200, includeSubdomainsDefault: true, wipeAllHistory: false,
+        listMode: 'allow', lockEnabled: false, lockHash: '', lockSalt: '', lockIterations: 0,
+        extraCache: true, extraCookies: false, extraDownloads: false, extraFormData: false,
+        extraSince: 'week', extraTrigger: 'manual', popupLayout: 'classic', advanced: true,
+        preset: 'custom', cookieKeep: ['keepme.example'], cookiesOnStart: false,
+        cookiesOnTabClose: false, theme: 'slate'
+      },
+      stats: { wipedTotal: 4821, lastRunAt: 1758000006000, lastRunCount: 37, lastRunPhase: 'manual' },
+      log: [{ url: 'https://auction.example/item/9', rule: 'auction', at: 1758000005000 }],
+      pending: []
+    });
+    await chrome.storage.sync.set({
+      rulesMeta: { chunks: 1, count: 2, at: 1758000002000 },
+      rulesChunk0: [
+        { id: 'r1', type: 'domain', value: 'embarrassing-shop.example', includeSubdomains: true, enabled: true, createdAt: 1758000000000 },
+        { id: 'r2', type: 'keyword', value: 'auction', wholeWord: false, enabled: false, createdAt: 1758000001000 }
+      ]
+    });
+    return 'seeded';
+  })()`);
+
+  const upPage = await openPage(`chrome-extension://${id}/src/options.html`);
+  const afterUpgrade = JSON.parse(
+    await upPage.evaluate(`(async()=>{
+      await new Promise(r=>setTimeout(r,900));
+      const mirror = (await chrome.storage.local.get('rulesMirror')).rulesMirror || [];
+      const mode = (await chrome.storage.local.get('settings')).settings.mode;
+      const radios = [...document.querySelectorAll('input[name="mode"]')];
+      return JSON.stringify({
+        theme: document.documentElement.dataset.theme,
+        radioChecked: (radios.find(r=>r.checked) || {}).value || '',
+        modeInStorage: mode,
+        rows: document.getElementById('rulesBody').children.length,
+        named: (document.body.innerText || '').includes('embarrassing-shop.example'),
+        sweep: document.getElementById('sweep').checked,
+        notify: document.getElementById('notify').checked,
+        cache: document.getElementById('extraCache').checked,
+        keepOnly: document.getElementById('keepOnly').checked,
+        mirrorCount: Array.isArray(mirror) ? mirror.length : -1,
+        heading: (document.querySelector('h2') || {}).textContent || ''
+      });
+    })()`)
+  );
+  record(
+    'a 1.3.5 profile keeps its theme through the update',
+    afterUpgrade.theme === 'slate',
+    afterUpgrade.theme
+  );
+  record(
+    'the legacy close trigger moves to the next start, in storage too',
+    afterUpgrade.radioChecked === 'startup' && afterUpgrade.modeInStorage === 'startup',
+    `ui ${afterUpgrade.radioChecked} / storage ${afterUpgrade.modeInStorage}`
+  );
+  record(
+    'its rule list is read out of sync and shown',
+    afterUpgrade.rows === 2 && afterUpgrade.named === true,
+    `${afterUpgrade.rows} row(s), named=${afterUpgrade.named}`
+  );
+  record(
+    'the list gets a local mirror it never had, so sync can go away later',
+    afterUpgrade.mirrorCount === 2,
+    String(afterUpgrade.mirrorCount)
+  );
+  record(
+    'its own switches survive: sweep off, notify off, cache on, keep mode on',
+    afterUpgrade.sweep === false &&
+      afterUpgrade.notify === false &&
+      afterUpgrade.cache === true &&
+      afterUpgrade.keepOnly === true,
+    `sweep=${afterUpgrade.sweep} notify=${afterUpgrade.notify} cache=${afterUpgrade.cache} keep=${afterUpgrade.keepOnly}`
+  );
+  record(
+    'a profile with no language key falls back to English, not to a blank page',
+    /When should it clean/i.test(afterUpgrade.heading),
+    afterUpgrade.heading.trim()
+  );
+  await closePage(upPage.id);
+
+  // --- 13. optional screenshots: the compact popup, the classic one, the options --
   // node tools/live_probe.mjs <port> <browser> <output-dir> [en|pl] [theme]
   const shotsDir = process.argv[4];
   // The language for the screenshots. The checks above run pinned to English; the
