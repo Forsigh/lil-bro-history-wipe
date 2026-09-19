@@ -2,6 +2,11 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.5.1
+
+Midnight put its cards so close to true black that the panels disappeared on a cheap screen. They are lifted now, and the border does the separating, because a shadow cannot be darker than black.
+The high contrast theme is flat: no gradients and no glows, and the borders around controls are bright enough to clear the 3:1 rule that applies to them.
+
 ## 1.5.0
 
 The whole look was redone: every card, button, field and switch, one consistent column for the choices, and focus rings you can see with a keyboard.
