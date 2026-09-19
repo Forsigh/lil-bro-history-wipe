@@ -2,6 +2,10 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.5.2
+
+Adding a site in the settings page printed the site, even with the PIN on, which is the one thing the PIN is there to hide. With the PIN off that line is gone: the new row in the list already says it. With the PIN on it reads Added and nothing more, and the address tester stays quiet too, because it answers with the name of the rule that matched.
+
 ## 1.5.1
 
 Midnight's cards sat close enough to true black that the panels vanished on a dim screen, so they are
