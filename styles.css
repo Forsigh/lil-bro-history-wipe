@@ -560,6 +560,7 @@ body.popup {
   width: 30px;
   height: 30px;
   border-radius: 9px;
+  object-fit: cover;
   background: linear-gradient(155deg, var(--accent), var(--accent-dim));
   color: #04201c;
   font-weight: 700;
