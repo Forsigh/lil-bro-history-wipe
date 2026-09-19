@@ -22,7 +22,7 @@
   <body>
     <main>
       <h1>Lil Bro - History Wipe privacy policy</h1>
-      <p class="updated">Last updated: 18 September 2026</p>
+      <p class="updated">Last updated: 19 September 2026</p>
 
       <p>
         Lil Bro - History Wipe deletes chosen entries from your browsing history. Everything happens
@@ -32,7 +32,18 @@
       <h2>What it accesses</h2>
       <ul>
         <li><b>Your browsing history</b>, to find the entries that match your rules and delete those.</li>
-        <li><b>Extension storage</b> for your rules, your settings and an optional local log.</li>
+        <li>
+          <b>Extension storage</b> for your rules, your settings, an optional local log of what was
+          cleaned, and the count shown on the settings page.
+        </li>
+        <li>
+          <b>A PIN you set yourself</b>, if you switch the list lock on. It is stored on your device
+          as a hash and never sent anywhere, and it does one thing: it hides your rule list from
+          other people using the same computer. It does not encrypt anything, and anyone who can
+          reach your browser settings can still remove the extension. Forgetting it has a way out:
+          type the word <code>lilbro</code> and the PIN goes, and so does everything the extension
+          saved, your list included. None of that comes back.
+        </li>
         <li>
           <b>Cookies</b>, if you use the cookie features. It reads cookie names and domains to delete
           the ones you did not keep, and keeps the site of an open tab in session storage (memory,
@@ -50,6 +61,10 @@
         <li>Nothing is collected, sold or shared. No analytics, no account, no third party.</li>
         <li>It makes no network requests of its own.</li>
         <li>
+          Everything it runs ships inside the package. There is no remote code, no <code>eval</code>,
+          and nothing fetched at runtime.
+        </li>
+        <li>
           It does not read page content, and it does not touch passwords: Chrome removed password
           deletion from extensions, so there is no such switch.
         </li>
@@ -58,18 +73,19 @@
       <h2>Cookies, cache and the rest</h2>
       <p>
         Clearing is off by default. With it on, cache, cookies, site storage, download history and
-        saved form text go for the span you pick, when you press a button, and at browser close or
-        start only if you ask for that. Cookies are removed for the whole site, so being signed out
-        of it is the normal result. The keep list is the exception: those sites are never touched.
-        Chrome cannot narrow history, download history or form text to one site, so those are
-        all-or-nothing for the span you choose.
+        saved form text go for the span you pick, when you press a button, and at startup if you ask
+        for that. Cookies are removed for the whole site, so being signed out of it is the normal
+        result. The keep list is the exception: those sites are never touched. Chrome cannot narrow
+        history, download history or form text to one site, so those are all-or-nothing for the span
+        you choose.
       </p>
 
       <h2>Where your data lives</h2>
       <p>
-        Your settings and the optional wipe log stay on your machine, in your browser's local
-        extension storage. They are never uploaded anywhere. The log can be cleared at any time
-        from the extension's options page, and removing the extension deletes all of it.
+        Your settings, the PIN and the optional log of what was cleaned stay on your machine, in
+        your browser's local extension storage. They are never uploaded anywhere. The log can be
+        cleared at any time from the extension's settings page, and removing the extension deletes
+        all of it.
       </p>
       <p>
         <b>Your rule list is stored in the browser's synced extension storage.</b> That is what lets
