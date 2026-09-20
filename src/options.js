@@ -52,6 +52,19 @@ function fmtWhen(ts) {
   return new Date(ts).toLocaleString();
 }
 
+// The strip has one line to spend. A run today reads as "today 21:43", an older one as a
+// date and a time, and neither carries seconds: toLocaleString() does, and in a summary
+// line that reads as noise.
+function fmtShort(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  if (d.toDateString() === new Date().toDateString()) {
+    return (t('glanceToday') || 'today') + ' ' + time;
+  }
+  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + time;
+}
+
 function setMsg(el, text, kind = '') {
   el.textContent = text || '';
   el.className = kind || 'mini';
@@ -296,7 +309,7 @@ function renderStats() {
 
   const last = $('glanceLast');
   last.textContent = st.lastRunAt
-    ? (t('glanceLastRun') || 'Last clean') + ': ' + fmtWhen(st.lastRunAt)
+    ? (t('glanceLastRun') || 'Last clean') + ': ' + fmtShort(st.lastRunAt)
     : '';
   last.classList.toggle('hidden', !st.lastRunAt);
 

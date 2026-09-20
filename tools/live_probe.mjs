@@ -1098,9 +1098,11 @@ try {
         labelPadCs: label ? cs(label).paddingLeft + '/' + cs(label).gap + '/' + cs(label).borderLeftWidth : null,
       };
     })()`);
+    // No seconds: the strip is a summary line, and toLocaleString() would put them there.
+    const hasSeconds = (s) => /:[0-9][0-9]:[0-9][0-9]/.test(s || '');
     record('the top of the page says what is on, how many rules, and the last clean',
       facts.stripHeight > 20 && !!facts.state && hasDigit(facts.rules) &&
-        (!facts.last || hasDigit(facts.last)),
+        (!facts.last || (hasDigit(facts.last) && !hasSeconds(facts.last))),
       `${facts.state} | ${facts.rules} | ${facts.last === null ? 'no run yet, hidden' : facts.last}`);
     record('the strip carries the same state dot as the status card',
       !!facts.stripDot && facts.stripDot === facts.cardDot, `${facts.stripDot} vs ${facts.cardDot}`);

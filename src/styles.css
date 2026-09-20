@@ -219,8 +219,10 @@ h2::after {
 /* Where "pick one" rows give way to on and off rows. The break used to be 4px of
    margin, which reads as one long list of the same kind of thing. */
 .row.sep {
-  margin-top: 18px;
-  padding-top: 18px;
+  /* Room above and below: the first switch row is often the checked one, and at 18px its
+     own border sat close enough to the rule to read as a double line. */
+  margin-top: 22px;
+  padding-top: 24px;
   border-top: 1px solid var(--line);
 }
 
@@ -845,11 +847,19 @@ td.value {
 .glance .gsep {
   width: 1px;
   height: 14px;
-  background: var(--line);
+  /* A hairline at --line is invisible against a card, which is how these first read:
+     faint enough to be pointless. Half of --muted is about 3:1 on the card, which is
+     visible without becoming a fence. */
+  background: var(--muted);
+  opacity: 0.5;
 }
 
+/* The state reads loudest because it is the question people arrive with; the other two
+   facts are the same tone as each other, a step below it, so none of the three looks
+   arbitrarily dimmer than its neighbour. */
 .glance .gitem {
-  color: var(--muted);
+  color: var(--text);
+  opacity: 0.75;
 }
 
 /* The two counters in "Right now" had no styling at all, so they read as loose text

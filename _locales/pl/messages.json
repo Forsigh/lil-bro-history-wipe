@@ -1,5 +1,7 @@
 {
 
+  "glanceToday": { "message": "dzisiaj" },
+
   "glanceOnYourList": { "message": "Na liście" },
   "glanceLastRun": { "message": "Ostatnie czyszczenie" },
   "name": {
