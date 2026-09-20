@@ -440,7 +440,7 @@ try {
       locked: document.body.classList.contains('locked'),
       lockOn: !!local.settings?.lockEnabled,
       hash: local.settings?.lockHash || '',
-      rules: (await chrome.storage.sync.get('rulesMeta')).rulesMeta?.count ?? -1,
+      rules: (await chrome.storage.local.get('rulesMeta')).rulesMeta?.count ?? -1,
       localRules: (local.rulesMirror || []).length,
       msg: document.getElementById('lockMsg').textContent
     });
@@ -780,18 +780,20 @@ try {
   // A rule with a name worth hiding, then a sweep of everything a page can put on
   // screen: body text, every title/placeholder/value/aria-label, and the lists.
   const SECRET = 'hidden-secret.example';
-  // The rule is written the way readRules() looks for it: the list lives in sync
-  // storage (with the local mirror), so a local-only write would be shadowed.
+  // The rule is written the way readRules() looks for it: the list lives in local
+  // storage, so a local-only write is the real path. The synced area is read back too,
+  // because "nothing of the user's is left where the browser would upload it" is a
+  // claim the extension makes in writing.
   const seedResult = await ev(`(async()=>{
     try {
       const rule = { id: 'sec1', type: 'domain', value: ${JSON.stringify(SECRET)}, enabled: true };
-      await chrome.storage.sync.set({ rulesMeta: { chunks: 1, count: 1, at: Date.now() }, rulesChunk0: [rule] });
+      await chrome.storage.local.set({ rulesMeta: { chunks: 1, count: 1, at: Date.now() }, rulesChunk0: [rule] });
       await chrome.storage.local.set({ rules: [rule], rulesMirror: [rule] });
-      const sync = await chrome.storage.sync.get(['rulesMeta']);
+      const syncBag = await chrome.storage.sync.get(null);
       const local = await chrome.storage.local.get(['rules']);
       const settings = (await chrome.storage.local.get('settings')).settings || {};
       return JSON.stringify({
-        syncCount: sync.rulesMeta && sync.rulesMeta.count,
+        syncItems: Object.keys(syncBag).length,
         local: local.rules && local.rules[0] && local.rules[0].value,
         lock: !!settings.lockEnabled,
       });
@@ -801,8 +803,8 @@ try {
   })()`);
   const seededView = JSON.parse(String(seedResult));
   record(
-    'the seed rule is in storage, and the PIN lock is still on',
-    seededView.syncCount === 1 && seededView.local === SECRET && seededView.lock === true,
+    'the seed rule is in local storage, the PIN lock is on, and the synced area is empty',
+    seededView.syncItems === 0 && seededView.local === SECRET && seededView.lock === true,
     String(seedResult).slice(0, 110)
   );
 
@@ -939,6 +941,8 @@ try {
         cache: document.getElementById('extraCache').checked,
         keepOnly: document.getElementById('keepOnly').checked,
         mirrorCount: Array.isArray(mirror) ? mirror.length : -1,
+        localMeta: (await chrome.storage.local.get('rulesMeta')).rulesMeta?.count ?? -1,
+        syncItems: Object.keys(await chrome.storage.sync.get(null)).length,
         heading: (document.querySelector('h2') || {}).textContent || ''
       });
     })()`)
@@ -954,14 +958,14 @@ try {
     `ui ${afterUpgrade.radioChecked} / storage ${afterUpgrade.modeInStorage}`
   );
   record(
-    'its rule list is read out of sync and shown',
+    'its rule list is read out of the synced area and shown',
     afterUpgrade.rows === 2 && afterUpgrade.named === true,
     `${afterUpgrade.rows} row(s), named=${afterUpgrade.named}`
   );
   record(
-    'the list gets a local mirror it never had, so sync can go away later',
-    afterUpgrade.mirrorCount === 2,
-    String(afterUpgrade.mirrorCount)
+    'that older list is moved into local storage, and the synced area emptied',
+    afterUpgrade.mirrorCount === 2 && afterUpgrade.localMeta === 2 && afterUpgrade.syncItems === 0,
+    `local copy ${afterUpgrade.mirrorCount}, local meta ${afterUpgrade.localMeta}, synced items left ${afterUpgrade.syncItems}`
   );
   record(
     'its own switches survive: sweep off, notify off, cache on, keep mode on',

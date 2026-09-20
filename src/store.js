@@ -287,10 +287,12 @@ export function mergeSettings(stored) {
 }
 
 // --- where the rules live ---------------------------------------------------
-// Rules go to chrome.storage.sync so the same list follows the user to their
-// other computers, with a local mirror as the fallback. Settings stay local on
-// purpose: the whole-history switch and the keep list are per-device decisions,
-// and a danger switch that syncs itself is a trap.
+// Rules live in local storage, like everything else this extension saves. That is
+// what makes the plain claims true: nothing the user typed into this list is put
+// anywhere the browser would upload, so there is no account, no device transfer and
+// no server on the path, whether or not browser sync happens to be switched on.
+// Older builds kept the list in the synced area, so one migration reads that area
+// once, adopts whatever is there and takes it out again.
 
 // Reads an exported rules file. Kept here rather than in the settings page so a
 // test can feed it a file written by an older build, which is the one moment this
@@ -327,6 +329,11 @@ export function parseExport(text) {
 }
 
 export const RULES_MIRROR_KEY = 'rulesMirror';
+// The area the list lives in, and the one older builds used. Sync is only ever read
+// by the migration in readRules, and the entry is removed from it as soon as its
+// contents have been copied across.
+export const RULES_AREA = 'local';
+const LEGACY_RULES_AREA = 'sync';
 export const RULES_META_KEY = 'rulesMeta';
 export const RULES_CHUNK_PREFIX = 'rulesChunk';
 const SYNC_CHUNK_CHARS = 6000; // sync allows 8 KB per item
@@ -386,12 +393,12 @@ const chunkKeys = (n) => Array.from({ length: n }, (_, i) => RULES_CHUNK_PREFIX 
  * with sync switched off) is copied up on the first read.
  */
 export async function readRules() {
-  const metaBag = (await areaGet('sync', RULES_META_KEY)) || {};
+  const metaBag = (await areaGet(RULES_AREA, RULES_META_KEY)) || {};
   const info = metaBag[RULES_META_KEY];
   const declared = info && Number.isInteger(info.chunks) ? info.chunks : 0;
 
   if (declared > 0) {
-    const bag = (await areaGet('sync', chunkKeys(declared))) || {};
+    const bag = (await areaGet(RULES_AREA, chunkKeys(declared))) || {};
     const out = [];
     for (let i = 0; i < declared; i++) {
       const part = bag[RULES_CHUNK_PREFIX + i];
@@ -399,10 +406,7 @@ export async function readRules() {
     }
     // A declared-but-empty list means the user deleted every rule.
     if (out.length || (info.count === 0 && Object.keys(bag).length)) {
-      // A profile that came from an older build can hold its list in sync with no
-      // local copy at all, since a machine that synced from another one never wrote
-      // one. Cache it here, so the list still shows if sync goes away later.
-      const localBag = (await areaGet('local', [RULES_MIRROR_KEY])) || {};
+      const localBag = (await areaGet(RULES_AREA, [RULES_MIRROR_KEY])) || {};
       const mirror = localBag[RULES_MIRROR_KEY];
       if (!Array.isArray(mirror) || JSON.stringify(mirror) !== JSON.stringify(out)) {
         await writeRules(out);
@@ -411,17 +415,65 @@ export async function readRules() {
     }
   }
 
-  const local = (await areaGet('local', ['rules', RULES_MIRROR_KEY])) || {};
+  const local = (await areaGet(RULES_AREA, ['rules', RULES_MIRROR_KEY])) || {};
   const fallback = Array.isArray(local.rules)
     ? local.rules
     : Array.isArray(local[RULES_MIRROR_KEY])
       ? local[RULES_MIRROR_KEY]
       : [];
-  if (Array.isArray(local.rules) || fallback.length) await writeRules(fallback);
-  return fallback;
+  if (Array.isArray(local.rules) || fallback.length) {
+    await writeRules(fallback);
+    return fallback;
+  }
+
+  // Nothing here yet. If this is a profile from a build that kept the list in the
+  // synced area, adopt it once and take it out of there. Only when this area has
+  // never held a list: a user who deleted every rule has an empty list written
+  // here on purpose, and resurrecting the old one would be the worst kind of bug.
+  if (!(RULES_META_KEY in metaBag)) {
+    const adopted = await adoptLegacyRules();
+    if (adopted.length) {
+      await writeRules(adopted);
+      return adopted;
+    }
+  }
+  return [];
 }
 
-/** Write the list to sync (chunked) and to the local mirror. */
+/**
+ * The synced area as an older build left it. Read once, copied to local storage by
+ * the caller, and emptied here, so a list the user typed stops being something the
+ * browser would upload.
+ */
+async function adoptLegacyRules() {
+  const metaBag = (await areaGet(LEGACY_RULES_AREA, RULES_META_KEY)) || {};
+  const info = metaBag[RULES_META_KEY];
+  const declared = info && Number.isInteger(info.chunks) ? info.chunks : 0;
+  if (declared > 0) {
+    const bag = (await areaGet(LEGACY_RULES_AREA, chunkKeys(declared))) || {};
+    const out = [];
+    for (let i = 0; i < declared; i++) {
+      const part = bag[RULES_CHUNK_PREFIX + i];
+      if (Array.isArray(part)) out.push(...part);
+    }
+    // An empty read is what a switched-off or unreachable synced area looks like, so
+    // only clear the keys once something has actually been carried across.
+    if (out.length) await areaRemove(LEGACY_RULES_AREA, [RULES_META_KEY, ...chunkKeys(declared)]);
+    return out;
+  }
+  const bag = (await areaGet(LEGACY_RULES_AREA, ['rules'])) || {};
+  if (Array.isArray(bag.rules) && bag.rules.length) {
+    await areaRemove(LEGACY_RULES_AREA, ['rules']);
+    return bag.rules;
+  }
+  return [];
+}
+
+/**
+ * Write the list. The chunking is left over from when this lived in the synced area
+ * and had an 8 KB cap per item; local storage has no such limit, but the read path
+ * above is written against it and one shape is easier to keep correct than two.
+ */
 export async function writeRules(rules) {
   const list = Array.isArray(rules) ? rules : [];
   const chunks = chunkRules(list);
@@ -432,14 +484,14 @@ export async function writeRules(rules) {
     payload[RULES_CHUNK_PREFIX + i] = chunk;
   });
 
-  const before = (await areaGet('sync', RULES_META_KEY)) || {};
+  const before = (await areaGet(RULES_AREA, RULES_META_KEY)) || {};
   const had = before[RULES_META_KEY] && Number.isInteger(before[RULES_META_KEY].chunks) ? before[RULES_META_KEY].chunks : 0;
 
-  const synced = await areaSet('sync', payload);
-  if (synced && had > chunks.length) await areaRemove('sync', chunkKeys(had).slice(chunks.length));
+  const written = await areaSet(RULES_AREA, payload);
+  if (written && had > chunks.length) await areaRemove(RULES_AREA, chunkKeys(had).slice(chunks.length));
 
-  await areaSet('local', { [RULES_MIRROR_KEY]: list, rules: list });
-  return synced;
+  await areaSet(RULES_AREA, { [RULES_MIRROR_KEY]: list, rules: list });
+  return written;
 }
 
 export async function getState() {

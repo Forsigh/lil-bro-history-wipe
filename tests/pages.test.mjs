@@ -568,6 +568,36 @@ for (const file of ['src/options.js', 'src/popup.js']) {
 }
 console.log('  no English phrase is printed straight out of a page script');
 
+// The extension tells the user, in the app and in the policy, that nothing they type
+// into it goes anywhere the browser would upload. That is a property of the code, so
+// it gets a guard: the shipped files may not write to the synced area. The single
+// exception is the migration in store.js that adopts a list an older build left there
+// and removes it, and that exception is allowed only inside that one function.
+{
+  const storeSource = readFileSync(join(root, 'src/store.js'), 'utf8');
+  const adoptStart = storeSource.indexOf('async function adoptLegacyRules');
+  const adoptEnd = storeSource.indexOf('\n}', adoptStart);
+  const adoptBody = adoptStart > -1 ? storeSource.slice(adoptStart, adoptEnd) : '';
+  const outsideAdoption = storeSource.slice(0, adoptStart) + storeSource.slice(adoptEnd);
+  let bad = 0;
+  if (!adoptBody) {
+    console.log('  FAIL adoptLegacyRules is gone from store.js, so this guard checks nothing');
+    bad++;
+  }
+  if (/chrome\.storage\.sync|areaSet\(['"]sync['"]/.test(outsideAdoption)) {
+    console.log('  FAIL store.js writes to the synced area outside the one-time adoption');
+    bad++;
+  }
+  for (const file of ['src/options.js', 'src/popup.js', 'src/service-worker.js', 'src/i18n.js', 'src/matcher.js', 'src/lock.js', 'src/confirm-gate.js']) {
+    if (readFileSync(join(root, file), 'utf8').includes('storage.sync')) {
+      console.log(`  FAIL ${file} touches the synced area`);
+      bad++;
+    }
+  }
+  if (!bad) console.log('  nothing is written to the synced area except the one-time adoption');
+  fail += bad;
+}
+
 if (!/class="row sep"/.test(optionsHtmlSrc)) {
   console.log('  FAIL no .row.sep in the markup, so the choosing rows and the on/off rows run together');
   fail++;

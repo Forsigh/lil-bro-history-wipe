@@ -34,7 +34,8 @@ Or by hand:
   at your next start instead.
 - A deleted address can still appear in the address bar suggestions.
 - Cookies go for the whole site, so you are signed out there afterwards.
-- Your list travels between your computers through your own browser account. The log stays local.
+- Everything you add, the list included, stays on this computer. It does not follow you to your
+  other machines, and there is no account to sign in to.
 
 ## Support
 

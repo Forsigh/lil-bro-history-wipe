@@ -170,11 +170,13 @@ console.log('an installed 1.3.5 profile, read by this build');
   });
 }
 
-// 2. Rules: the machine that had them in sync, with no local copy at all.
+// 2. Rules: a profile from a build that kept the list in the synced area. The list is
+//    adopted once, copied into local storage, and taken back out of the synced area,
+//    because leaving it there is what the privacy claims are about.
 {
   const bags = freshProfile();
   const { rules } = await store.getState();
-  check('rules that live only in sync are still found', () => {
+  check('a list left in the synced area by an older build is found', () => {
     if (rules.length !== 2) throw new Error(`${rules.length} rules came back`);
     if (rules[0].value !== 'embarrassing-shop.example') throw new Error('first rule changed');
   });
@@ -183,24 +185,38 @@ console.log('an installed 1.3.5 profile, read by this build');
       throw new Error(`got ${JSON.stringify(rules)}`);
     }
   });
-  check('the read backfills the local mirror the old build never wrote', () => {
-    if (!Array.isArray(bags.local.rulesMirror)) throw new Error('no mirror written');
-    if (bags.local.rulesMirror.length !== 2) throw new Error('mirror is short');
+  check('the list is copied into local storage', () => {
+    if (!Array.isArray(bags.local.rulesMirror)) throw new Error('no local copy written');
+    if (bags.local.rulesMirror.length !== 2) throw new Error('the copy is short');
   });
-  check('and the sync layout is left alone', () => {
-    if (bags.sync.rulesMeta.count !== 2) throw new Error('the meta count moved');
+  check('and taken out of the synced area, so the browser has nothing to upload', () => {
+    if ('rulesMeta' in bags.sync) throw new Error('the synced meta is still there');
+    if (Object.keys(bags.sync).some((k) => k.startsWith('rulesChunk'))) {
+      throw new Error('a synced chunk is still there');
+    }
   });
 }
 
-// 3. The other shape: a machine with sync switched off, so 1.3.5 kept them locally.
+// 3. A user who deleted every rule must not have them come back from the synced area
+//    on the next start.
+{
+  const bags = freshProfile();
+  await store.writeRules([]);
+  const { rules } = await store.getState();
+  check('an empty list here is respected, not refilled from the synced area', () => {
+    if (rules.length !== 0) throw new Error(`${rules.length} rules came back from nowhere`);
+  });
+}
+
+// 4. The other shape: a machine with sync switched off, so 1.3.5 kept them locally.
 {
   const bags = freshProfile({ rulesInSync: false });
   const { rules } = await store.getState();
   check('rules that live only in local storage are still found', () => {
     if (rules.length !== 2) throw new Error(`${rules.length} rules came back`);
   });
-  check('and they are pushed up to sync on the first read', () => {
-    if (bags.sync.rulesMeta.count !== 2) throw new Error('nothing reached sync');
+  check('and they are written back in the shape the read path expects', () => {
+    if (bags.local.rulesMeta.count !== 2) throw new Error('no meta written');
   });
 }
 

@@ -92,13 +92,11 @@
         all of it.
       </p>
       <p>
-        <b>Your rule list is stored in the browser's synced extension storage.</b> That is what lets
-        a rule you add on one computer apply on your other computers. If you have browser sync
-        switched on, your browser sends that list to the browser vendor's sync service so it can
-        reach the devices you are signed in to. That transfer is made by the browser itself, under
-        your browser account settings: the extension transmits nothing and never talks to a server.
-        With sync switched off, or while you are signed out, the list stays a local file like
-        everything else.
+        So does your rule list. It is held in local extension storage, the same place as everything
+        else this extension saves, and it is not put anywhere the browser would upload. The extension
+        makes no network requests of its own, so there is no account, no server and no transfer
+        between your devices on the path, whether or not browser sync happens to be switched on.
+        Exporting the list writes a file on your own computer, which stays there until you move it.
       </p>
 
       <h2>Changes to this policy</h2>

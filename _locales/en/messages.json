@@ -111,7 +111,7 @@
     "message": "All rules & settings"
   },
   "optSub": {
-    "message": "Pick what it should forget. Your settings stay on this computer."
+    "message": "Pick what it should forget. Everything you add stays on this computer."
   },
   "optLockedTag": {
     "message": "Locked."

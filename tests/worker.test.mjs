@@ -951,7 +951,7 @@ function check(label, fn) {
   check('block mode: only the listed site is wiped', () =>
     assert.deepEqual(blockAgain.db.deleted, ['https://bank.example/1']));
 
-  // --- rules sync ---------------------------------------------------------
+  // --- rules, and the one thing that used to travel -----------------------
   const many = Array.from({ length: 300 }, (_, i) => ({
     id: 'r' + i,
     type: 'domain',
@@ -961,35 +961,35 @@ function check(label, fn) {
     enabled: true,
     createdAt: 1_700_000_000_000 + i,
   }));
-  check('sync: a large list is split across items', () => assert.ok(chunkRules(many).length > 1));
-  check('sync: no chunk gets near the 8 KB item cap', () =>
+  check('rules: a large list is still split into chunks', () => assert.ok(chunkRules(many).length > 1));
+  check('rules: no chunk gets near the old per-item cap', () =>
     assert.ok(chunkRules(many).every((c) => JSON.stringify(c).length <= 8000)));
 
-  const s = makeFakeChrome([], { syncItemLimit: 8192 });
+  const s = makeFakeChrome([]);
   globalThis.chrome = s.chrome;
   const wrote = await writeRules(many);
-  check('sync: the write reports success', () => assert.equal(wrote, true));
-  check('sync: the list landed in sync, chunked', () => {
-    const keys = Object.keys(s.store.sync).filter((k) => k.startsWith('rulesChunk'));
+  check('rules: the write reports success', () => assert.equal(wrote, true));
+  check('rules: the list lands in local storage, chunked', () => {
+    const keys = Object.keys(s.store.local).filter((k) => k.startsWith('rulesChunk'));
     assert.ok(keys.length > 1, `only ${keys.length} chunk(s)`);
-    assert.equal(s.store.sync.rulesMeta.count, 300);
+    assert.equal(s.store.local.rulesMeta.count, 300);
   });
-  check('sync: every chunk is under the per-item cap', () =>
-    assert.ok(
-      Object.entries(s.store.sync)
-        .filter(([k]) => k.startsWith('rulesChunk'))
-        .every(([, v]) => JSON.stringify(v).length <= 8192)
-    ));
   const readBack = await readRules();
-  check('sync: the whole list reads back in order', () => {
+  check('rules: the whole list reads back in order', () => {
     assert.equal(readBack.length, 300);
     assert.equal(readBack[0].value, 'site0.example');
     assert.equal(readBack[299].value, 'site299.example');
   });
-  check('sync: the local mirror matches', () => {
+  check('rules: the mirror matches', () => {
     assert.equal(s.store.local.rulesMirror.length, 300);
     assert.equal(s.store.local.rules.length, 300);
   });
+
+  // The claim the privacy policy makes, asserted against the code: after a list has
+  // been written there is nothing of the user's in the synced area, so the browser
+  // has nothing of theirs to upload, sync on or off.
+  check('nothing at all is written to the synced area', () =>
+    assert.equal(Object.keys(s.store.sync).length, 0, Object.keys(s.store.sync).join(', ')));
 
   // Settings must never travel: a synced danger switch would arm itself on every device.
   await saveState({ settings: { ...DEFAULT_SETTINGS, wipeAllHistory: true, listMode: 'allow' } });
@@ -1051,8 +1051,10 @@ function check(label, fn) {
   check('recovery: the queue is gone', () => assert.equal(afterReset.pending.length, 0));
   check('recovery: the whole-history switch is off again', () =>
     assert.equal(afterReset.settings.wipeAllHistory, false));
-  check('recovery: sync is emptied as well', () => assert.equal(fr.store.sync.rulesMeta.count, 0));
-  check('recovery: no rule text survives anywhere', () =>
+  check('recovery: the list area is emptied as well', () => assert.equal(fr.store.local.rulesMeta.count, 0));
+  check('recovery: no rule text survives anywhere, in either area', () =>
+    assert.ok(!JSON.stringify(fr.store.local).includes('secret.example')));
+  check('recovery: and nothing is left in the synced area to upload', () =>
     assert.ok(!JSON.stringify(fr.store.sync).includes('secret.example')));
 
   // Back to the fake the rest of this block was using.
@@ -1061,20 +1063,21 @@ function check(label, fn) {
   // Deleting every rule must survive a round trip, not resurrect the old list.
   await writeRules([]);
   const emptied = await readRules();
-  check('sync: an emptied list stays empty', () => assert.equal(emptied.length, 0));
-  check('sync: the meta says the list is empty on purpose', () =>
-    assert.equal(s.store.sync.rulesMeta.count, 0));
+  check('rules: an emptied list stays empty', () => assert.equal(emptied.length, 0));
+  check('rules: the meta says the list is empty on purpose', () =>
+    assert.equal(s.store.local.rulesMeta.count, 0));
 
-  // A list that only exists locally (pre-sync, or sync switched off) is copied up.
+  // A list written before the list area moved is read and rewritten where it now lives.
   const legacy = makeFakeChrome([]);
   legacy.store.local.rules = [{ id: 'old1', type: 'domain', value: 'legacy.example', enabled: true }];
   globalThis.chrome = legacy.chrome;
   const migrated = await readRules();
-  check('sync: a local-only list is read', () => assert.equal(migrated[0].value, 'legacy.example'));
-  check('sync: and copied up to sync', () =>
-    assert.equal(legacy.store.sync.rulesMeta.count, 1));
+  check('rules: a list in the older local key is read', () => assert.equal(migrated[0].value, 'legacy.example'));
+  check('rules: and rewritten in the shape the read path now expects', () =>
+    assert.equal(legacy.store.local.rulesMeta.count, 1));
 
-  // Sync unavailable: wiping still works from the local mirror.
+  // The synced area unreachable, which is what a user with sync switched off looks
+  // like: the adoption reads nothing from it and wiping carries on from local storage.
   const offline = makeFakeChrome([
     { id: 'o1', url: 'https://bad.example/x', title: 'x', lastVisitTime: NOW },
     { id: 'o2', url: 'https://good.example/y', title: 'y', lastVisitTime: NOW - 1000 },
@@ -1086,14 +1089,14 @@ function check(label, fn) {
     notifyOnWipe: false,
   };
   await boot(offline.chrome, offline.store);
-  await waitFor('offline wipe from the local mirror', () => offline.db.deleted.length >= 1);
+  await waitFor('offline wipe from local storage', () => offline.db.deleted.length >= 1);
   await sleep(60);
-  check('sync off: the rules still load', () => assert.ok(offline.db.deleted.includes('https://bad.example/x')));
-  check('sync off: only the match went', () => assert.deepEqual(offline.db.deleted, ['https://bad.example/x']));
-  check('sync off: the local mirror still holds the list', () =>
+  check('synced area unreachable: the rules still load', () => assert.ok(offline.db.deleted.includes('https://bad.example/x')));
+  check('synced area unreachable: only the match went', () => assert.deepEqual(offline.db.deleted, ['https://bad.example/x']));
+  check('synced area unreachable: the list is still there afterwards', () =>
     assert.equal(offline.store.local.rulesMirror[0].value, 'bad.example'));
   const offlineRead = await readRules();
-  check('sync off: reading falls back to the mirror', () => assert.equal(offlineRead.length, 1));
+  check('synced area unreachable: reading returns the same list', () => assert.equal(offlineRead.length, 1));
 }
 
 // ---------------------------------------------------------------------------
