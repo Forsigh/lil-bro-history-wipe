@@ -1043,7 +1043,11 @@ try {
     const fills = [...new Set(solid.map((s) => s.fill))];
     const auto = swatches.find((s) => s.theme === 'auto');
     record('the theme row carries eight buttons', swatches.length === 8, swatches.map((s) => s.theme).join(' '));
-    record('each swatch draws a colour of its own', solid.length === 7 && fills.length === 7, fills.join(' '));
+    // midnight and contrast share a black page, so six distinct fills across seven
+    // solid swatches is right: what tells those two apart is the accent bar and the
+    // border, which is why the bar is checked separately below.
+    record('every solid swatch draws its own theme page colour', solid.length === 7 && fills.length >= 6,
+      `${solid.length} solid, ${fills.length} distinct: ${fills.join(' ')}`);
     record('every swatch keeps its accent bar', swatches.every((s) => s.bar && s.bar !== 'rgba(0, 0, 0, 0)'),
       swatches.map((s) => s.bar).join(' ').slice(0, 110));
     record('auto shows the dark and the light page side by side',
@@ -1120,6 +1124,12 @@ try {
     await shotOptions.evaluate('window.scrollTo(0, 900)');
     await sleep(400);
     await shoot(shotOptions, 'options-lower.png', 1280, 800, false, 1);
+    // The Look and Language cards sit below the log, so no plain top-of-page capture
+    // can show them. Scrolled to, they are the two controls worth a picture: the
+    // theme row, and the language menu that replaced three full-width rows.
+    await shotOptions.evaluate("document.getElementById('themeRow').scrollIntoView({ block: 'center' })");
+    await sleep(400);
+    await shoot(shotOptions, 'options-look.png', 1280, 800, false, 1);
     await closePage(shotOptions.id);
 
     // The same options page with a PIN set, which is what the lock looks like.

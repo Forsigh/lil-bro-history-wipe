@@ -33,6 +33,7 @@ SHEETS = [
     ("options.png", "01-options-1280x800.png"),
     ("options-lower.png", "02-list-and-log-1280x800.png"),
     ("options-locked.png", "03-locked-1280x800.png"),
+    ("options-look.png", "05-look-and-language-1280x800.png"),
 ]
 POPUP_RAW = "popup-compact.png"
 POPUP_OUT = "04-popup-1280x800.png"
