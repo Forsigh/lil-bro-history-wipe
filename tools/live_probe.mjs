@@ -1072,7 +1072,6 @@ try {
       const dotOf = (id) => (document.getElementById(id) || {}).className || null;
       const row = document.querySelector('.card > .row.mini');
       const label = document.querySelector('label.radio');
-      const cs = (el) => getComputedStyle(el);
       return {
         stripHeight: strip ? Math.round(strip.getBoundingClientRect().height) : 0,
         state: text('glanceState'),
@@ -1082,20 +1081,12 @@ try {
         cardDot: dotOf('stateDot'),
         labelX: textLeft(document.querySelector('label.radio b')),
         noteX: textLeft(row),
-        noteId: row ? (row.id || row.className) : null,
-        pillX: textLeft(document.querySelector('label.pill span')),
-        // the pieces, so a miss says which one moved
+        // the boxes as well as the text, so a miss says which of the two moved
         labelBox: label ? Math.round(label.getBoundingClientRect().left) : null,
-        labelPad: label ? parseFloat(cs(label).paddingLeft) + parseFloat(cs(label).borderLeftWidth) + Math.round(label.querySelector('input').getBoundingClientRect().width) + parseFloat(cs(label).gap) : null,
+        noteId: row ? (row.id || row.className) : null,
         rowBox: row ? Math.round(row.getBoundingClientRect().left) : null,
-        rowPad: row ? parseFloat(cs(row).paddingLeft) : null,
-        cardBox: row ? Math.round(row.closest('.card').getBoundingClientRect().left) : null,
-        // where the 8px between the span and the label's own box goes
-        inputBox: label ? Math.round(label.querySelector('input').getBoundingClientRect().left) : null,
-        inputW: label ? label.querySelector('input').getBoundingClientRect().width.toFixed(2) : null,
-        spanBox: label ? Math.round(label.querySelector('span').getBoundingClientRect().left) : null,
-        bBox: label ? label.querySelector('span b').getBoundingClientRect().left.toFixed(2) : null,
-        labelPadCs: label ? cs(label).paddingLeft + '/' + cs(label).gap + '/' + cs(label).borderLeftWidth : null,
+        rowPad: row ? parseFloat(getComputedStyle(row).paddingLeft) : null,
+        pillX: textLeft(document.querySelector('label.pill span')),
       };
     })()`);
     // No seconds: the strip is a summary line, and toLocaleString() would put them there.
