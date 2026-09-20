@@ -10,3 +10,5 @@ tmp/
 Thumbs.db
 desktop.ini
 .DS_Store
+builds/.probe-*
+builds/.sheets-*

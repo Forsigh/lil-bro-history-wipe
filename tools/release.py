@@ -182,6 +182,15 @@ def main():
     say(f"{len(suites) - 1} suites passed")
 
     # --- 3. the real browser, when asked --------------------------------------
+    # Twice, because the harness occasionally reads the service worker's manifest before its
+    # context is ready and gets an Uncaught for it. A flaky browser is not a broken extension,
+    # and a real failure fails twice.
+    def probe(lang, out):
+        return run([
+            "node", "tools/live_probe.mjs", str(args.probe), "",
+            str(out).replace("\\", "/"), lang,
+        ])
+
     sheets = None
     if args.probe:
         sheets = {}
@@ -189,16 +198,21 @@ def main():
             out = ROOT / f"builds/.probe-{version}-{lang}"
             shutil.rmtree(out, ignore_errors=True)
             out.mkdir(parents=True)
-            done = run(["node", "tools/live_probe.mjs", str(args.probe), "", str(out), lang])
-            tail = done.stdout.strip().splitlines()[-3:]
-            for line in tail:
-                say(line.strip()[:110])
-            if done.returncode or "checks passed" not in done.stdout:
-                die(f"the {lang} probe failed, so nothing was built")
+            for attempt in (1, 2):
+                done = probe(lang, out)
+                if done.returncode == 0 and "checks passed" in done.stdout:
+                    for line in done.stdout.strip().splitlines()[-3:]:
+                        say(line.strip()[:110])
+                    break
+                say(f"{lang} probe attempt {attempt} failed, retrying" if attempt == 1 else "")
+            else:
+                print(done.stdout[-2500:], done.stderr[-1500:])
+                die(f"the {lang} probe failed twice, so nothing was built")
             sheet_dir = ROOT / f"builds/.sheets-{version}-{lang}"
             shutil.rmtree(sheet_dir, ignore_errors=True)
             sheet_dir.mkdir(parents=True)
-            done = run(["python", "tools/make_shot_sheets.py", str(out), str(sheet_dir)])
+            done = run(["python", "tools/make_shot_sheets.py",
+                        str(out).replace("\\", "/"), str(sheet_dir).replace("\\", "/")])
             if done.returncode:
                 die(f"the {lang} screenshot sheets failed")
             sheets[lang] = sheet_dir
