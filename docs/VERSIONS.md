@@ -29,6 +29,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.5.4.
 | 1.4.2 | 19 Sep 23:23 | `4ee110a` | `b31577a4605893ed` | the name: Lil Bro Wipe – History Cleaner, in the package, on both pages, in the listing copy and in the build file name |
 | 1.5.0 | 19 Sep 23:58 | `1b1b2ce` | `0176d9b603b2e704` | the look: a new sheet, eight themes with measured contrast, and the popup stops saying the same sentence twice |
 | 1.5.1 | 20 Sep 00:09 | `9ebb333` | `fa3ce5deab060375` | two themes tuned after seeing them rendered: Midnight lifted off true black, High contrast flattened with its control borders at 5.3:1 |
+| 1.5.4 | 20 Sep | `53fb872` | `4ea4a85a22251f8d` | the guards that keep frequent updates safe: version agreement across the table, the zips and the changelog, a frozen settings shape, and a backup file from an old build importing through the real picker |
 | 1.5.3 | 20 Sep | `c67ea3c` | `230b1e58885e90bd` | an update from 1.3.5 was tested for real: settings, rules, PIN, log and counters all survive, and a list that only lived in sync gains the local copy it was missing |
 | 1.5.2 | 20 Sep 00:28 | `6201dd8` | `ae2592fc4725e47d` | the settings page stopped naming what you add while the PIN is on, and the address tester goes quiet with it |
 
