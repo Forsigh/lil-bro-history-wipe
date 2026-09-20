@@ -1,4 +1,7 @@
 {
+
+  "glanceOnYourList": { "message": "Na liście" },
+  "glanceLastRun": { "message": "Ostatnie czyszczenie" },
   "name": {
     "message": "Lil Bro Wipe – History Cleaner"
   },

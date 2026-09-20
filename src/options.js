@@ -140,13 +140,15 @@ function renderSettings() {
     : 'Off by default. Your rules are still being applied.';
 
   const enabled = s.enabled;
-  $('stateDot').className = 'dot' + (enabled ? '' : ' off') + (s.wipeAllHistory ? ' danger' : '');
+  const dot = 'dot' + (enabled ? '' : ' off') + (s.wipeAllHistory ? ' danger' : '');
+  $('stateDot').className = dot;
+  $('glanceDot').className = dot;
   const modeText = {
     realtime: 'wiping on visit',
     onclose: 'wiping at browser close',
     startup: 'wiping at browser start',
   }[s.mode] || s.mode;
-  $('stateText').textContent = s.wipeAllHistory
+  const stateLine = s.wipeAllHistory
     ? enabled
       ? t('stateArmed') || 'ARMED: wiping ALL history'
       : t('statePaused') || 'Paused'
@@ -155,6 +157,12 @@ function renderSettings() {
       : s.listMode === 'allow'
         ? t('stateKeep') || 'Active: wiping all but your keep list'
         : t('stateActive', [modeText]) || `Active: ${modeText}`;
+  // The same line twice on purpose: once at the top where it answers the question
+  // someone came with, once in the status card beside the counters.
+  $('stateText').textContent = stateLine;
+  $('glanceState').textContent = stateLine;
+  $('glanceRules').textContent =
+    (t('glanceOnYourList') || 'On your list') + ': ' + (state.rules || []).length;
 }
 
 /** The extra clear: what is on, how far back it reaches, and when it runs. */
@@ -285,6 +293,12 @@ function renderStats() {
     ? t('lastRunAt', [fmtWhen(st.lastRunAt), st.lastRunPhase || 'run']) ||
       `Last run: ${fmtWhen(st.lastRunAt)} (${st.lastRunPhase || 'run'})`
     : t('optLastRunNone') || 'No runs yet.';
+
+  const last = $('glanceLast');
+  last.textContent = st.lastRunAt
+    ? (t('glanceLastRun') || 'Last clean') + ': ' + fmtWhen(st.lastRunAt)
+    : '';
+  last.classList.toggle('hidden', !st.lastRunAt);
 
   const queued = (state.pending || []).length;
   const when =

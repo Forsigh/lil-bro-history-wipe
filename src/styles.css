@@ -216,6 +216,14 @@ h2::after {
   margin-top: 10px;
 }
 
+/* Where "pick one" rows give way to on and off rows. The break used to be 4px of
+   margin, which reads as one long list of the same kind of thing. */
+.row.sep {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--line);
+}
+
 .grow {
   flex: 1 1 auto;
   min-width: 0;
@@ -298,7 +306,9 @@ label.radio:has(input:checked) {
 label.pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  /* 11px, the same as a radio row: at 8 the switch rows sat 3px left of the
+     choice rows, so every stacked list was very slightly out. */
+  gap: 11px;
   cursor: pointer;
 }
 
@@ -330,7 +340,10 @@ body:not(.popup) label.pill:has(input:checked) {
 }
 
 body:not(.popup) .card > .row.mini {
-  padding-left: 14px;
+  /* The label column, to the pixel: the row's border (1) + padding (14) + the control
+     (15) + the gap (11). A note under a row lines up with the labels above it instead
+     of floating somewhere to their left. The probe measures this on the live page. */
+  padding-left: 41px;
 }
 
 body:not(.popup) label.pill small {
@@ -339,6 +352,9 @@ body:not(.popup) label.pill small {
 
 input[type='checkbox'],
 input[type='radio'] {
+  /* Chromium gives these a 5px left and 3px right margin of its own, which is 8px of
+     the text column that nothing in this sheet mentions, so every row was out by it. */
+  margin: 0;
   accent-color: var(--accent);
   width: 15px;
   height: 15px;
@@ -808,6 +824,54 @@ td.value {
 .dot.danger {
   background: var(--danger);
   box-shadow: 0 0 0 3px var(--danger-soft);
+}
+
+/* --- what the page says before you scroll --------------------------------- */
+
+.glance {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 16px 0 18px;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r);
+  background: var(--card);
+  font-size: 13px;
+  color: var(--text);
+}
+
+.glance .gsep {
+  width: 1px;
+  height: 14px;
+  background: var(--line);
+}
+
+.glance .gitem {
+  color: var(--muted);
+}
+
+/* The two counters in "Right now" had no styling at all, so they read as loose text
+   beside a styled card. */
+.stat {
+  min-width: 112px;
+  padding: 8px 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: var(--card-2);
+}
+
+.stat b {
+  display: block;
+  font-size: 19px;
+  font-weight: 660;
+  letter-spacing: -0.02em;
+}
+
+.stat small {
+  color: var(--muted);
+  font-size: 12px;
 }
 
 .pill.danger {

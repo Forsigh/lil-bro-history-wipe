@@ -1055,6 +1055,60 @@ try {
       auto ? auto.image.slice(0, 96) : 'no auto swatch');
     record('a swatch is a small tile, not a stripe', swatches.every((s) => s.width === 22),
       swatches.map((s) => s.width).join(','));
+
+    // The page has to say what it is doing before anyone scrolls, and every row's text
+    // has to start at the same x. Both are geometry, so both are measured here.
+    const hasDigit = (s) => /[0-9]/.test(s || '');
+    const facts = await look.evaluate(`(() => {
+      const textLeft = (el) => el
+        ? Math.round(el.getBoundingClientRect().left + parseFloat(getComputedStyle(el).paddingLeft))
+        : null;
+      const text = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        return el.classList.contains('hidden') ? null : el.textContent.trim();
+      };
+      const strip = document.querySelector('.glance');
+      const dotOf = (id) => (document.getElementById(id) || {}).className || null;
+      const row = document.querySelector('.card > .row.mini');
+      const label = document.querySelector('label.radio');
+      const cs = (el) => getComputedStyle(el);
+      return {
+        stripHeight: strip ? Math.round(strip.getBoundingClientRect().height) : 0,
+        state: text('glanceState'),
+        rules: text('glanceRules'),
+        last: text('glanceLast'),
+        stripDot: dotOf('glanceDot'),
+        cardDot: dotOf('stateDot'),
+        labelX: textLeft(document.querySelector('label.radio b')),
+        noteX: textLeft(row),
+        noteId: row ? (row.id || row.className) : null,
+        pillX: textLeft(document.querySelector('label.pill span')),
+        // the pieces, so a miss says which one moved
+        labelBox: label ? Math.round(label.getBoundingClientRect().left) : null,
+        labelPad: label ? parseFloat(cs(label).paddingLeft) + parseFloat(cs(label).borderLeftWidth) + Math.round(label.querySelector('input').getBoundingClientRect().width) + parseFloat(cs(label).gap) : null,
+        rowBox: row ? Math.round(row.getBoundingClientRect().left) : null,
+        rowPad: row ? parseFloat(cs(row).paddingLeft) : null,
+        cardBox: row ? Math.round(row.closest('.card').getBoundingClientRect().left) : null,
+        // where the 8px between the span and the label's own box goes
+        inputBox: label ? Math.round(label.querySelector('input').getBoundingClientRect().left) : null,
+        inputW: label ? label.querySelector('input').getBoundingClientRect().width.toFixed(2) : null,
+        spanBox: label ? Math.round(label.querySelector('span').getBoundingClientRect().left) : null,
+        bBox: label ? label.querySelector('span b').getBoundingClientRect().left.toFixed(2) : null,
+        labelPadCs: label ? cs(label).paddingLeft + '/' + cs(label).gap + '/' + cs(label).borderLeftWidth : null,
+      };
+    })()`);
+    record('the top of the page says what is on, how many rules, and the last clean',
+      facts.stripHeight > 20 && !!facts.state && hasDigit(facts.rules) &&
+        (!facts.last || hasDigit(facts.last)),
+      `${facts.state} | ${facts.rules} | ${facts.last === null ? 'no run yet, hidden' : facts.last}`);
+    record('the strip carries the same state dot as the status card',
+      !!facts.stripDot && facts.stripDot === facts.cardDot, `${facts.stripDot} vs ${facts.cardDot}`);
+    record('a note under a row lines up with the label it explains',
+      Math.abs(facts.labelX - facts.noteX) <= 1,
+      `label x=${facts.labelX} (row ${facts.labelBox}), note x=${facts.noteX} (${facts.noteId} ${facts.rowBox}+${facts.rowPad})`);
+    record('choosing rows and on/off rows share one text column',
+      Math.abs(facts.labelX - facts.pillX) <= 1, `label x=${facts.labelX}, pill x=${facts.pillX}`);
     await closePage(look.id);
   }
 

@@ -13,6 +13,17 @@
       </div>
       <p class="sub" data-i18n="optSub">Pick what it should forget. Your settings stay on this computer.</p>
 
+      <!-- The three things someone opening this page wants: is it on, how many rules, when
+           it last ran. The state card further down keeps the long version. -->
+      <div class="glance">
+        <span class="dot" id="glanceDot"></span>
+        <span id="glanceState">Active</span>
+        <span class="gsep"></span>
+        <span class="gitem" id="glanceRules">On your list: 0</span>
+        <span class="gsep"></span>
+        <span class="gitem" id="glanceLast"></span>
+      </div>
+
       <div class="banner lockbanner hidden" id="lockedBanner">
         <b data-i18n="optLockedTag">Locked.</b> <span data-i18n="optLockedBody">Your list is hidden until you unlock it below. Cleaning carries on.</span>
       </div>
@@ -37,7 +48,7 @@
             </span>
           </label>
         </div>
-        <div class="row" style="margin-top: 14px">
+        <div class="row sep">
           <label class="pill"><input type="checkbox" id="sweep" /> <span data-i18n="optSweep">Also clean the history that is already saved, at browser start</span></label>
           <label class="pill"><input type="checkbox" id="notify" /> <span data-i18n="optNotify">Tell me when it has cleaned</span></label>
         </div>

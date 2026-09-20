@@ -480,5 +480,65 @@ for (const [, name, style] of swatches) {
 }
 console.log(`  theme swatches: ${swatches.length} previews, each matching its own theme tokens`);
 
+// A settings page has one label column: every row's text starts at the same x, and a note
+// under a row lines up with the labels it explains. Four values in three places decide it,
+// and changing any one of them alone breaks the column silently, so derive them.
+const ruleBody = (sel) => {
+  // Anchored to a line start: `label.pill` must not match the tail of
+  // `body:not(.popup) label.pill`, which carries different values.
+  const m = cssSrc.match(new RegExp('(?:^|\\n)' + sel.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\{([\\s\\S]*?)\\}'));
+  return m ? m[1] : null;
+};
+const gapOf = (body) => {
+  const m = body && body.match(/gap:\s*([\d.]+)px/);
+  return m ? Number(m[1]) : null;
+};
+const borderLeftOf = (body) => {
+  const direct = body && body.match(/border-left-width:\s*([\d.]+)px/);
+  if (direct) return Number(direct[1]);
+  const m = body && body.match(/border:\s*([\d.]+)px/);
+  return m ? Number(m[1]) : 0;
+};
+const padLeftOf = (body) => {
+  const direct = body && body.match(/padding-left:\s*([\d.]+)px/);
+  if (direct) return Number(direct[1]);
+  const m = body && body.match(/padding:\s*([^;]+);/);
+  if (!m) return null;
+  const v = m[1].trim().split(/\s+/).map(parseFloat);
+  return v.length === 1 ? v[0] : v.length === 2 ? v[1] : v[3];
+};
+const radioRow = ruleBody('label.radio');
+const switchRow = ruleBody('label.pill');
+const controlBox = ruleBody("input[type='checkbox'],\ninput[type='radio']");
+const noteRow = ruleBody('body:not(.popup) .card > .row.mini');
+const controlWidth = controlBox && Number((controlBox.match(/width:\s*([\d.]+)px/) || [])[1]);
+const column =
+  borderLeftOf(radioRow) + padLeftOf(radioRow) + controlWidth + gapOf(radioRow);
+
+if (gapOf(switchRow) !== gapOf(radioRow)) {
+  console.log(
+    `  FAIL the switch rows use a ${gapOf(switchRow)}px gap and the choice rows ${gapOf(radioRow)}px, so stacked rows sit out of line`
+  );
+  fail++;
+} else {
+  console.log(
+    `  one control column: border ${borderLeftOf(radioRow)}px + pad ${padLeftOf(radioRow)}px + control ${controlWidth}px + gap ${gapOf(radioRow)}px = text at ${column}px`
+  );
+}
+if (padLeftOf(noteRow) !== column) {
+  console.log(
+    `  FAIL a note under a row is indented ${padLeftOf(noteRow)}px where the label column is at ${column}px`
+  );
+  fail++;
+} else {
+  console.log(`  notes under a row line up with the labels: ${padLeftOf(noteRow)}px`);
+}
+if (!/class="row sep"/.test(optionsHtmlSrc)) {
+  console.log('  FAIL no .row.sep in the markup, so the choosing rows and the on/off rows run together');
+  fail++;
+} else {
+  console.log('  choosing rows and on/off rows are separated by a rule, not by margin alone');
+}
+
 console.log(fail === 0 ? '\npages: ok' : `\npages: ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
