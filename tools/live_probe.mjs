@@ -1212,13 +1212,37 @@ try {
     // The Look and Language cards sit below the log, so no plain top-of-page capture
     // can show them. Scrolled to, they are the two controls worth a picture: the
     // theme row, and the language menu that replaced three full-width rows.
-    // The language card's bottom edge lands on the frame's bottom edge, so the frame ends
-    // on a card boundary instead of slicing the next section, and the whole 4x2 theme
-    // block sits complete above it.
-    await shotOptions.evaluate(
-      "document.getElementById('langPick').closest('.card').scrollIntoView({ block: 'end' })"
-    );
+    // The frame is placed by measuring the theme row's own position, not by aligning a card
+    // to an edge of the viewport: the previous version asked for the language card's bottom
+    // on the frame's bottom, which framed the rule table instead, and nothing failed because
+    // the page still scrolled somewhere. The metrics are set first, because the offset is
+    // only meaningful at the size the shot is taken at and a later reflow would move it.
+    await shoot(shotOptions, 'options-look.png', 640, 400, false, 2);
+    await shotOptions.evaluate(`(() => {
+      const row = document.getElementById('themeRow');
+      const top = row.getBoundingClientRect().top + window.scrollY;
+      window.scrollTo(0, Math.max(0, Math.round(top - 96)));
+      return true;
+    })()`);
     await sleep(400);
+    // What the frame actually holds. A shot whose subject is out of frame still looks
+    // like a shot, so this is checked in the same place the capture is taken.
+    const inFrame = await shotOptions.evaluate(`(() => {
+      const r = (el) => {
+        const b = el.getBoundingClientRect();
+        return { top: Math.round(b.top), bottom: Math.round(b.bottom) };
+      };
+      return {
+        w: window.innerWidth,
+        h: window.innerHeight,
+        theme: r(document.getElementById('themeRow')),
+        lang: r(document.getElementById('langPick')),
+        tiles: document.querySelectorAll('.theme').length,
+      };
+    })()`);
+    record('the theme row and the language picker are both inside the fifth shot',
+      inFrame.theme.top >= 0 && inFrame.lang.top > inFrame.theme.bottom && inFrame.lang.bottom <= inFrame.h,
+      `frame ${inFrame.w}x${inFrame.h}, theme row ${inFrame.theme.top}..${inFrame.theme.bottom}, language picker ${inFrame.lang.top}..${inFrame.lang.bottom}, ${inFrame.tiles} tiles`);
     await shoot(shotOptions, 'options-look.png', 640, 400, false, 2);
 
     // The store shows every screenshot at 640 wide, so a row that wraps at that width
