@@ -76,7 +76,7 @@ async function load() {
     runTest();
   }
   $('version').textContent =
-    'Lil Bro v' + chrome.runtime.getManifest().version + ': rules sync between your computers, the switches stay on this one.';
+    'Lil Bro v' + chrome.runtime.getManifest().version + ': your settings stay on this computer.';
 }
 
 /** A PIN is set and this page has not been unlocked yet. */
@@ -131,9 +131,7 @@ function renderSettings() {
   $('lockEnabled').checked = !!s.lockEnabled;
   $('advOn').checked = !!s.advanced;
   $('advBox').classList.toggle('hidden', !s.advanced);
-  for (const input of document.querySelectorAll('input[name="lang"]')) {
-    input.checked = input.value === (s.lang || 'auto');
-  }
+  $('langPick').value = s.lang || 'auto';
   $('keepWarn').textContent =
     s.listMode === 'allow' ? 'On: everything not on your list is being wiped. Cookies and cache are separate.' : '';
   $('wipeNowBtn').textContent = s.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
@@ -403,13 +401,11 @@ $('advOn').addEventListener('change', async () => {
 });
 // Switching the language reloads the page: every string, including the ones the
 // script writes, has to come out in the new one.
-for (const input of document.querySelectorAll('input[name="lang"]')) {
-  input.addEventListener('change', async () => {
-    state.settings.lang = input.value;
-    await saveState({ settings: state.settings });
-    location.reload();
-  });
-}
+$('langPick').addEventListener('change', async () => {
+  state.settings.lang = $('langPick').value;
+  await saveState({ settings: state.settings });
+  location.reload();
+});
 
 // --- the extra clear -------------------------------------------------------
 

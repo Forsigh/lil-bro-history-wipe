@@ -422,5 +422,63 @@ for (const key of VERDICT_KEYS) {
 }
 console.log(`  popup verdict: ${VERDICT_KEYS.length} keys wired, present in both bundles`);
 
+// A theme button draws its own preview, so its colours are a copy of that theme's
+// tokens, and a copy drifts: paper's swatch kept #9a6b2f long after the token moved to
+// #8f6129. This checks every swatch against the theme block it claims to preview.
+const cssSrc = readFileSync(join(root, 'src/styles.css'), 'utf8');
+const tokensFrom = (body) => {
+  const out = {};
+  for (const m of body.matchAll(/(--[a-z0-9-]+):\s*([^;]+);/g)) out[m[1]] = m[2].trim();
+  return out;
+};
+const baseTokens = tokensFrom(cssSrc.match(/:root\s*\{([\s\S]*?)\n\}/)[1]);
+const autoLight = tokensFrom(
+  cssSrc.match(/@media \(prefers-color-scheme: light\) \{\s*:root\[data-theme='auto'\] \{([\s\S]*?)\n  \}/)[1]
+);
+// auto is the one swatch that shows two page colours, because auto is a mode: the
+// dark page next to the light one it switches to. Its second colour is the light
+// override, so that is what gets checked against the media query.
+const themeTokens = { auto: { ...baseTokens }, dark: { ...baseTokens } };
+// The light override for auto sits in its own media query, and it is also a
+// :root[data-theme='auto'] block, so it has to be out of the way before the per-theme
+// scan or it overwrites auto with the light tokens.
+const withoutAutoLight = cssSrc.replace(/@media \(prefers-color-scheme: light\) \{[\s\S]*?\n\}/, '');
+for (const m of withoutAutoLight.matchAll(/:root\[data-theme='([a-z]+)'\]\s*\{([\s\S]*?)\n\}/g)) {
+  themeTokens[m[1]] = { ...baseTokens, ...tokensFrom(m[2]) };
+}
+const optionsHtmlSrc = readFileSync(join(root, 'src/options.html'), 'utf8');
+const swatches = [...optionsHtmlSrc.matchAll(/<button class="theme" data-theme="([a-z]+)"><i style="([^"]+)"/g)];
+if (!swatches.length) {
+  console.log('  FAIL no theme swatches found in options.html');
+  fail++;
+}
+for (const [, name, style] of swatches) {
+  const declared = (prop) => {
+    const m = style.match(new RegExp(prop + ':\\s*([^;]+)'));
+    return m ? m[1].trim() : null;
+  };
+  const theme = themeTokens[name];
+  if (!theme) {
+    console.log(`  FAIL the ${name} swatch has no theme block to preview`);
+    fail++;
+    continue;
+  }
+  if (
+    declared('--sw-bg') !== theme['--bg'] ||
+    declared('--sw-accent') !== theme['--accent'] ||
+    declared('--sw-line') !== theme['--line']
+  ) {
+    console.log(
+      `  FAIL the ${name} swatch draws ${declared('--sw-bg')}/${declared('--sw-accent')}/${declared('--sw-line')} where the theme uses ${theme['--bg']}/${theme['--accent']}/${theme['--line']}`
+    );
+    fail++;
+  }
+  if (name === 'auto' && declared('--sw-bg2') !== autoLight['--bg']) {
+    console.log(`  FAIL the auto swatch second colour is not the light page colour (${autoLight['--bg']})`);
+    fail++;
+  }
+}
+console.log(`  theme swatches: ${swatches.length} previews, each matching its own theme tokens`);
+
 console.log(fail === 0 ? '\npages: ok' : `\npages: ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

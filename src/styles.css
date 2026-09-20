@@ -648,14 +648,60 @@ a.bmc svg {
   box-shadow: var(--glow);
 }
 
+/* Each theme button carries a small preview of that theme: its own page colour with
+   an accent bar on it. The colours come from the button's custom properties, so the
+   theme's tokens are the only place a colour is written down, and tests/pages.test.mjs
+   fails the build if a swatch and its theme drift apart. */
 .theme i {
-  width: 18px;
-  height: 18px;
-  border-radius: 6px;
-  border: 1px solid rgba(127, 127, 127, 0.35);
-  display: inline-block;
+  position: relative;
+  display: block;
+  width: 22px;
+  height: 22px;
+  border-radius: 7px;
+  border: 1px solid var(--sw-line, var(--line));
+  background: var(--sw-bg, var(--card-2));
   flex: none;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  overflow: hidden;
+}
+
+/* Auto is a mode rather than a colour: the two page colours side by side. */
+.theme[data-theme='auto'] i {
+  background: linear-gradient(90deg, var(--sw-bg) 0 50%, var(--sw-bg2) 50% 100%);
+}
+
+.theme i b {
+  position: absolute;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+  height: 4px;
+  border-radius: 2px;
+  display: block;
+  background: var(--sw-accent, var(--accent));
+}
+
+/* One small control instead of a row of full-width choices: the language is a single
+   setting, and the browser's own arrow is what says it opens. */
+.lang-select {
+  min-width: 190px;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--card-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 520;
+  cursor: pointer;
+}
+
+.lang-select:hover {
+  border-color: var(--accent-dim);
+}
+
+.lang-select:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 1px;
 }
 
 /* --- tables and the log -------------------------------------------------- */

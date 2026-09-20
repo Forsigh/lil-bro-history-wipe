@@ -102,7 +102,7 @@
     "message": "All rules & settings"
   },
   "optSub": {
-    "message": "Pick what it should forget. Your rules follow you to your other computers. Everything else stays on this one."
+    "message": "Pick what it should forget. Your settings stay on this computer."
   },
   "optLockedTag": {
     "message": "Locked."

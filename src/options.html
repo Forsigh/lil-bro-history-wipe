@@ -138,14 +138,14 @@
       <h2 data-i18n="optLook">Look</h2>
       <div class="card">
         <div class="row themes" id="themeRow">
-          <button class="theme" data-theme="auto"><i style="background: linear-gradient(90deg, #0a1018 50%, #f5f7fb 50%)"></i><span data-i18n="optThemeAuto">Auto</span></button>
-          <button class="theme" data-theme="dark"><i style="background: linear-gradient(135deg, #0a1018 58%, #2dd4bf 58%)"></i><span data-i18n="optThemeDark">Dark</span></button>
-          <button class="theme" data-theme="light"><i style="background: linear-gradient(135deg, #f5f7fb 58%, #0f766e 58%)"></i><span data-i18n="optThemeLight">Light</span></button>
-          <button class="theme" data-theme="midnight"><i style="background: linear-gradient(135deg, #000000 58%, #a78bfa 58%)"></i><span data-i18n="optThemeMidnight">Midnight</span></button>
-          <button class="theme" data-theme="neon"><i style="background: linear-gradient(135deg, #04050a 58%, #22d3ee 58%)"></i><span data-i18n="optThemeNeon">Neon</span></button>
-          <button class="theme" data-theme="paper"><i style="background: linear-gradient(135deg, #f8f4ea 58%, #9a6b2f 58%)"></i><span data-i18n="optThemePaper">Paper</span></button>
-          <button class="theme" data-theme="slate"><i style="background: linear-gradient(135deg, #1b2027 58%, #86a8cc 58%)"></i><span data-i18n="optThemeSlate">Slate</span></button>
-          <button class="theme" data-theme="contrast"><i style="background: linear-gradient(135deg, #000000 58%, #ffd400 58%)"></i><span data-i18n="optThemeContrast">High contrast</span></button>
+          <button class="theme" data-theme="auto"><i style="--sw-bg: #0a1018; --sw-bg2: #f5f7fb; --sw-accent: #2dd4bf; --sw-line: #1f2b3d"><b></b></i><span data-i18n="optThemeAuto">Auto</span></button>
+          <button class="theme" data-theme="dark"><i style="--sw-bg: #0a1018; --sw-accent: #2dd4bf; --sw-line: #1f2b3d"><b></b></i><span data-i18n="optThemeDark">Dark</span></button>
+          <button class="theme" data-theme="light"><i style="--sw-bg: #f5f7fb; --sw-accent: #0f766e; --sw-line: #dfe5ee"><b></b></i><span data-i18n="optThemeLight">Light</span></button>
+          <button class="theme" data-theme="midnight"><i style="--sw-bg: #000000; --sw-accent: #a78bfa; --sw-line: #2a2a36"><b></b></i><span data-i18n="optThemeMidnight">Midnight</span></button>
+          <button class="theme" data-theme="neon"><i style="--sw-bg: #04050a; --sw-accent: #22d3ee; --sw-line: #1c2436"><b></b></i><span data-i18n="optThemeNeon">Neon</span></button>
+          <button class="theme" data-theme="paper"><i style="--sw-bg: #f8f4ea; --sw-accent: #8f6129; --sw-line: #e2d8c3"><b></b></i><span data-i18n="optThemePaper">Paper</span></button>
+          <button class="theme" data-theme="slate"><i style="--sw-bg: #1b2027; --sw-accent: #86a8cc; --sw-line: #39424c"><b></b></i><span data-i18n="optThemeSlate">Slate</span></button>
+          <button class="theme" data-theme="contrast"><i style="--sw-bg: #000000; --sw-accent: #ffd400; --sw-line: #808080"><b></b></i><span data-i18n="optThemeContrast">High contrast</span></button>
         </div>
       </div>
 
@@ -153,9 +153,11 @@
       <div class="card">
         <div class="row mini" data-i18n="optLangHint">Auto follows your browser. More languages get added as they are written.</div>
         <div class="row" style="margin-top: 12px">
-          <label class="pill"><input type="radio" name="lang" value="auto" /> <span data-i18n="langAuto">Auto (my browser)</span></label>
-          <label class="pill"><input type="radio" name="lang" value="en" /> <span data-i18n="langEn">English</span></label>
-          <label class="pill"><input type="radio" name="lang" value="pl" /> <span data-i18n="langPl">Polski</span></label>
+          <select id="langPick" class="lang-select" data-i18n-title="optLang">
+            <option value="auto" data-i18n="langAuto">Auto (my browser)</option>
+            <option value="en" data-i18n="langEn">English</option>
+            <option value="pl" data-i18n="langPl">Polski</option>
+          </select>
         </div>
       </div>
 
