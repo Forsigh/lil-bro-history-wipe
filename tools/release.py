@@ -37,12 +37,34 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 DESKTOP = pathlib.Path.home() / "Desktop" / "lil-bro-store-images"
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
+# Set once the version is known, so a failure can clean up after the run.
+VERSION = None
+
 
 def say(message):
     print(f"  {message}", flush=True)
 
 
 def die(message):
+    """Stop, and leave nothing half-done behind.
+
+    A release that fails after the version was bumped used to leave the manifest and the
+    changelog modified, so the next run refused to start on a dirty tree and the version
+    had been spent on nothing. Both go back to what they were, and a zip built by a run that
+    failed goes with them, because one version number is one zip.
+    """
+    subprocess.run(
+        ["git", "checkout", "--", "manifest.json", "CHANGELOG.md", "docs/VERSIONS.md"],
+        cwd=ROOT,
+        capture_output=True,
+    )
+    if VERSION:
+        stray = ROOT / "builds" / f"lil-bro-wipe-{VERSION}.zip"
+        if stray.exists():
+            stray.unlink()
+        for pattern in (f"builds/.probe-{VERSION}-*", f"builds/.sheets-{VERSION}-*"):
+            for path in ROOT.glob(pattern):
+                shutil.rmtree(path, ignore_errors=True)
     print(f"\n  stopped: {message}", file=sys.stderr)
     sys.exit(1)
 
@@ -115,6 +137,8 @@ def main():
     args = parser.parse_args()
 
     version = args.version
+    global VERSION
+    VERSION = version
     current = json.loads(read("manifest.json"))["version"]
     note_path = ROOT / f"builds/release-notes-{version}.md"
     zip_name = f"lil-bro-wipe-{version}.zip"
@@ -214,6 +238,7 @@ def main():
             done = run(["python", "tools/make_shot_sheets.py",
                         str(out).replace("\\", "/"), str(sheet_dir).replace("\\", "/")])
             if done.returncode:
+                print(done.stdout[-2000:], done.stderr[-1500:])
                 die(f"the {lang} screenshot sheets failed")
             sheets[lang] = sheet_dir
 
