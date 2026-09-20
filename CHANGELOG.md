@@ -13,6 +13,7 @@ been painting over, and a Polish page reads Polish there and shows 24-hour times
 PM. The eight theme buttons do not fit a narrow window, so below about 700 pixels they form two rows
 of four rather than wrapping seven and one, and one of them is called Contrast now.
 
+## 1.5.6
 
 The English fallback text in the markup had fallen behind the English the pages actually show, in
 fifteen places on the settings page and three on the popup: it still said Arm where the button says
