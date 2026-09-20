@@ -16,6 +16,7 @@ import { execFileSync } from 'node:child_process';
 
 let pass = 0;
 let fail = 0;
+let skipped = 0;
 
 function check(name, fn) {
   try {
@@ -26,6 +27,19 @@ function check(name, fn) {
     fail++;
     console.log(`  FAIL  ${name}: ${e.message}`);
   }
+}
+
+// The zips are gitignored, so a clean checkout (a CI runner, a fresh clone) has none
+// and the artifact checks have nothing to judge. Say that out loud rather than
+// reporting a pass, and keep the document checks running everywhere.
+function skip(name) {
+  skipped++;
+  console.log(`  skip  ${name} (no zips on this checkout)`);
+}
+
+function checkOrSkip(name, fn) {
+  if (!zips.length) return skip(name);
+  check(name, fn);
 }
 
 const root = new URL('..', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
@@ -83,14 +97,14 @@ check('no version appears twice in the table', () => {
   }
 });
 
-check('every zip that exists has a row', () => {
+checkOrSkip('every zip that exists has a row', () => {
   const missing = zips.filter((z) => !rows.some((r) => r.version === z.version));
   if (missing.length) {
     throw new Error(`built but undocumented: ${missing.map((z) => `${z.version} (${z.file})`).join(', ')}`);
   }
 });
 
-check('every zip still matches the hash written next to its version', () => {
+checkOrSkip('every zip still matches the hash written next to its version', () => {
   const wrong = [];
   for (const z of zips) {
     const row = rows.find((r) => r.version === z.version);
@@ -103,7 +117,7 @@ check('every zip still matches the hash written next to its version', () => {
   if (wrong.length) throw new Error(`a zip was rebuilt after its row was written: ${wrong.join('; ')}`);
 });
 
-check('every zip says on the inside what its file name says', () => {
+checkOrSkip('every zip says on the inside what its file name says', () => {
   // The interpreter is named differently on a CI runner and on this host, so try both
   // rather than making the check depend on which machine runs it.
   const py = ['python', 'python3'].find((exe) => {
@@ -129,7 +143,7 @@ check('every zip says on the inside what its file name says', () => {
   if (wrong.length) throw new Error(`mislabelled zip: ${wrong.join('; ')}`);
 });
 
-check('every zip built since the changelog started has a section', () => {
+checkOrSkip('every zip built since the changelog started has a section', () => {
   // The changelog's oldest section is 1.2.0 and the note under it covers everything
   // before that, so 1.1.1 is the only zip without a section of its own. A new build
   // is always newer than the floor, so it cannot hide behind this.
@@ -150,7 +164,7 @@ check('the floor this test exempts is still the changelog it claims', () => {
   }
 });
 
-check('the newest zip is the newest table row and the newest changelog entry', () => {
+checkOrSkip('the newest zip is the newest table row and the newest changelog entry', () => {
   const newestZip = zips.map((z) => z.version).reduce((a, b) => (newer(a, b) ? a : b));
   const newestRow = rows.map((r) => r.version).reduce((a, b) => (newer(a, b) ? a : b));
   const newestEntry = changelogVersions.reduce((a, b) => (newer(a, b) ? a : b));
@@ -161,7 +175,7 @@ check('the newest zip is the newest table row and the newest changelog entry', (
 });
 
 check('the manifest is never behind the newest documented version', () => {
-  const newestRow = rows.map((r) => r.version).reduce((a, b) => (newer(a, b) ? a : b));
+  const newestRow = rows.map((r) => r.version).reduce((a, b) => (newer(a, b) ? a : b), '0.0.0');
   if (newer(newestRow, manifest.version)) {
     throw new Error(`the table documents ${newestRow}, the manifest is still ${manifest.version}`);
   }
@@ -175,5 +189,5 @@ check('the table names the same current version as the manifest', () => {
   }
 });
 
-console.log(`\nrelease: ${pass} passed, ${fail} failed`);
+console.log(`\nrelease: ${pass} passed, ${fail} failed, ${skipped} skipped`);
 if (fail) process.exitCode = 1;
