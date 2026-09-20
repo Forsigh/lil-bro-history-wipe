@@ -1022,6 +1022,38 @@ try {
   );
   await closePage(upPage.id);
 
+  // --- 12b. the theme buttons draw their own theme ----------------------------
+  // A swatch reads its colours from the theme it previews, so an empty custom property
+  // leaves it showing the card fill and the row looks broken. Measured, because a
+  // description of a small tile is not evidence.
+  {
+    const look = await openPage(`chrome-extension://${id}/src/options.html`);
+    const swatches = await look.evaluate(`(() => [...document.querySelectorAll('.theme')].map((b) => {
+      const i = b.querySelector('i');
+      const bar = i && i.querySelector('b');
+      return {
+        theme: b.dataset.theme,
+        width: i ? Math.round(i.getBoundingClientRect().width) : 0,
+        fill: i ? getComputedStyle(i).backgroundColor : '',
+        image: i ? getComputedStyle(i).backgroundImage : '',
+        bar: bar ? getComputedStyle(bar).backgroundColor : '',
+      };
+    }))()`);
+    const solid = swatches.filter((s) => s.fill && s.fill !== 'rgba(0, 0, 0, 0)');
+    const fills = [...new Set(solid.map((s) => s.fill))];
+    const auto = swatches.find((s) => s.theme === 'auto');
+    record('the theme row carries eight buttons', swatches.length === 8, swatches.map((s) => s.theme).join(' '));
+    record('each swatch draws a colour of its own', solid.length === 7 && fills.length === 7, fills.join(' '));
+    record('every swatch keeps its accent bar', swatches.every((s) => s.bar && s.bar !== 'rgba(0, 0, 0, 0)'),
+      swatches.map((s) => s.bar).join(' ').slice(0, 110));
+    record('auto shows the dark and the light page side by side',
+      !!auto && auto.image.includes('rgb(245, 247, 251)') && auto.image.includes('rgb(10, 16, 24)'),
+      auto ? auto.image.slice(0, 96) : 'no auto swatch');
+    record('a swatch is a small tile, not a stripe', swatches.every((s) => s.width === 22),
+      swatches.map((s) => s.width).join(','));
+    await closePage(look.id);
+  }
+
   // --- 13. optional screenshots: the compact popup, the classic one, the options --
   // node tools/live_probe.mjs <port> <browser> <output-dir> [en|pl] [theme]
   const shotsDir = process.argv[4];

@@ -11,7 +11,7 @@
         <img class="brand-mark" src="icons/icon32.png" alt="" width="30" height="30" />
         <h1>Lil Bro <span data-i18n="brandSub">History Cleaner</span></h1>
       </div>
-      <p class="sub" data-i18n="optSub">Tell it what to forget. Your rules follow you to your other computers, everything else stays on this one.</p>
+      <p class="sub" data-i18n="optSub">Pick what it should forget. Your settings stay on this computer.</p>
 
       <div class="banner lockbanner hidden" id="lockedBanner">
         <b data-i18n="optLockedTag">Locked.</b> <span data-i18n="optLockedBody">Your list is hidden until you unlock it below. Cleaning carries on.</span>
@@ -24,7 +24,7 @@
             <input type="radio" name="mode" value="realtime" />
             <span>
               <b data-i18n="optModeRealtime">While I browse</b>
-              <small data-i18n="optModeRealtimeHint">It cleans as you go, so nothing is ever left waiting around.</small>
+              <small data-i18n="optModeRealtimeHint">It cleans each visit as it happens.</small>
             </span>
           </label>
         </div>
@@ -33,12 +33,12 @@
             <input type="radio" name="mode" value="startup" />
             <span>
               <b data-i18n="optModeStartup">When I open the browser</b>
-              <small data-i18n="optModeStartupHint">One clean up each time you open the browser.</small>
+              <small data-i18n="optModeStartupHint">One pass each time you open the browser.</small>
             </span>
           </label>
         </div>
         <div class="row" style="margin-top: 14px">
-          <label class="pill"><input type="checkbox" id="sweep" /> <span data-i18n="optSweep">Also clean history that is already saved, at browser start</span></label>
+          <label class="pill"><input type="checkbox" id="sweep" /> <span data-i18n="optSweep">Also clean the history that is already saved, at browser start</span></label>
           <label class="pill"><input type="checkbox" id="notify" /> <span data-i18n="optNotify">Tell me when it has cleaned</span></label>
         </div>
         <div class="row" style="margin-top: 14px">
@@ -69,20 +69,17 @@
           <button id="lockRecoverBtn" class="danger" data-i18n="optLockRecoverBtn">Remove the PIN and wipe my list</button>
         </div>
         <div class="row mini" id="lockRecoveryNote"></div>
-        <div class="row mini" data-i18n="optLockNote">
-          You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site
-          only shows a notification.
-        </div>
+        <div class="row mini" data-i18n="optLockNote">You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site only shows a notification.</div>
       </div>
 
       <h2 data-i18n="optClearing">What gets cleaned</h2>
       <div class="card">
-        <div class="row mini" data-i18n="optClearingHint">Pick a level. The three words you will see here: history is the list of pages you visited, cache is the saved copy of a page that makes it open faster, cookies are the small files that keep you logged in.</div>
+        <div class="row mini" data-i18n="optClearingHint">Pick a level. History is the list of pages you visited. Cache is the saved copy of a page, the thing that makes it open faster. Cookies are the small files that keep you logged in.</div>
         <div class="row rows" id="presetRow" style="margin-top: 12px">
-          <button class="preset" data-preset="off"><b data-i18n="optPresetOff">Off</b><small data-i18n="optPresetOffSub">Only history, according to my rules.</small></button>
-          <button class="preset" data-preset="light"><b data-i18n="optPresetLight">Light</b><small data-i18n="optPresetLightSub">History and cache, which means websites will load a little slower.</small></button>
-          <button class="preset" data-preset="standard"><b data-i18n="optPresetStandard">Standard</b><small data-i18n="optPresetStandardSub">History, cache and cookies. Websites will not remember you, so you may have to log in again.</small></button>
-          <button class="preset danger" data-preset="nuclear"><b data-i18n="optPresetNuclear">FULL</b><small data-i18n="optPresetNuclearSub">Everything the browser allows. Saved passwords are not removed.</small></button>
+          <button class="preset" data-preset="off"><b data-i18n="optPresetOff">Off</b><small data-i18n="optPresetOffSub">Your rules decide. History only.</small></button>
+          <button class="preset" data-preset="light"><b data-i18n="optPresetLight">Light</b><small data-i18n="optPresetLightSub">History and cache. Pages will load a little slower.</small></button>
+          <button class="preset" data-preset="standard"><b data-i18n="optPresetStandard">Standard</b><small data-i18n="optPresetStandardSub">History, cache and cookies. Sites will not remember you, so you'll log in again.</small></button>
+          <button class="preset danger" data-preset="nuclear"><b data-i18n="optPresetNuclear">FULL</b><small data-i18n="optPresetNuclearSub">Everything the browser will let it touch. Saved passwords stay.</small></button>
           <button class="preset" data-preset="custom"><b data-i18n="optPresetCustom">Custom</b><small data-i18n="optPresetCustomSub">Pick each kind yourself.</small></button>
         </div>
         <div class="row mini" id="presetNote"></div>
@@ -166,11 +163,11 @@
         <div class="row">
           <div class="stat">
             <b id="statTotal">0</b>
-            <small data-i18n="optStatTotal">wiped, all time</small>
+            <small data-i18n="optStatTotal">cleaned, all time</small>
           </div>
           <div class="stat">
             <b id="statLastCount">0</b>
-            <small data-i18n="optStatLastCount">in the last run</small>
+            <small data-i18n="optStatLastCount">in the last clean</small>
           </div>
         </div>
         <div class="row">
@@ -240,11 +237,7 @@
           <span id="extraMsg" class="mini"></span>
         </div>
         <div class="row mini" id="extraWarn"></div>
-        <div class="row mini" data-i18n="optClearingNote">
-          Chrome does not say how much it cleared, so there is no number to show. Clearing cookies signs you
-          out of that site. Downloads means the list, not your files. Passwords are not included, Chrome took
-          that away in version 144.
-        </div>
+        <div class="row mini" data-i18n="optClearingNote">The browser does not report how much it cleared, so there is no number to show. Clearing cookies logs you out of that site. Downloads means the list, not your files. Passwords are not included: the browser removed that in version 144.</div>
       </div>
 
       <h2 data-i18n="optCookies">Cookies</h2>
@@ -298,20 +291,13 @@
             <span data-i18n="optWipeAll">Clean all history, not just what is on my list</span>
           </label>
         </div>
-        <div class="row mini" data-i18n="optWipeAllHint">
-          Your list stops mattering: every trigger clears the whole history. The list stays where it is and
-          counts again the moment this is off.
-        </div>
+        <div class="row mini" data-i18n="optWipeAllHint">Your list stops mattering: every clean takes the whole history. The list stays where it is and counts again the moment this is off.</div>
         <div class="row mini" id="wipeAllWarn"></div>
       </div>
 
       </div>
 
-      <div class="banner" data-i18n="optLimitsBanner">
-        Two things Chrome will not let a cleaner do. It cannot run at the exact moment the browser closes,
-        so if that moment is missed the clean happens the next time you open it. And an address you deleted
-        can still show up in the address bar suggestions.
-      </div>
+      <div class="banner" data-i18n="optLimitsBanner">Two things the browser won't let any cleaner do. It can't run at the exact moment the browser closes, so a missed close means the clean happens the next time you open it. And a page you deleted can still show up in the address bar suggestions.</div>
 
       <a class="bmc" href="https://buymeacoffee.com/forsigh" target="_blank" rel="noreferrer noopener">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
