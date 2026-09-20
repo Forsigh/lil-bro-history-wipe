@@ -550,6 +550,24 @@ if (!langRow || (!/background-image/.test(langRow) && !/background-image/.test(s
   console.log('  FAIL the language picker has no arrow of its own and no chevron to inherit');
   fail++;
 }
+// The status line's mode labels were English literals in the page script, so a Polish page
+// read "Aktywne: wiping on visit" and nothing failed: no key was missing, the phrase simply
+// never went through the bundle. A phrase a page prints has to come from t(); the only
+// acceptable literal is the English fallback on the same line as the t() call.
+for (const file of ['src/options.js', 'src/popup.js']) {
+  const lines = readFileSync(join(root, file), 'utf8').split('\n');
+  for (const phrase of ['wiping on visit', 'wiping at browser start', 'wiping at browser close']) {
+    for (const line of lines) {
+      if (line.trim().startsWith('//')) continue;   // a comment may name the phrase
+      if (line.includes(phrase) && !line.includes("t('")) {
+        console.log(`  FAIL ${file} prints the English phrase "${phrase}" without going through t()`);
+        fail++;
+      }
+    }
+  }
+}
+console.log('  no English phrase is printed straight out of a page script');
+
 if (!/class="row sep"/.test(optionsHtmlSrc)) {
   console.log('  FAIL no .row.sep in the markup, so the choosing rows and the on/off rows run together');
   fail++;

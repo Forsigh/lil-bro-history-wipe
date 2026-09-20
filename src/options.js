@@ -20,7 +20,7 @@ import {
   parseCookieKeep,
   RULE_TYPES,
 } from './store.js';
-import { applyI18n, setLang, t } from './i18n.js';
+import { applyI18n, currentLang, setLang, t } from './i18n.js';
 import { findMatch } from './matcher.js';
 import {
   doubleConfirm,
@@ -47,9 +47,11 @@ let state = null;
 let unlocked = false;
 let pinIntent = 'unlock';
 
+// Dates and times follow the language the page is showing, not the browser's, or a Polish
+// page prints "10:12 PM".
 function fmtWhen(ts) {
   if (!ts) return 'never';
-  return new Date(ts).toLocaleString();
+  return new Date(ts).toLocaleString(currentLang());
 }
 
 // The strip has one line to spend. A run today reads as "today 21:43", an older one as a
@@ -58,11 +60,11 @@ function fmtWhen(ts) {
 function fmtShort(ts) {
   if (!ts) return '';
   const d = new Date(ts);
-  const time = d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+  const time = d.toLocaleTimeString(currentLang(), { hour: '2-digit', minute: '2-digit' });
   if (d.toDateString() === new Date().toDateString()) {
     return (t('glanceToday') || 'today') + ' ' + time;
   }
-  return d.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + time;
+  return d.toLocaleDateString(currentLang(), { day: 'numeric', month: 'short' }) + ' ' + time;
 }
 
 function setMsg(el, text, kind = '') {
@@ -156,10 +158,12 @@ function renderSettings() {
   const dot = 'dot' + (enabled ? '' : ' off') + (s.wipeAllHistory ? ' danger' : '');
   $('stateDot').className = dot;
   $('glanceDot').className = dot;
+  // From the bundle. These were English literals, so a Polish page read
+  // "Aktywne: wiping on visit" and nothing caught it: no key was missing.
   const modeText = {
-    realtime: 'wiping on visit',
-    onclose: 'wiping at browser close',
-    startup: 'wiping at browser start',
+    realtime: t('stateOnVisit') || 'wiping on visit',
+    onclose: t('stateAtClose') || 'wiping at browser close',
+    startup: t('stateAtStart') || 'wiping at browser start',
   }[s.mode] || s.mode;
   const stateLine = s.wipeAllHistory
     ? enabled

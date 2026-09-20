@@ -1,5 +1,9 @@
 {
 
+  "stateOnVisit": { "message": "przy każdej wizycie" },
+  "stateAtStart": { "message": "przy starcie przeglądarki" },
+  "stateAtClose": { "message": "przy zamknięciu przeglądarki" },
+
   "glanceToday": { "message": "dzisiaj" },
 
   "glanceOnYourList": { "message": "Na liście" },

@@ -10,6 +10,7 @@
 // Language row in settings win over the browser.
 
 let bundle = null;
+let current = 'en';
 const cache = new Map();
 
 async function load(lang) {
@@ -46,7 +47,10 @@ export async function languages() {
 /** 'auto' follows the browser. A language with no bundle falls back to English. */
 export async function setLang(setting) {
   const want = !setting || setting === 'auto' ? browserLanguage() : setting;
-  bundle = (await load(want)) || (await load('en')) || null;
+  const have = await load(want);
+  bundle = have || (await load('en')) || null;
+  // A wanted language with no bundle falls back to English, so that is what is on screen.
+  current = have ? want : 'en';
   return want;
 }
 
@@ -76,4 +80,9 @@ export function applyI18n(root = document) {
 /** The language the browser asks for, for a footer or a settings note. */
 export function uiLanguage() {
   return browserLanguage();
+}
+
+/** The language the page is showing, for dates, times and numbers. */
+export function currentLang() {
+  return current;
 }

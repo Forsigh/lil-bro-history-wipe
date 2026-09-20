@@ -1,5 +1,9 @@
 {
 
+  "stateOnVisit": { "message": "wiping on visit" },
+  "stateAtStart": { "message": "wiping at browser start" },
+  "stateAtClose": { "message": "wiping at browser close" },
+
   "glanceToday": { "message": "today" },
 
   "glanceOnYourList": { "message": "On your list" },
