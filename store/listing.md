@@ -51,12 +51,10 @@ Chrome removed password deletion from extensions.
 
 The popup stays small: state, one switch, wipe now, preview, and a line saying what else is being
 cleared. Everything else is one click behind "More controls", and a header button brings back the
-denser older layout. Six themes, light to neon, and an optional PIN lock that keeps the rule list off
+denser older layout. Eight themes, light to neon, and an optional PIN lock that keeps the rule list off
 the screen when someone else opens your settings.
 
-No account, no server, and no network requests of its own. Your rules sit in the browser's synced
-storage, which is how a rule added on one computer shows up on another; your history never leaves the
-machine.
+No account, no server, and no network requests of its own. Your history never leaves the machine.
 
 Two things to know before installing. Chrome shows a warning about reading and changing your browsing
 history, and the wording cannot be narrowed. And Chrome gives extensions no way to notice the browser
