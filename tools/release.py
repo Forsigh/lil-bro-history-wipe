@@ -235,7 +235,7 @@ def main():
             sheet_dir = ROOT / f"builds/.sheets-{version}-{lang}"
             shutil.rmtree(sheet_dir, ignore_errors=True)
             sheet_dir.mkdir(parents=True)
-            done = run(["python", "tools/make_shot_sheets.py",
+            done = run([sys.executable, "tools/make_shot_sheets.py",
                         str(out).replace("\\", "/"), str(sheet_dir).replace("\\", "/")])
             if done.returncode:
                 print(done.stdout[-2000:], done.stderr[-1500:])
@@ -243,7 +243,11 @@ def main():
             sheets[lang] = sheet_dir
 
     # --- 4. the artifact ------------------------------------------------------
-    done = run(["python", "tools/package.py", f"builds/{zip_name}"])
+    # sys.executable, not "python": under subprocess the name resolves through PATH to whatever
+    # interpreter Windows finds first, which on this machine is one without PIL, while the
+    # composer needs it. Running these under the interpreter that is running this script means
+    # the two agree on what is installed.
+    done = run([sys.executable, "tools/package.py", f"builds/{zip_name}"])
     print(done.stdout.strip())
     if done.returncode:
         die("the packager refused, so there is no zip to release")
