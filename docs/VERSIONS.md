@@ -3,7 +3,7 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 1.5.7.
+different builds called themselves 1.3.0. The current code is numbered 1.5.8.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
@@ -34,6 +34,7 @@ different builds called themselves 1.3.0. The current code is numbered 1.5.7.
 | 1.5.4 | 20 Sep | `53fb872` | `4ea4a85a22251f8d` | the guards that keep frequent updates safe: version agreement across the table, the zips and the changelog, a frozen settings shape, and a backup file from an old build importing through the real picker |
 | 1.5.5 | 20 Sep | `55ec82c` | `308fcef5f736291d` | the theme buttons stopped lying about their colours, the language picker is one small menu, and the settings page stopped describing where your rules go |
 | 1.5.6 | 20 Sep | `61df863` | `c22fb27f6b1dc3e1` | the English fallbacks in the markup catch up with the strings the pages actually show, so what a translator reads is what ships |
+| 1.5.8 | 20 Sep | `934180d` | `291ae9cd062b9a3f` | the rule list stops living in the browser's synced storage: it is local like everything else, an older list is moved across once and the synced copy deleted, so the policy, the settings page and the listing can all say nothing leaves this computer |
 | 1.5.7 | 20 Sep 23:16 | `0235e18` | `fe56d8d79dba9295` | one control column, the page state at the top, the picker's arrow back |
 
 Zips for 1.0.1 through 1.3.1 are kept in `builds/` in the store-assets folder on the
