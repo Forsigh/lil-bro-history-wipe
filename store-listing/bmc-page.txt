@@ -1,0 +1,59 @@
+BUY ME A COFFEE PAGE
+Fields to paste, in the order the page builder asks for them.
+This page is about the person, not the extension. The extension gets one paragraph, at most.
+
+=====================================================================
+PAGE NAME
+=====================================================================
+[your name, or the handle you want shown]
+
+=====================================================================
+ONE LINE ABOUT YOU (the short line under the page name)
+=====================================================================
+One person in [city or country], building small privacy tools for myself and publishing the ones
+that hold up.
+
+=====================================================================
+ABOUT ME
+=====================================================================
+The name I go by online is [handle]. [Real first name, if you want it here.] I live in
+[city, country].
+
+I build small tools for myself, mostly the kind that keep other people's software out of my
+business: a cleaner that deletes the browser history entries you choose, a search instance that
+runs on my own machine, filters and blocklists, a phone with the tracking taken out. Most of them
+never leave my own computers. This one did, because the problem it solves is not mine alone.
+
+The extension started because every history cleaner I tried wanted something from me: an account,
+an upsell, a permission list I could not justify to myself. So the rule got written before the
+code. No server, no account, no analytics, nothing stored anywhere except your own computer.
+Everything since has been me holding that line.
+
+What I want from software is simple: it should explain itself, and it should say where it stops.
+Half the arguments I have with myself about this project are about the wording, not the code.
+
+[Something that is not about software. A car, a radio, a bike, cooking, whatever takes your
+evenings. One or two sentences, and specific.]
+
+What you would be supporting is time. There is no bill behind this, just the hours, and most of
+them go on testing before a release goes out.
+
+=====================================================================
+THANK YOU MESSAGE (what the supporter sees after paying)
+=====================================================================
+Thank you. That goes into testing time for the next release, which is the part that keeps this
+thing safe to run.
+
+=====================================================================
+COVER IMAGE
+=====================================================================
+Reuse the marquee, 1400x560: graphics\all-languages\marquee-1400x560.png
+Or the square one if the page wants a profile picture: graphics\icons\icon128.png
+
+=====================================================================
+BUTTON LINK BACK TO THE EXTENSION
+=====================================================================
+THE STORE LISTING, FOR THE BUTTON THAT LEADS BACK TO THE EXTENSION
+https://chromewebstore.google.com/detail/lil-bro-history-wipe/fbdfjomihgegaemjljbcmmdmgmadlebg
+Or the landing page, if you would rather send them somewhere with more on it:
+https://forsigh.github.io/lil-bro-history-wipe/

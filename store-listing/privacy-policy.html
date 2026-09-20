@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lil Bro Wipe – History Cleaner privacy policy</title>
+    <style>
+      body { margin: 0; background: #0b1220; color: #e8eefc;
+             font: 16px/1.7 "Segoe UI", system-ui, sans-serif; }
+      main { max-width: 720px; margin: 0 auto; padding: 48px 20px 80px; }
+      h1 { font-size: 26px; margin: 0 0 6px; }
+      h2 { font-size: 15px; text-transform: uppercase; letter-spacing: .08em;
+           color: #93a3bf; margin: 32px 0 8px; }
+      .updated { color: #93a3bf; font-size: 14px; margin-bottom: 28px; }
+      ul { padding-left: 22px; }
+      li { margin-bottom: 6px; }
+      code { background: #182339; padding: 1px 6px; border-radius: 5px; font-size: 14px; }
+      a { color: #2dd4bf; }
+      footer { margin-top: 40px; color: #93a3bf; font-size: 14px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Lil Bro Wipe – History Cleaner privacy policy</h1>
+      <p class="updated">Last updated: 19 September 2026</p>
+
+      <p>
+        Lil Bro Wipe – History Cleaner deletes chosen entries from your browsing history. Everything happens
+        on your device. There is no server behind it.
+      </p>
+
+      <h2>What it accesses</h2>
+      <ul>
+        <li><b>Your browsing history</b>, to find the entries that match your rules and delete those.</li>
+        <li>
+          <b>Extension storage</b> for your rules, your settings, an optional local log of what was
+          cleaned, and the count shown on the settings page.
+        </li>
+        <li>
+          <b>A PIN you set yourself</b>, if you switch the list lock on. It is stored on your device
+          as a hash and never sent anywhere, and it does one thing: it hides your rule list from
+          other people using the same computer. It does not encrypt anything, and anyone who can
+          reach your browser settings can still remove the extension. Forgetting it has a way out:
+          type the word <code>lilbro</code> and the PIN goes, and so does everything the extension
+          saved, your list included. None of that comes back.
+        </li>
+        <li>
+          <b>Cookies</b>, if you use the cookie features. It reads cookie names and domains to delete
+          the ones you did not keep, and keeps the site of an open tab in session storage (memory,
+          gone when the browser closes) so a closed tab's cookies can go with it. Tab access is an
+          optional permission, asked for only when you switch that feature on.
+        </li>
+        <li>
+          <b>Other stored browsing data</b>: cache, download history and saved form text, cleared
+          through the browsing-data permission and only with those switches on.
+        </li>
+      </ul>
+
+      <h2>What it does not do</h2>
+      <ul>
+        <li>Nothing is collected, sold or shared. No analytics, no account, no third party.</li>
+        <li>
+          It makes no network requests of its own. The settings page carries one link out, to the
+          page where you can support the project, and your browser opens that in a new tab only if
+          you click it. The extension itself sends nothing, at any point.
+        </li>
+        <li>
+          Everything it runs ships inside the package. There is no remote code, no <code>eval</code>,
+          and nothing fetched at runtime.
+        </li>
+        <li>
+          It does not read page content, and it does not touch passwords: Chrome removed password
+          deletion from extensions, so there is no such switch.
+        </li>
+      </ul>
+
+      <h2>Cookies, cache and the rest</h2>
+      <p>
+        Clearing is off by default. With it on, cache, cookies, site storage, download history and
+        saved form text go for the span you pick, when you press a button, and at startup if you ask
+        for that. Cookies are removed for the whole site, so being signed out of it is the normal
+        result. The keep list is the exception: those sites are never touched. Chrome cannot narrow
+        history, download history or form text to one site, so those are all-or-nothing for the span
+        you choose.
+      </p>
+
+      <h2>Where your data lives</h2>
+      <p>
+        Your settings, the PIN and the optional log of what was cleaned stay on your machine, in
+        your browser's local extension storage. They are never uploaded anywhere. The log can be
+        cleared at any time from the extension's settings page, and removing the extension deletes
+        all of it.
+      </p>
+      <p>
+        So does your rule list. It is held in local extension storage, the same place as everything
+        else this extension saves, and it is not put anywhere the browser would upload. The extension
+        makes no network requests of its own, so there is no account, no server and no transfer
+        between your devices on the path, whether or not browser sync happens to be switched on.
+        Exporting the list writes a file on your own computer, which stays there until you move it.
+      </p>
+
+      <h2>Changes to this policy</h2>
+      <p>
+        If this policy ever changes, the date at the top of the page changes with it. Continued
+        use of the extension after an update means you accept the current version.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions about this policy or the extension:
+        <a href="https://github.com/Forsigh/lil-bro-history-wipe/issues">open an issue on GitHub</a>.
+      </p>
+    </main>
+  </body>
+</html>

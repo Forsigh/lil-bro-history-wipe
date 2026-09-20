@@ -1,0 +1,236 @@
+LIL BRO WIPE - HISTORY CLEANER
+Everything to paste into the Chrome Web Store developer dashboard.
+Each block is one field. The number in the label is the field's character limit.
+
+=====================================================================
+LISTING, ENGLISH (default language)
+=====================================================================
+
+TITLE (from the package, fills itself on upload)
+---------------------------------------------------------------------
+Lil Bro Wipe – History Cleaner
+
+
+SUMMARY (from the package, fills itself on upload)
+---------------------------------------------------------------------
+Wipes the sites and words you pick out of your history: as you browse, or the next time you open the browser.
+
+
+DESCRIPTION (16000)
+---------------------------------------------------------------------
+Lil Bro cleans the things you would rather not have on your machine, and it does it without
+you thinking about it.
+
+You give it a list: a site, a word, the beginning of an address. Anything on that list is
+what it goes after. A bookmark to a shop you are embarrassed about, a forum thread, a name
+you typed once. Add it from the popup with one click, or right-click a page and pick it from
+the menu.
+
+Then you pick when it runs. While you browse, so the entry is gone as the page loads. Or at
+the start of your next session, so the visit is still there until you close the laptop.
+
+Beyond history it can also clear cache, cookies, the download list and text you typed into
+forms. That part is off until you turn it on, and the list above applies to it too, with one
+difference: cookies are cleared for the whole site, so you will be signed out of that site
+afterwards. Keep list included, for the sites you want to stay logged in on.
+
+What it cannot do:
+
+- Passwords are not touched. The browser removed that for extensions, so there is no switch for it.
+- The browser cannot narrow history, download records or form text to one site, so those go for
+  the span you choose, not per site.
+- The browser will not let anything run at the exact moment it closes, so a clean set for
+  close happens at your next start instead. Ninety-nine times out of a hundred you will not
+  notice.
+
+Everything happens on your computer. No account, no server, no analytics, nothing sent
+anywhere. The log of what was cleaned stays local and can be wiped any time.
+
+There is a PIN you can put on the list so nobody using the same computer can read it.
+
+
+CATEGORY
+---------------------------------------------------------------------
+Privacy and security.
+
+
+=====================================================================
+PRIVACY TAB
+=====================================================================
+
+SINGLE PURPOSE (1000)
+---------------------------------------------------------------------
+Deletes the browsing history entries a user chooses. The user lists sites, subdomains,
+keywords, address beginnings or patterns; the extension matches those against browsing history
+and erases the matching entries, as the user browses or at the start of the next session. With
+the extra switches on it can also clear cache, cookies, download records and saved form text
+for the same list. It has no other function.
+
+
+PERMISSION: history (1000)
+---------------------------------------------------------------------
+Required to read browsing history so the extension can find the entries matching the rules the
+user entered, and to delete only those entries. This is the extension's whole function. History
+is processed on the device, is never transmitted anywhere, and is not read for any other
+purpose.
+
+
+PERMISSION: storage (1000)
+---------------------------------------------------------------------
+Stores the user's rules, their settings, an optional local log of what was cleaned, and the
+PIN if the user sets one. All of it stays on the user's own device and none of it is
+transmitted. The user can export the rules or clear the log at any time.
+
+
+PERMISSION: notifications (1000)
+---------------------------------------------------------------------
+Shows one optional desktop notification after a clean, saying how many entries were removed.
+The user can switch it off in the extension's settings; with it off, no notification is shown.
+
+
+PERMISSION: contextMenus (1000)
+---------------------------------------------------------------------
+Adds two right-click menu items so the user can add the current page, or the site it belongs
+to, to their rule list without opening the settings page.
+
+
+PERMISSION: activeTab (1000)
+---------------------------------------------------------------------
+Used only after the user clicks the extension's toolbar button. The popup reads the address of
+the current tab so it can offer to clean that site or that page. No page content is read.
+
+
+PERMISSION: browsingData (1000)
+---------------------------------------------------------------------
+Required to clear cache, download records, site storage and saved form text for the domains and
+keywords the user chose. These switches are off by default and only run for the list the user
+set up, at the times they picked.
+
+
+PERMISSION: cookies (1000)
+---------------------------------------------------------------------
+Required to read and delete cookies for the domains and keywords the user chose, so a site's
+session and tracking cookies can be removed with its history. Cookies on the user's keep list
+are left alone. Cookie names and domains are read on the device and never transmitted.
+
+
+PERMISSION: tabs (1000)
+---------------------------------------------------------------------
+Optional, and only asked for when the user turns on clearing a site's cookies as its tab
+closes. That feature needs the address of the tab being closed, which the extension keeps in
+session storage, in memory, until the tab is gone. The permission is not requested for any
+other feature, and is not requested at install.
+
+
+REMOTE CODE
+---------------------------------------------------------------------
+No. Everything ships in the package: no remote scripts, no eval, and nothing fetched at
+runtime.
+
+
+DATA USAGE checkboxes
+---------------------------------------------------------------------
+Check: Web history.
+
+Leave unchecked: personally identifiable information, health, financial and payment,
+authentication information, personal communications, location, user activity, website content.
+
+Check all three declarations: no selling or transferring data to third parties, no use beyond
+the single purpose, nothing used for creditworthiness or lending.
+
+
+ADULT CONTENT
+---------------------------------------------------------------------
+No.
+
+
+GOOGLE ANALYTICS (GA4)
+---------------------------------------------------------------------
+Nothing. There is no analytics code in the package.
+
+
+PRIVACY POLICY URL
+---------------------------------------------------------------------
+https://forsigh.github.io/lil-bro-history-wipe/privacy.html
+
+
+HELP URL
+---------------------------------------------------------------------
+https://github.com/Forsigh/lil-bro-history-wipe/issues
+
+
+HOME PAGE / PRODUCT PAGE URL
+---------------------------------------------------------------------
+https://forsigh.github.io/lil-bro-history-wipe/
+
+
+=====================================================================
+PRIVACY POLICY, AS PLAIN TEXT
+=====================================================================
+For anything that asks for the text itself instead of a link. The dashboard's own policy
+field takes the URL above, and the page at that URL already says all of this.
+
+
+Lil Bro Wipe – History Cleaner privacy policy
+Last updated: 19 September 2026
+
+Lil Bro Wipe – History Cleaner deletes chosen entries from your browsing history. Everything happens
+on your device. There is no server behind it.
+
+WHAT IT ACCESSES
+
+- Your browsing history, to find the entries that match your rules and delete those.
+- Extension storage for your rules, your settings, an optional local log of what was cleaned,
+  and the count shown on the settings page.
+- A PIN you set yourself, if you switch the list lock on. It is stored on your device as a hash
+  and never sent anywhere, and it does one thing: it hides your rule list from other people
+  using the same computer. It does not encrypt anything, and anyone who can reach your browser
+  settings can still remove the extension. Forgetting it has a way out: type the word lilbro
+  and the PIN goes, and so does everything the extension saved, your list included. None of
+  that comes back.
+- Cookies, if you use the cookie features. It reads cookie names and domains to delete the ones
+  you did not keep, and keeps the site of an open tab in session storage (memory, gone when the
+  browser closes) so a closed tab's cookies can go with it. Tab access is an optional
+  permission, asked for only when you switch that feature on.
+- Other stored browsing data: cache, download history and saved form text, cleared through the
+  browsing-data permission and only with those switches on.
+
+WHAT IT DOES NOT DO
+
+- Nothing is collected, sold or shared. No analytics, no account, no third party.
+- It makes no network requests of its own.
+- Everything it runs ships inside the package. There is no remote code, no eval, and nothing
+  fetched at runtime.
+- It does not read page content, and it does not touch passwords: the browser removed password
+  deletion from extensions, so there is no such switch.
+
+COOKIES, CACHE AND THE REST
+
+Clearing is off by default. With it on, cache, cookies, site storage, download history and
+saved form text go for the span you pick, when you press a button, and at startup if you ask
+for that. Cookies are removed for the whole site, so being signed out of it is the normal
+result. The keep list is the exception: those sites are never touched. The browser cannot narrow
+history, download history or form text to one site, so those are all-or-nothing for the span
+you choose.
+
+WHERE YOUR DATA LIVES
+
+Your settings, the PIN and the optional log of what was cleaned stay on your machine, in your
+browser's local extension storage. They are never uploaded anywhere. The log can be cleared at
+any time from the extension's settings page, and removing the extension deletes all of it.
+
+Your rule list lives there too. It is held in local extension storage, the same place as
+everything else this extension saves, and it is not put anywhere the browser would upload.
+The extension makes no network requests of its own, so there is no account, no server and no
+transfer between devices on the path, whether or not browser sync happens to be switched on.
+Exporting the list writes a file on your own computer, which stays there until you move it.
+
+CHANGES TO THIS POLICY
+
+If this policy ever changes, the date at the top of the page changes with it. Continued use of
+the extension after an update means you accept the current version.
+
+CONTACT
+
+Questions about this policy or the extension: open an issue on GitHub,
+https://github.com/Forsigh/lil-bro-history-wipe/issues

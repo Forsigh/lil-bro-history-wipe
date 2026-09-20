@@ -91,7 +91,7 @@ async function load() {
     runTest();
   }
   $('version').textContent =
-    'Lil Bro v' + chrome.runtime.getManifest().version + ': your settings stay on this computer.';
+    'Lil Bro v' + chrome.runtime.getManifest().version + ': everything you add stays on this computer.';
 }
 
 /** A PIN is set and this page has not been unlocked yet. */

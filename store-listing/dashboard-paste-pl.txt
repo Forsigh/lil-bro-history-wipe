@@ -1,0 +1,75 @@
+LIL BRO WIPE - HISTORY CLEANER
+To, co wkleja się w panelu przy polskiej wersji językowej.
+Jedna sekcja to jedno pole. Liczba w nawiasie to limit znaków.
+
+Uwaga: zakładka „Prywatność" (jedno przeznaczenie, uzasadnienia uprawnień, wykorzystanie
+danych) jest jedna dla wszystkich języków i zostaje po angielsku. Jej treść jest w pliku
+dashboard-paste-en.txt.
+
+=====================================================================
+POLSKIE POLA W PANELU
+=====================================================================
+
+TYTUŁ (z pakietu, wypełni się sam po wgraniu)
+---------------------------------------------------------------------
+Lil Bro Wipe – History Cleaner
+
+
+PODSUMOWANIE (z pakietu, wypełni się samo po wgraniu)
+---------------------------------------------------------------------
+Czyści z historii wybrane strony i słowa: w trakcie przeglądania albo przy następnym otwarciu
+przeglądarki.
+
+
+OPIS (16000)
+---------------------------------------------------------------------
+Lil Bro czyści z komputera to, czego wolałbyś tam nie mieć – i nie musisz przy tym nic robić.
+
+Dajesz mu listę: stronę, słowo, początek adresu. Wszystko, co na niej wpiszesz, znika z
+historii: zakładka do sklepu, do którego nie chcesz się przyznawać, wątek na forum, nazwisko
+wpisane raz w wyszukiwarkę. Dopiszesz to jednym kliknięciem w okienku rozszerzenia albo z menu
+pod prawym przyciskiem, bez wchodzenia w ustawienia.
+
+Potem wybierasz, kiedy ma działać. W trakcie przeglądania, żeby wpis zniknął zaraz po otwarciu
+strony – albo przy następnym otwarciu przeglądarki, żeby wizyta została jeszcze tego dnia.
+
+Poza historią może czyścić cache, cookies, listę pobranych plików i tekst wpisany w formularze.
+Ta część jest wyłączona, dopóki jej nie włączysz, i działa na tej samej liście, z jedną
+różnicą: cookies znikają dla całej strony, więc na tej stronie będziesz potem wylogowany.
+Wyjątkiem jest lista zachowanych – tych stron nie tyka, więc zostajesz na nich zalogowany.
+
+Czego nie zrobi:
+
+- nie rusza haseł. przeglądarka zabrała rozszerzeniom możliwość ich usuwania, więc nie ma takiego
+  przełącznika,
+- nie ograniczy historii, listy pobranych plików ani tekstu z formularzy do jednej strony – te
+  dane czyści się za wybrany okres, nie dla jednego adresu,
+- nie uruchomi się dokładnie w chwili zamknięcia przeglądarki, bo przeglądarka na to nie pozwala,
+  więc czyszczenie ustawione na zamknięcie wypada przy następnym otwarciu. Prawie zawsze tego
+  nie zauważysz.
+
+Wszystko dzieje się na twoim komputerze. Bez konta, bez serwera, bez statystyk i bez wysyłania
+czegokolwiek na zewnątrz. Zapis tego, co zostało wyczyszczone, zostaje u ciebie i możesz go
+usunąć, kiedy chcesz.
+
+Na listę możesz założyć PIN, żeby nikt inny przy tym komputerze nie zobaczył, co na niej masz.
+
+
+KATEGORIA
+---------------------------------------------------------------------
+Prywatność i bezpieczeństwo.
+
+
+ZASOBY GRAFICZNE (pliki, nie tekst)
+---------------------------------------------------------------------
+Ikona sklepu 128x128:        graphics\icons\icon128.png
+Mały obraz promocji 440x280: graphics\pl\promo-440x280.png
+Transparent 1400x560:        graphics\pl\marquee-1400x560.png
+Zrzuty ekranu 1280x800:      screenshots\pl\  (pięć plików, 01 do 05)
+
+
+ADRESY
+---------------------------------------------------------------------
+Strona główna i strona produktu: https://forsigh.github.io/lil-bro-history-wipe/
+Pomoc:                           https://github.com/Forsigh/lil-bro-history-wipe/issues
+Polityka prywatności:            https://forsigh.github.io/lil-bro-history-wipe/privacy.html
