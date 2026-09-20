@@ -2,6 +2,15 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.5.5
+
+The theme buttons on the settings page now draw a preview of each theme in that theme's own
+colours, so a theme that gets adjusted takes its button with it. Paper's had been showing the
+old brown since the colours moved, and Auto's showed two colours that meant nothing. The
+language choice is one small menu with an arrow instead of three full-width rows. The line at
+the bottom of the page names what stays on this computer instead of describing where your
+rules go.
+
 ## 1.5.4
 
 Nothing changes in the app itself. This release is the safety net for the next ones: a backup file from an old build is now fed to the current importer by a test, the zips, the versions table and the changelog are checked against each other on every run, and the shape of everything saved is frozen so a renamed setting fails the build instead of quietly losing someone's list. The live probe also stopped pinning a version number, which used to break it on every bump.
