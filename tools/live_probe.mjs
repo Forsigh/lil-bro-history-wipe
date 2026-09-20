@@ -1078,7 +1078,7 @@ try {
 
     // The store takes 1280x800 or 640x400. The pages are shot at 1280x800 with
     // scale 1; the popup is a 360px panel, so it is shot at 2x and put on that
-    // canvas afterwards, which is what tools/make_shot_sheets.mjs does.
+    // canvas afterwards, which is what tools/make_shot_sheets.py does.
     const shotPopup = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
     await shoot(shotPopup, 'popup-compact.png', 360, 520, false);
     await closePage(shotPopup.id);
