@@ -1,0 +1,25 @@
+name: tests
+
+# The nine suites are the whole safety net for a store build: the live probe needs a
+# browser and stays on the developer's machine, everything else runs here, on a clean
+# checkout, in about twenty seconds.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: run every suite
+        run: npm test
+      - name: build a zip from this checkout
+        # The packager refuses CRLF, missing files and anything the store should not
+        # carry, so this proves a clean checkout can still produce a release.
+        run: python3 tools/package.py "$RUNNER_TEMP/ci.zip"

@@ -104,11 +104,22 @@ check('every zip still matches the hash written next to its version', () => {
 });
 
 check('every zip says on the inside what its file name says', () => {
+  // The interpreter is named differently on a CI runner and on this host, so try both
+  // rather than making the check depend on which machine runs it.
+  const py = ['python', 'python3'].find((exe) => {
+    try {
+      execFileSync(exe, ['-c', 'pass'], { stdio: 'ignore' });
+      return true;
+    } catch {
+      return false;
+    }
+  });
+  if (!py) throw new Error('no python on this machine to read a zip with');
   const wrong = [];
   for (const z of zips) {
     let inside = null;
     try {
-      inside = execFileSync('python', ['-c', `import json,zipfile,sys;print(json.loads(zipfile.ZipFile(sys.argv[1]).read("manifest.json"))["version"])`, root + 'builds/' + z.file], { encoding: 'utf8' }).trim();
+      inside = execFileSync(py, ['-c', `import json,zipfile,sys;print(json.loads(zipfile.ZipFile(sys.argv[1]).read("manifest.json"))["version"])`, root + 'builds/' + z.file], { encoding: 'utf8' }).trim();
     } catch {
       wrong.push(`${z.version}: could not read its manifest`);
       continue;
