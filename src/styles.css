@@ -705,7 +705,11 @@ a.bmc svg {
   padding: 7px 12px;
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: var(--card-2);
+  /* background-color, never the shorthand: `background:` resets the layered
+     background-image that draws the chevron, and appearance:none on select has already
+     taken the browser's own arrow away, so the control stops looking like a dropdown
+     at all. That is what it shipped as. */
+  background-color: var(--card-2);
   color: var(--text);
   font: inherit;
   font-size: 13px;
@@ -1319,6 +1323,24 @@ body.popup #openOptions:hover {
     --shadow-1: 0 1px 2px rgba(20, 30, 50, 0.06), 0 10px 26px -16px rgba(20, 30, 50, 0.35);
     --shadow-2: 0 2px 6px rgba(20, 30, 50, 0.08), 0 18px 38px -18px rgba(20, 30, 50, 0.4);
     --glow: 0 0 0 1px var(--accent-soft), 0 10px 26px -16px rgba(15, 118, 110, 0.5);
+  }
+}
+
+/* Eight tiles carrying their own names need about 670px, and a 640-wide window gives the
+   card 552, so at that width they wrap. They used to wrap 7 then 1, which reads as a
+   mistake; four even columns read as a deliberate block. It matters beyond small windows:
+   the store shows every screenshot at 640 wide. */
+@media (max-width: 700px) {
+  .themes {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .theme {
+    justify-content: center;
+    padding: 7px 9px;
+    gap: 7px;
+    font-size: 12px;
   }
 }
 

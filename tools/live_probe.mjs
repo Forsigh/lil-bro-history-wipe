@@ -1111,6 +1111,25 @@ try {
       `label x=${facts.labelX} (row ${facts.labelBox}), note x=${facts.noteX} (${facts.noteId} ${facts.rowBox}+${facts.rowPad})`);
     record('choosing rows and on/off rows share one text column',
       Math.abs(facts.labelX - facts.pillX) <= 1, `label x=${facts.labelX}, pill x=${facts.pillX}`);
+
+    // A select with appearance:none and no background-image is an unmarked box: nothing
+    // says it opens. The arrow has to be drawn by the sheet, so it is read off the page.
+    const lang = await look.evaluate(`(() => {
+      const s = document.getElementById('langPick');
+      if (!s) return null;
+      const cs = getComputedStyle(s);
+      return {
+        appearance: cs.appearance || cs.webkitAppearance,
+        arrow: /gradient/.test(cs.backgroundImage),
+        options: s.options.length,
+        width: Math.round(s.getBoundingClientRect().width),
+        height: Math.round(s.getBoundingClientRect().height),
+      };
+    })()`);
+    record('the language picker draws its own arrow',
+      !!lang && lang.appearance === 'none' && lang.arrow && lang.options >= 2,
+      lang ? `appearance:${lang.appearance}, arrow:${lang.arrow ? 'drawn' : 'MISSING'}, ` +
+        `${lang.options} options, ${lang.width}x${lang.height}` : 'no picker on the page');
     await closePage(look.id);
   }
 
@@ -1145,15 +1164,23 @@ try {
       stats: { wipedTotal: 4821, lastRunAt: Date.now() - 3600000, lastRunCount: 37, lastRunPhase: 'manual' },
     });
 
+    // The override is applied once per page and size. Re-applying it before every capture
+    // re-lays out the page and drops the scroll position, which is how the framed shots
+    // ended up starting in the wrong place.
+    let appliedMetrics = null;
     const shoot = async (page, file, width, height, full, scale = 2) => {
-      await page.send('Page.enable');
-      await page.send('Emulation.setDeviceMetricsOverride', {
-        width,
-        height,
-        deviceScaleFactor: scale,
-        mobile: false,
-      });
-      await sleep(400);
+      const key = `${page.id}|${width}x${height}@${scale}`;
+      if (appliedMetrics !== key) {
+        await page.send('Page.enable');
+        await page.send('Emulation.setDeviceMetricsOverride', {
+          width,
+          height,
+          deviceScaleFactor: scale,
+          mobile: false,
+        });
+        appliedMetrics = key;
+        await sleep(400);
+      }
       const r = await page.send('Page.captureScreenshot', {
         format: 'png',
         captureBeyondViewport: !!full,
@@ -1168,24 +1195,69 @@ try {
       record(`screenshot ${file}`, true, out);
     };
 
-    // The store takes 1280x800 or 640x400. The pages are shot at 1280x800 with
-    // scale 1; the popup is a 360px panel, so it is shot at 2x and put on that
-    // canvas afterwards, which is what tools/make_shot_sheets.py does.
+    // The store takes 1280x800 or 640x400, and downscales everything to 640x400: its
+    // own note says a screenshot with a lot of text looks bad when that happens. So the
+    // page is shot at a 640x400 viewport with scale 2, which produces a 1280x800 file
+    // whose content fills the frame and whose downscale is still readable. At a 1280
+    // viewport the content column (max 800px) left 240px of empty page each side and the
+    // text came out at half size, which is what the store warns about.
+    // The popup is a 360px panel, so it is shot at 2x and composed onto that canvas
+    // afterwards, which is what tools/make_shot_sheets.py does.
     const shotPopup = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
     await shoot(shotPopup, 'popup-compact.png', 360, 520, false);
     await closePage(shotPopup.id);
 
     const shotOptions = await openPage(`chrome-extension://${id}/src/options.html`);
-    await shoot(shotOptions, 'options.png', 1280, 800, false, 1);
-    await shotOptions.evaluate('window.scrollTo(0, 900)');
+    await shoot(shotOptions, 'options.png', 640, 400, false, 2);
+    // Scrolled to the list rather than to a pixel offset: the page is a different
+    // length at a 640 viewport, so a fixed offset lands somewhere else every time.
+    // The card's own top edge, not the list body: starting at the body clipped the card's
+    // first row and left the frame opening mid-panel.
+    await shotOptions.evaluate(
+      "document.getElementById('rulesBody').closest('.card').scrollIntoView({ block: 'start' })"
+    );
     await sleep(400);
     await shoot(shotOptions, 'options-lower.png', 1280, 800, false, 1);
     // The Look and Language cards sit below the log, so no plain top-of-page capture
     // can show them. Scrolled to, they are the two controls worth a picture: the
     // theme row, and the language menu that replaced three full-width rows.
-    await shotOptions.evaluate("document.getElementById('themeRow').scrollIntoView({ block: 'center' })");
+    // The language card's bottom edge lands on the frame's bottom edge, so the frame ends
+    // on a card boundary instead of slicing the next section, and the whole 4x2 theme
+    // block sits complete above it.
+    await shotOptions.evaluate(
+      "document.getElementById('langPick').closest('.card').scrollIntoView({ block: 'end' })"
+    );
     await sleep(400);
-    await shoot(shotOptions, 'options-look.png', 1280, 800, false, 1);
+    await shoot(shotOptions, 'options-look.png', 640, 400, false, 2);
+
+    // The store shows every screenshot at 640 wide, so a row that wraps at that width
+    // wraps in the listing. Eight tiles on one line is the thing being checked, at the
+    // width the shots are taken at rather than at a wide window where anything fits.
+    const rowFit = await shotOptions.evaluate(`(() => {
+      const tiles = [...document.querySelectorAll('.theme')];
+      const byTop = new Map();
+      for (const t of tiles) {
+        const k = Math.round(t.getBoundingClientRect().top);
+        byTop.set(k, (byTop.get(k) || 0) + 1);
+      }
+      const lines = [...byTop.entries()].sort((a, b) => a[0] - b[0]).map((e) => e[1]);
+      const box = document.querySelector('.themes');
+      const cs = getComputedStyle(box);
+      return {
+        tiles: tiles.length,
+        lines,
+        clientWidth: Math.round(box.clientWidth),
+        display: cs.display,
+        columns: cs.gridTemplateColumns,
+        widths: tiles.map((t) => Math.round(t.getBoundingClientRect().width)).join(','),
+        tops: tiles.map((t) => Math.round(t.getBoundingClientRect().top)).join(','),
+      };
+    })()`);
+    // One line when they fit, an even block when they do not. A single tile stranded on
+    // its own line is the failure, not the wrap itself.
+    record('the theme tiles form an even block at the width the store shots use',
+      rowFit.lines.every((n) => n >= 4),
+      `${rowFit.tiles} tiles as ${rowFit.lines.join('+')} per line, container ${rowFit.clientWidth}px, display:${rowFit.display}, cols:${rowFit.columns}, widths:${rowFit.widths}, tops:${rowFit.tops}`);
     await closePage(shotOptions.id);
 
     // The same options page with a PIN set, which is what the lock looks like.
@@ -1199,7 +1271,7 @@ try {
       return 'ok';
     })()`);
     const shotLocked = await openPage(`chrome-extension://${id}/src/options.html`);
-    await shoot(shotLocked, 'options-locked.png', 1280, 800, false, 1);
+    await shoot(shotLocked, 'options-locked.png', 640, 400, false, 2);
     await closePage(shotLocked.id);
   }
 } catch (e) {

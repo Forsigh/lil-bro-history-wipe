@@ -533,6 +533,23 @@ if (padLeftOf(noteRow) !== column) {
 } else {
   console.log(`  notes under a row line up with the labels: ${padLeftOf(noteRow)}px`);
 }
+// The dropdown's arrow is a layered background-image from the base select rule, so a
+// later `background:` shorthand erases it silently and, with appearance:none in play,
+// leaves a control that looks like plain text.
+const selectRow = ruleBody('select');
+const langRow = ruleBody('.lang-select');
+if (!selectRow || !/background-image/.test(selectRow)) {
+  console.log('  FAIL the base select rule no longer draws a chevron');
+  fail++;
+}
+if (langRow && /(^|[;\s])background\s*:/.test(langRow)) {
+  console.log('  FAIL .lang-select sets the background shorthand, which erases the dropdown arrow');
+  fail++;
+}
+if (!langRow || (!/background-image/.test(langRow) && !/background-image/.test(selectRow))) {
+  console.log('  FAIL the language picker has no arrow of its own and no chevron to inherit');
+  fail++;
+}
 if (!/class="row sep"/.test(optionsHtmlSrc)) {
   console.log('  FAIL no .row.sep in the markup, so the choosing rows and the on/off rows run together');
   fail++;
