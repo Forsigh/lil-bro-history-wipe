@@ -2,6 +2,14 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.5.9
+
+The settings page and the popup both print a line about where your things are kept, and the two had drifted apart. The popup said everything you add stays on this computer while the settings page still said your settings stay, which was true but weaker, and a sentence that only covers settings invites the question of what happened to the list. Both say it the same way now.
+
+The store listing moved into the repository, and the suite checks it against the package: every permission has a justification and no justification describes a permission the extension no longer asks for, each field fits the length the dashboard allows, and no file claims something the code does not do. A Polish walkthrough still told the reader to upload 1.5.7, which is exactly the kind of sentence that goes stale in silence, so it names no version now.
+
+Releases also have one way through instead of six. `python tools/release.py 1.5.9` bumps the version, inserts the note, runs the suites, packages the zip, writes the table row with the hash of the file it actually built, publishes the release and delivers everything to the Desktop folder, stopping at the first thing that is not true. The copy of the privacy policy that a reviewer reads in the store is now the same file as the one the listing links to, and a test says so, because the two had already drifted.
+
 ## 1.5.8
 
 Everything this extension saves now lives in one place on your computer, the rule list included. That list used to sit in the browser's synced storage, which meant your browser would upload it if you had sync switched on, and a list of the sites you would rather not keep is not something to hand to an account you never asked for. A list from an older build is moved across the first time the extension starts, and the copy in the synced area is deleted, so nothing of yours is left there. The privacy policy, the settings page and the store listing now say the same thing, because they can.
