@@ -8,7 +8,7 @@
 //
 // Throwaway profile and a staged copy only. Never the live dev folder, never a real profile.
 import { spawn } from 'node:child_process';
-import { cpSync, mkdtempSync, rmSync, existsSync, mkdirSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdtempSync, rmSync, existsSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
@@ -166,7 +166,26 @@ try {
   const m = JSON.parse(manifestRaw);
   record('worker boots in a real browser', !!m.manifest_version, `extension id ${id}`);
   record('manifest is MV3', m.manifest_version === 3, `manifest_version ${m.manifest_version}`);
-  record('version is 1.5.3', m.version === '1.5.3', m.version);
+  // The manifest version has to be a real number, and the table in docs/VERSIONS.md
+  // must not be ahead of it. This check used to pin a literal, so it failed on every
+  // bump and taught nobody anything.
+  const tableVersions = [
+    ...readFileSync(new URL('../docs/VERSIONS.md', import.meta.url), 'utf8').matchAll(
+      /^\|\s*(\d+\.\d+\.\d+)\s*\|/gm
+    ),
+  ].map((x) => x[1]);
+  const vNums = (s) => s.split('.').map(Number);
+  const vNewer = (a, b) => {
+    const [x, y] = [vNums(a), vNums(b)];
+    for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return x[i] > y[i];
+    return false;
+  };
+  const newestOnTable = tableVersions.reduce((a, b) => (vNewer(a, b) ? a : b), '0.0.0');
+  record(
+    'version is a real number, and the released table is not ahead of it',
+    /^\d+\.\d+\.\d+$/.test(m.version) && !vNewer(newestOnTable, m.version),
+    `${m.version}, newest in VERSIONS.md ${newestOnTable}`
+  );
   record(
     'permission set is the documented seven',
     JSON.stringify([...m.permissions].sort()) ===
@@ -956,6 +975,50 @@ try {
     'a profile with no language key falls back to English, not to a blank page',
     /When should it clean/i.test(afterUpgrade.heading),
     afterUpgrade.heading.trim()
+  );
+  // A backup file, fed to the real file picker on the real page. The unit test covers
+  // the parsing; this covers the wiring, which is the part a rename or a refactor
+  // breaks without anything else noticing.
+  const backup = JSON.stringify({
+    app: 'lil-bro-history-wipe',
+    version: 1,
+    settings: { theme: 'paper' },
+    rules: [
+      {
+        id: 'old1',
+        type: 'domain',
+        value: 'restored-from-backup.example',
+        includeSubdomains: true,
+        enabled: true,
+        createdAt: 1758000009000,
+      },
+    ],
+  });
+  const afterImport = JSON.parse(
+    await upPage.evaluate(`(async()=>{
+      window.confirm = () => true;
+      const dt = new DataTransfer();
+      dt.items.add(new File([${JSON.stringify(backup)}], 'lil-bro-rules.json', { type: 'application/json' }));
+      const input = document.getElementById('importFile');
+      input.files = dt.files;
+      input.dispatchEvent(new Event('change'));
+      await new Promise(r=>setTimeout(r,1200));
+      return JSON.stringify({
+        msg: document.getElementById('importMsg').textContent.trim(),
+        listed: [...document.querySelectorAll('#rulesBody tr')].map(tr=>tr.textContent).join(' ').includes('restored-from-backup.example'),
+        theme: document.documentElement.dataset.theme,
+      });
+    })()`)
+  );
+  record(
+    'a backup file imports through the real picker',
+    /^Imported 1 rule/.test(afterImport.msg) && afterImport.listed === true,
+    afterImport.msg
+  );
+  record(
+    'and the settings inside that file are applied, not just the rules',
+    afterImport.theme === 'paper',
+    afterImport.theme
   );
   await closePage(upPage.id);
 

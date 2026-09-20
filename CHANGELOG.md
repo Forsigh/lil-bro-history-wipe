@@ -2,6 +2,10 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.5.4
+
+Nothing changes in the app itself. This release is the safety net for the next ones: a backup file from an old build is now fed to the current importer by a test, the zips, the versions table and the changelog are checked against each other on every run, and the shape of everything saved is frozen so a renamed setting fails the build instead of quietly losing someone's list. The live probe also stopped pinning a version number, which used to break it on every bump.
+
 ## 1.5.3
 
 Nothing you can see: this one is about what happens to your settings when the extension updates itself. A profile that was running 1.3.5 comes through with its switches, its keep list, its PIN, its theme, its log and its counters intact, and that is now covered by a test that feeds that old profile to the current build. One thing did change: if your list only ever lived in sync, it now keeps a local copy from the first read, so it still shows if sync goes away. The old close-the-browser trigger, dropped from the interface long ago, moves quietly to the next start.

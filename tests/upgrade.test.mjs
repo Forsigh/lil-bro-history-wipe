@@ -241,5 +241,53 @@ await checkAsync('the legacy close trigger is still a value this build understan
   }
 });
 
+// 7. A backup file written before the rename has to still import, which is the one
+//    moment this code has to keep working and the one nobody exercises by hand.
+{
+  freshProfile();
+  const old = JSON.stringify(
+    { app: 'lil-bro-history-wipe', version: 1, settings: SETTINGS_135, rules: RULES_135 },
+    null,
+    2
+  );
+  const parsed = store.parseExport(old);
+  check('an export from 1.3.5 imports, old app tag and all', () => {
+    if (parsed.rules.length !== 2) throw new Error(`${parsed.rules.length} rules came out`);
+    if (parsed.skipped !== 0) throw new Error(`${parsed.skipped} were skipped`);
+  });
+  check('the rules carry their fields, and stay switched off if they were', () => {
+    const [first, second] = parsed.rules;
+    if (first.value !== 'embarrassing-shop.example') throw new Error('first rule changed');
+    if (first.includeSubdomains !== true) throw new Error('subdomain choice lost');
+    if (first.enabled !== true || second.enabled !== false) throw new Error('enabled flags moved');
+  });
+  check('the settings in that file come back as they were', () => {
+    if (!parsed.settings) throw new Error('no settings came out');
+    if (parsed.settings.theme !== 'slate') throw new Error('theme changed');
+    if (parsed.settings.lockHash !== SETTINGS_135.lockHash) throw new Error('PIN changed');
+  });
+  check('a bare array still imports, since that is what the first build wrote', () => {
+    const bare = store.parseExport(JSON.stringify(RULES_135));
+    if (bare.rules.length !== 2) throw new Error(`${bare.rules.length} rules`);
+    if (bare.settings !== null) throw new Error('invented settings out of an array');
+  });
+  check('a file with no rules in it is refused rather than half imported', () => {
+    let threw = false;
+    try {
+      store.parseExport(JSON.stringify({ app: 'something-else', items: [] }));
+    } catch (e) {
+      threw = /no rules array/i.test(e.message);
+    }
+    if (!threw) throw new Error('it accepted a file with nothing in it');
+  });
+  check('junk inside the rules array is skipped, not fatal', () => {
+    const mixed = store.parseExport(
+      JSON.stringify({ rules: [...RULES_135, null, { type: 'domain', value: '' }, 'nonsense'] })
+    );
+    if (mixed.rules.length !== 2) throw new Error(`${mixed.rules.length} rules survived`);
+    if (mixed.skipped !== 3) throw new Error(`${mixed.skipped} reported as skipped`);
+  });
+}
+
 console.log(`\nupgrade: ${pass} passed, ${fail} failed`);
 if (fail) process.exitCode = 1;

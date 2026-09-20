@@ -292,6 +292,40 @@ export function mergeSettings(stored) {
 // purpose: the whole-history switch and the keep list are per-device decisions,
 // and a danger switch that syncs itself is a trap.
 
+// Reads an exported rules file. Kept here rather than in the settings page so a
+// test can feed it a file written by an older build, which is the one moment this
+// code has to keep working and the one nobody exercises by hand.
+export function parseExport(text) {
+  const data = typeof text === 'string' ? JSON.parse(text) : text;
+  const incoming = Array.isArray(data) ? data : data && data.rules;
+  if (!Array.isArray(incoming)) throw new Error('No rules array in that file.');
+  const rules = [];
+  let skipped = 0;
+  for (const raw of incoming) {
+    if (!raw || typeof raw !== 'object') {
+      skipped++;
+      continue;
+    }
+    const result = buildRule({
+      type: raw.type,
+      value: raw.value,
+      includeSubdomains: !!raw.includeSubdomains,
+      wholeWord: !!raw.wholeWord,
+    });
+    if (result.ok) {
+      result.rule.enabled = raw.enabled !== false;
+      rules.push(result.rule);
+    } else {
+      skipped++;
+    }
+  }
+  const settings =
+    data && !Array.isArray(data) && data.settings && typeof data.settings === 'object'
+      ? data.settings
+      : null;
+  return { rules, skipped, settings };
+}
+
 export const RULES_MIRROR_KEY = 'rulesMirror';
 export const RULES_META_KEY = 'rulesMeta';
 export const RULES_CHUNK_PREFIX = 'rulesChunk';

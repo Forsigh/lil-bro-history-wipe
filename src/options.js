@@ -5,6 +5,7 @@ import {
   saveState,
   mergeSettings,
   buildRule,
+  parseExport,
   describeRule,
   activeRules,
   readAttempts,
@@ -784,39 +785,29 @@ $('importFile').addEventListener('change', async (e) => {
   const file = e.target.files && e.target.files[0];
   if (!file) return;
   try {
-    const data = JSON.parse(await file.text());
-    const incoming = Array.isArray(data) ? data : data.rules;
-    if (!Array.isArray(incoming)) throw new Error('No rules array in that file.');
-    if (!window.confirm(MESSAGES.importConfirm(incoming.length))) {
+    const incoming = parseExport(await file.text());
+    if (!window.confirm(MESSAGES.importConfirm(incoming.rules.length + incoming.skipped))) {
       setMsg($('importMsg'), 'Import cancelled, so no rules were added.');
       e.target.value = '';
       return;
     }
-    let added = 0;
-    let skipped = 0;
-    for (const raw of incoming) {
-      const result = buildRule({
-        type: raw.type,
-        value: raw.value,
-        includeSubdomains: !!raw.includeSubdomains,
-        wholeWord: !!raw.wholeWord,
-      });
-      if (result.ok) {
-        result.rule.enabled = raw.enabled !== false;
-        state.rules.push(result.rule);
-        added++;
-      } else {
-        skipped++;
-      }
-    }
-    if (data && data.settings) {
-      state.settings = mergeSettings({ ...state.settings, ...data.settings });
+    for (const rule of incoming.rules) state.rules.push(rule);
+    if (incoming.settings) {
+      state.settings = mergeSettings({ ...state.settings, ...incoming.settings });
       await saveState({ settings: state.settings });
     }
     await saveState({ rules: state.rules });
-    setMsg($('importMsg'), `Imported ${added} rule(s)${skipped ? `, skipped ${skipped}` : ''}.`, 'ok');
+    setMsg(
+      $('importMsg'),
+      `Imported ${incoming.rules.length} rule(s)${incoming.skipped ? `, skipped ${incoming.skipped}` : ''}.`,
+      'ok'
+    );
     renderSettings();
     renderExtras();
+    // An imported file can carry a theme with it. Without this the setting lands in
+    // storage but the page keeps the old one until a reload, so the import looks
+    // like it did nothing.
+    applyTheme(state.settings.theme);
     renderRules();
     runTest();
   } catch (err) {
