@@ -1053,4 +1053,15 @@ for (const btn of document.querySelectorAll('.theme')) {
   applyI18n();
   syncRuleTypeUi();
   await load();
-})();
+})().catch((err) => {
+  // The same reason the popup says why: an uncaught throw here leaves the word "Loading"
+  // on the page and every control dead, which reads as a broken extension rather than a
+  // failure that has a name.
+  const text = $('stateText');
+  if (text) text.textContent = t('startFailed') || 'Could not start';
+  const glance = $('glanceState');
+  if (glance) glance.textContent = t('startFailedHint') || 'Reload the extension on the extensions page.';
+  const dot = $('stateDot');
+  if (dot) dot.className = 'dot danger';
+  console.error('[Lil Bro] the settings page could not start:', err);
+});

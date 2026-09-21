@@ -563,6 +563,12 @@
   "sinceAll": {
     "message": "wszystko, niezależnie od wieku"
   },
+  "startFailed": {
+    "message": "Nie udało się uruchomić"
+  },
+  "startFailedHint": {
+    "message": "Przeładuj rozszerzenie na stronie rozszerzeń."
+  },
   "errUnknownType": {
     "message": "Nieznany typ reguły."
   },

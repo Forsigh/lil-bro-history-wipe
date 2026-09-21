@@ -32,6 +32,7 @@ import subprocess
 import sys
 import urllib.error
 import urllib.request
+import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DESKTOP = pathlib.Path.home() / "Desktop" / "lil-bro-store-images"
@@ -362,9 +363,24 @@ def main():
     (DESKTOP / "builds").mkdir(parents=True, exist_ok=True)
     shutil.copy2(artifact, DESKTOP / "builds" / zip_name)
     unpacked = DESKTOP / "builds" / f"load-unpacked-{version}"
+    # Built off to one side and moved into place in one step. A browser can be pointed at
+    # that folder, and a folder that is unpacked in place appears file by file: one loaded
+    # in the middle reads a manifest that is not there yet and comes up broken, which is
+    # what happened here. A rename cannot be caught half done.
+    staging = unpacked.with_name(unpacked.name + ".part")
+    shutil.rmtree(staging, ignore_errors=True)
+    staging.mkdir(parents=True)
+    shutil.unpack_archive(str(artifact), str(staging))
+    # An archive that unpacks to nothing leaves an empty folder that still looks loadable,
+    # and two of those were left here by an earlier release. The copy is checked against
+    # the zip it came from and removed rather than left behind when it does not match.
+    wanted = [n for n in zipfile.ZipFile(artifact).namelist() if not n.endswith("/")]
+    got = [p for p in staging.rglob("*") if p.is_file()]
+    if len(got) != len(wanted) or not (staging / "manifest.json").exists():
+        shutil.rmtree(staging, ignore_errors=True)
+        die(f"the unpacked copy came out incomplete: {len(got)} of {len(wanted)} files")
     shutil.rmtree(unpacked, ignore_errors=True)
-    unpacked.mkdir(parents=True)
-    shutil.unpack_archive(str(artifact), str(unpacked))
+    staging.rename(unpacked)
     upload = DESKTOP / f"UPLOAD-{version}"
     shutil.rmtree(upload, ignore_errors=True)
     (upload / "all-languages").mkdir(parents=True)

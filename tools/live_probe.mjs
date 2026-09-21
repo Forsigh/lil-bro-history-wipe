@@ -451,6 +451,43 @@ try {
   record('the page comes back with everything visible', wr.locked === false);
   await closePage(forgot.id);
 
+  // --- a profile with nothing stored yet ------------------------------------
+  // Everything below seeds storage before it opens a page, so the state a fresh install
+  // really starts in was never exercised: no rules, no settings, no log. That is what a
+  // new user gets, and the state a page is most likely to break on.
+  {
+    await resetStore();
+
+    const fresh = await openPage(`chrome-extension://${id}/src/popup.html`);
+    await sleep(600);
+    const pop = JSON.parse(
+      await fresh.evaluate(`JSON.stringify({
+        status: document.getElementById('status').textContent.trim(),
+        dot: document.getElementById('dot').className,
+        version: document.getElementById('version').textContent.trim(),
+        message: document.getElementById('wipeMsg').textContent.trim()
+      })`)
+    );
+    await closePage(fresh.id);
+
+    const opts = await openPage(`chrome-extension://${id}/src/options.html`);
+    await sleep(800);
+    const page = JSON.parse(
+      await opts.evaluate(`JSON.stringify({
+        state: document.getElementById('stateText').textContent.trim(),
+        dot: document.getElementById('stateDot').className,
+        rules: document.getElementById('rulesBody').textContent.trim().length
+      })`)
+    );
+    await closePage(opts.id);
+
+    record(
+      'both pages start on a profile with nothing in it',
+      pop.status === 'Active' && page.state.startsWith('Active'),
+      `popup "${pop.status}" ${pop.version} + "${pop.message}", settings "${page.state}"`
+    );
+  }
+
   // --- 10. the popup, in the real browser ---------------------------------
   const dialogs = [];
   await resetStore();

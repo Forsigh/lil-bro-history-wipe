@@ -440,4 +440,24 @@ $('openOptions').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
-load();
+/**
+ * Anything that throws on the way up leaves this popup sitting on "Loading…" for good,
+ * which tells the person nothing and looks like the extension is dead. Say what happened
+ * instead, keep the version on screen so a report of it means something, and put the
+ * detail where it can be read.
+ */
+function fail(err) {
+  const status = $('status');
+  if (status) status.textContent = t('startFailed') || 'Could not start';
+  const dot = $('dot');
+  if (dot) dot.className = 'dot danger';
+  setMsg(t('startFailedHint') || 'Reload the extension on the extensions page.', 'err');
+  try {
+    $('version').textContent = 'Lil Bro v' + chrome.runtime.getManifest().version;
+  } catch {
+    // there is nothing to write the version into, and the message above is the point
+  }
+  console.error('[Lil Bro] the popup could not start:', err);
+}
+
+load().catch(fail);

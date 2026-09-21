@@ -563,6 +563,12 @@
   "sinceAll": {
     "message": "everything, however old"
   },
+  "startFailed": {
+    "message": "Could not start"
+  },
+  "startFailedHint": {
+    "message": "Reload the extension on the extensions page."
+  },
   "errUnknownType": {
     "message": "Unknown rule type."
   },
