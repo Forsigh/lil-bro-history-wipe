@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 1.6.1.
+different builds called themselves 1.3.0. The current code is numbered 1.7.0.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 1.7.0 | 21 Sep | `238637a` | `3791fd6aedc601ca` | The Polish version is Polish all the way through. Every line the extension can put in front of you now comes out of the language file, including the ones that were still written in |
 | 1.6.1 | 21 Sep | `29206bb` | `bd7bf9df462bcc00` | The popup no longer asks for the PIN. It used to put up a box that you typed into, and which then simply disappeared, which protects nothing and makes the extension look broken. Wi |
 | 1.6.0 | 21 Sep | `e8b2fd1` | `57136ccc5b0f5cc0` | What it cleaned now reads as a list of pages instead of a list of addresses. Every row leads with what the page called itself, so the thing you watched reads as "2 Gay Guys dancing |
 | 1.5.9 | 21 Sep | `aba4b2e` | `98792e646d405dbb` | The settings page and the popup both print a line about where your things are kept, and the two had drifted apart. The popup said everything you add stays on this computer while th |
