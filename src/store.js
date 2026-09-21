@@ -2,6 +2,7 @@
 // Shared state helpers. Used by the service worker and every extension page.
 
 import { hasNestedQuantifier, REGEX_MAX_PATTERN } from './matcher.js';
+import { t } from './i18n.js';
 
 export const DEFAULT_SETTINGS = {
   enabled: true,
@@ -61,18 +62,36 @@ export const DEFAULT_SETTINGS = {
  * something this extension claims to erase.
  */
 export const EXTRA_LABELS = {
-  cache: 'Cache',
-  cookies: 'Cookies and site data',
-  downloads: 'Download history',
-  formData: 'Saved form text',
+  get cache() {
+    return t('extraCache') || 'Cache';
+  },
+  get cookies() {
+    return t('extraCookies') || 'Cookies and site data';
+  },
+  get downloads() {
+    return t('extraDownloads') || 'Download history';
+  },
+  get formData() {
+    return t('extraFormData') || 'Saved form text';
+  },
 };
 
 export const EXTRA_SINCE_LABELS = {
-  hour: 'the last hour',
-  day: 'the last day',
-  week: 'the last week',
-  month: 'the last month',
-  all: 'everything, however old',
+  get hour() {
+    return t('sinceHour') || 'the last hour';
+  },
+  get day() {
+    return t('sinceDay') || 'the last day';
+  },
+  get week() {
+    return t('sinceWeek') || 'the last week';
+  },
+  get month() {
+    return t('sinceMonth') || 'the last month';
+  },
+  get all() {
+    return t('sinceAll') || 'everything, however old';
+  },
 };
 
 /** True when at least one extra kind is switched on. */
@@ -184,16 +203,30 @@ export function extraSinceMs(settings, now = Date.now()) {
 }
 
 export const RULE_TYPES = {
-  domain: 'Site / domain',
-  url: 'URL or URL prefix',
-  keyword: 'Keyword in URL or title',
-  regex: 'Regular expression',
+  get domain() {
+    return t('ruleDomain') || 'Site / domain';
+  },
+  get url() {
+    return t('ruleUrl') || 'URL or URL prefix';
+  },
+  get keyword() {
+    return t('ruleKeyword') || 'Keyword in URL or title';
+  },
+  get regex() {
+    return t('ruleRegex') || 'Regular expression';
+  },
 };
 
 export const MODE_LABELS = {
-  realtime: 'Instantly, as I browse',
-  onclose: 'When I close the browser',
-  startup: 'When I start the browser',
+  get realtime() {
+    return t('modeLabelRealtime') || 'Instantly, as I browse';
+  },
+  get onclose() {
+    return t('modeLabelOnclose') || 'When I close the browser';
+  },
+  get startup() {
+    return t('modeLabelStartup') || 'When I start the browser';
+  },
 };
 
 export const SCHEMA_VERSION = 1;
@@ -227,9 +260,9 @@ function canonUrlForRule(value) {
  * Returns { ok: true, rule } or { ok: false, error, warning? }
  */
 export function buildRule({ type, value, includeSubdomains = false, wholeWord = false } = {}) {
-  if (!RULE_TYPES[type]) return { ok: false, error: 'Unknown rule type.' };
+  if (!RULE_TYPES[type]) return { ok: false, error: t('errUnknownType') || 'Unknown rule type.' };
   const raw = String(value == null ? '' : value).trim();
-  if (!raw) return { ok: false, error: 'Enter a value first.' };
+  if (!raw) return { ok: false, error: t('errNoValue') || 'Enter a value first.' };
 
   let warning = '';
   const rule = {
@@ -244,37 +277,49 @@ export function buildRule({ type, value, includeSubdomains = false, wholeWord = 
 
   if (type === 'domain') {
     const d = normalizeDomain(raw);
-    if (!d || !/^[a-z0-9.-]+$/.test(d)) return { ok: false, error: 'That does not look like a domain (example.com).' };
-    if (!d.includes('.') && d !== 'localhost') return { ok: false, error: 'Use a full domain, e.g. example.com' };
+    if (!d || !/^[a-z0-9.-]+$/.test(d)) {
+      return { ok: false, error: t('errBadDomain') || 'That does not look like a domain (example.com).' };
+    }
+    if (!d.includes('.') && d !== 'localhost') {
+      return { ok: false, error: t('errFullDomain') || 'Use a full domain, e.g. example.com' };
+    }
     rule.value = d;
     rule.includeSubdomains = !!includeSubdomains;
   } else if (type === 'url') {
     if (!/^[a-z][a-z0-9+.-]*:\/\//i.test(raw)) {
-      return { ok: false, error: 'Start the URL with http:// or https://' };
+      return { ok: false, error: t('errUrlScheme') || 'Start the URL with http:// or https://' };
     }
     rule.value = canonUrlForRule(raw);
   } else if (type === 'keyword') {
-    if (raw.length < 2) return { ok: false, error: 'Keywords need at least 2 characters.' };
-    if (raw.length < 4) warning = 'Short keywords can match unrelated pages. Check the tester below.';
-    if (/\s/.test(raw) && raw.split(/\s+/).length > 4) warning = 'Long keyword phrases rarely match. A single word usually works better.';
+    if (raw.length < 2) return { ok: false, error: t('errShortKeyword') || 'Keywords need at least 2 characters.' };
+    if (raw.length < 4) {
+      warning = t('warnShortKeyword') || 'Short keywords can match unrelated pages. Check the tester below.';
+    }
+    if (/\s/.test(raw) && raw.split(/\s+/).length > 4) {
+      warning = t('warnLongKeyword') || 'Long keyword phrases rarely match. A single word usually works better.';
+    }
     rule.wholeWord = !!wholeWord;
   } else if (type === 'regex') {
     if (raw.length > REGEX_MAX_PATTERN) {
-      return { ok: false, error: `Regular expressions are capped at ${REGEX_MAX_PATTERN} characters.` };
+      return {
+        ok: false,
+        error: t('errRegexTooLong', [REGEX_MAX_PATTERN]) || `Regular expressions are capped at ${REGEX_MAX_PATTERN} characters.`,
+      };
     }
     if (hasNestedQuantifier(raw)) {
       return {
         ok: false,
         error:
+          t('errRegexNested') ||
           'A group that repeats inside another repeated group makes the browser crawl on long page titles. ' +
-          'Write (ab)+ instead of (ab+)+, or use a keyword rule.',
+            'Write (ab)+ instead of (ab+)+, or use a keyword rule.',
       };
     }
     try {
       // eslint-disable-next-line no-new
       new RegExp(raw, 'iu');
     } catch (e) {
-      return { ok: false, error: `Invalid regular expression: ${e.message}` };
+      return { ok: false, error: t('errRegexInvalid', [e.message]) || `Invalid regular expression: ${e.message}` };
     }
     rule.value = raw;
   }
@@ -300,7 +345,7 @@ export function mergeSettings(stored) {
 export function parseExport(text) {
   const data = typeof text === 'string' ? JSON.parse(text) : text;
   const incoming = Array.isArray(data) ? data : data && data.rules;
-  if (!Array.isArray(incoming)) throw new Error('No rules array in that file.');
+  if (!Array.isArray(incoming)) throw new Error(t('errNoRulesArray') || 'No rules array in that file.');
   const rules = [];
   let skipped = 0;
   for (const raw of incoming) {

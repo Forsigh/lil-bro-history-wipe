@@ -440,6 +440,405 @@
   "lockPopupNote": {
     "message": "Lista zostaje ukryta, dopóki PIN jest włączony. Odblokujesz ją w ustawieniach."
   },
+  "optStatusLine": {
+    "message": ": wszystko, co dodasz, zostaje na tym komputerze."
+  },
+  "lockEmpty": {
+    "message": "Najpierw wpisz PIN."
+  },
+  "lockTooShort": {
+    "message": "Co najmniej $1 znaki, żeby nie dało się zgadnąć jednym klawiszem."
+  },
+  "lockMismatch": {
+    "message": "Te dwa PIN-y się różnią."
+  },
+  "lockWrong": {
+    "message": "Zły PIN."
+  },
+  "lockWrongLeftOne": {
+    "message": "Zły PIN. Prób zostało: $1."
+  },
+  "lockWrongLeftMany": {
+    "message": "Zły PIN. Prób zostało: $1."
+  },
+  "lockLockedOut": {
+    "message": "Za dużo prób. Poczekaj $1 s."
+  },
+  "lockSaved": {
+    "message": "PIN zapisany. Lista zostaje ukryta, dopóki jej nie odblokujesz."
+  },
+  "lockRemoved": {
+    "message": "PIN usunięty. Nic nie jest już ukryte."
+  },
+  "lockOpen": {
+    "message": "Odblokowane na teraz. Po odświeżeniu strony lista znowu się ukryje."
+  },
+  "lockListHidden": {
+    "message": "Lista jest ukryta, dopóki blokada jest włączona."
+  },
+  "lockForgot": {
+    "message": "Nie pamiętasz PIN-u?"
+  },
+  "lockRecoveryLead": {
+    "message": "Nie ma tu internetu, więc nie ma skąd wysłać linku do resetu. Wpisz lilbro: PIN zniknie razem ze wszystkim, co zapisała wtyczka. Każda strona i słowo z listy, każdy przełącznik, dziennik, licznik. Nic z tego nie wróci."
+  },
+  "lockRecoveryWrong": {
+    "message": "To nie to słowo."
+  },
+  "lockRecoveryDone": {
+    "message": "PIN usunięty, a wszystko, co było zapisane, przepadło. Wtyczka wraca do stanu początkowego."
+  },
+  "lockHonest": {
+    "message": "To tylko zabiera listę z ekranu, gdy ktoś inny otworzy te strony. Nic nie szyfruje, a każdy, kto ma dostęp do ustawień przeglądarki, i tak może wyrzucić wtyczkę."
+  },
+  "gateWipeAllPhrase": {
+    "message": "Krok 1 z 2: wpisz $1 poniżej, żeby to uzbroić."
+  },
+  "gateWipeAllStep1": {
+    "message": "Krok 1 z 2\n\nCała historia zostanie wyczyszczona: każdy wpis, nie tylko te pasujące do twoich reguł.\n\nCookies, cache, hasła i dane stron zostają nietknięte.\n\nWpisz $1, żeby kontynuować:"
+  },
+  "gateWipeAllConfirm": {
+    "message": "Krok 2 z 2\n\nNa pewno chcesz kontynuować?\n\nCała historia przeglądania zostanie skasowana. Tego nie da się cofnąć."
+  },
+  "gateWipeAllStep2": {
+    "message": "Potwierdź: skasuj CAŁĄ historię"
+  },
+  "gateWipeAllArmed": {
+    "message": "Krok 2 z 2: kliknij czerwony przycisk, żeby skasować wszystko."
+  },
+  "gateWipeAllTimeout": {
+    "message": "Potwierdzenie się przedawniło. Nic nie zostało wyczyszczone, zacznij od nowa."
+  },
+  "gateWipeNowConfirm": {
+    "message": "Wyczyścić teraz wpisy z historii pasujące do twoich reguł?\n\nTego nie da się cofnąć. Nic poza twoimi regułami nie jest ruszane, a cookies i cache nigdy."
+  },
+  "gateWipeAllArm": {
+    "message": "Od teraz czyścić wszystko?\n\nKażde uruchomienie skasuje całą historię, a nie tylko twoją listę. Samo uzbrojenie nic nie usuwa, a każde czyszczenie i tak pyta dwa razy."
+  },
+  "gateKeepListConfirm": {
+    "message": "Włączyć listę zachowanych?\n\nKażda strona, której nie ma na liście, zniknie z historii, a nie tylko te, które wpisałeś.\n\nCookies, cache, hasła i dane stron zostają nietknięte."
+  },
+  "gateKeepListEmpty": {
+    "message": "Dodaj chociaż jedną stronę do zachowania, zanim to włączysz."
+  },
+  "gateArmWipeNow": {
+    "message": "Kliknij jeszcze raz, żeby wyczyścić"
+  },
+  "gateWipeNowHint": {
+    "message": "Kliknij przycisk jeszcze raz, żeby wyczyścić wpisy pasujące do twoich reguł."
+  },
+  "gateWipeNowTimeout": {
+    "message": "Czas minął, nic nie zostało wyczyszczone. Kliknij Wyczyść teraz, żeby zacząć od nowa."
+  },
+  "gateClearLogConfirm": {
+    "message": "Wyczyścić lokalny dziennik wyczyszczonych wpisów? Sama historia zostaje bez zmian."
+  },
+  "gateRemoveRule": {
+    "message": "Usunąć regułę dla $1?\n\nTo, co już wyczyszczone, zostaje wyczyszczone, a w historii nic się nie zmienia."
+  },
+  "gateImportConfirm": {
+    "message": "Dodać reguły z tego pliku: $1? Obecne reguły zostają."
+  },
+  "extraCache": {
+    "message": "Cache"
+  },
+  "extraCookies": {
+    "message": "Cookies i dane stron"
+  },
+  "extraDownloads": {
+    "message": "Historia pobrań"
+  },
+  "extraFormData": {
+    "message": "Zapisany tekst formularzy"
+  },
+  "sinceHour": {
+    "message": "ostatnia godzina"
+  },
+  "sinceDay": {
+    "message": "ostatni dzień"
+  },
+  "sinceWeek": {
+    "message": "ostatni tydzień"
+  },
+  "sinceMonth": {
+    "message": "ostatni miesiąc"
+  },
+  "sinceAll": {
+    "message": "wszystko, niezależnie od wieku"
+  },
+  "modeLabelRealtime": {
+    "message": "Od razu, w trakcie przeglądania"
+  },
+  "modeLabelOnclose": {
+    "message": "Gdy zamykam przeglądarkę"
+  },
+  "modeLabelStartup": {
+    "message": "Gdy startuję przeglądarkę"
+  },
+  "errUnknownType": {
+    "message": "Nieznany typ reguły."
+  },
+  "errNoValue": {
+    "message": "Najpierw wpisz wartość."
+  },
+  "errBadDomain": {
+    "message": "To nie wygląda na domenę (example.com)."
+  },
+  "errFullDomain": {
+    "message": "Użyj pełnej domeny, np. example.com"
+  },
+  "errUrlScheme": {
+    "message": "Zacznij adres od http:// albo https://"
+  },
+  "errShortKeyword": {
+    "message": "Słowo musi mieć co najmniej 2 znaki."
+  },
+  "warnShortKeyword": {
+    "message": "Krótkie słowa mogą łapać niepowiązane strony. Sprawdź tester poniżej."
+  },
+  "warnLongKeyword": {
+    "message": "Długie frazy rzadko się dopasowują. Jedno słowo zwykle działa lepiej."
+  },
+  "errRegexTooLong": {
+    "message": "Wyrażenia regularne mają limit $1 znaków."
+  },
+  "errRegexNested": {
+    "message": "Grupa powtórzona wewnątrz innej powtórzonej grupy zamula przeglądarkę na długich tytułach stron. Napisz (ab)+ zamiast (ab+)+ albo użyj reguły na słowo."
+  },
+  "errRegexInvalid": {
+    "message": "Nieprawidłowe wyrażenie regularne: $1"
+  },
+  "errNoRulesArray": {
+    "message": "W tym pliku nie ma listy reguł."
+  },
+  "menuWipeSite": {
+    "message": "Lil Bro: usuń tę stronę z historii"
+  },
+  "menuWipePage": {
+    "message": "Lil Bro: usuń dokładnie ten adres"
+  },
+  "notifyLocked": {
+    "message": "Blokada PIN jest włączona, więc lista została nietknięta. Odblokuj ją w oknie wtyczki, żeby dodać stronę."
+  },
+  "notifyPaused": {
+    "message": "Lil Bro jest wstrzymany."
+  },
+  "errNoExtrasOn": {
+    "message": "Żadne dodatkowe dane nie są włączone."
+  },
+  "errNoBrowsingData": {
+    "message": "Ta wersja przeglądarki nie daje wtyczce dostępu do danych przeglądania."
+  },
+  "errClearRefused": {
+    "message": "Chrome odmówił czyszczenia: $1"
+  },
+  "errNoCookies": {
+    "message": "Brak dostępu do cookies."
+  },
+  "errKeepListEmpty": {
+    "message": "Najpierw dodaj chociaż jedną stronę do zachowania."
+  },
+  "errNoActiveRules": {
+    "message": "Nie ma jeszcze aktywnych reguł."
+  },
+  "popHistoryOnly": {
+    "message": "Tylko historia."
+  },
+  "popAlsoClearing": {
+    "message": "Dodatkowo czyści: $1, $2."
+  },
+  "popQueueClose": {
+    "message": "W kolejce: $1, zniknie po zamknięciu przeglądarki."
+  },
+  "popQueueStart": {
+    "message": "W kolejce: $1, zniknie przy następnym starcie."
+  },
+  "popKeptRule": {
+    "message": "Zachowane: $1."
+  },
+  "popAddedRule": {
+    "message": "Dodane: $1."
+  },
+  "msgClearing": {
+    "message": "Czyszczę…"
+  },
+  "msgLooking": {
+    "message": "Szukam dopasowań…"
+  },
+  "msgWiping": {
+    "message": "Wyczyszczam…"
+  },
+  "errClearFailed": {
+    "message": "Czyszczenie się nie udało."
+  },
+  "errRunFailed": {
+    "message": "Coś poszło nie tak."
+  },
+  "errPhraseMismatch": {
+    "message": "To nie ta fraza, więc nic nie zostało uzbrojone. Musi brzmieć dokładnie: $1"
+  },
+  "resClearedNoCount": {
+    "message": "Wyczyszczono: $1 ($2). Chrome nie podaje liczby."
+  },
+  "resClearedNoCountOpt": {
+    "message": "Wyczyszczono: $1 ($2). Chrome nie podaje liczby, więc nie ma jej tu."
+  },
+  "resArmedAll": {
+    "message": "Pełne czyszczenie uzbrojone: skasowane byłyby wszystkie wpisy ($1)."
+  },
+  "resKeepWould": {
+    "message": "Poza listą zachowanych, do wyczyszczenia: $1."
+  },
+  "resWould": {
+    "message": "Do wyczyszczenia: $1 (przeszukane: $2)."
+  },
+  "resNothing": {
+    "message": "Po przeszukaniu nic nie byłoby wyczyszczone (wpisów: $1)."
+  },
+  "resErasedAll": {
+    "message": "Skasowane wpisy: $1, cała historia."
+  },
+  "resScannedWiped": {
+    "message": "Przeszukane: $1, wyczyszczone: $2."
+  },
+  "resExtraCleared": {
+    "message": " Dodatkowe dane też wyczyszczone ($1)."
+  },
+  "resAlsoCleared": {
+    "message": "Wyczyszczono też: $1 ($2). Chrome nie podaje liczby."
+  },
+  "resExtraSkipped": {
+    "message": "Dodatkowe czyszczenie pominięte: $1"
+  },
+  "resFirst25": {
+    "message": "Pierwsze 25 dopasowań:"
+  },
+  "resMatches": {
+    "message": "Dopasowania:"
+  },
+  "optKeepWarn": {
+    "message": "Włączone: wszystko poza twoją listą jest czyszczone. Cookies i cache są osobno."
+  },
+  "optWipeAllArmed": {
+    "message": "UZBROJONE: cała historia jest kasowana przy każdym wyzwalaczu powyżej, a „Wyczyść teraz” opróżnia ją od razu."
+  },
+  "optWipeAllOff": {
+    "message": "Domyślnie wyłączone. Twoje reguły nadal działają."
+  },
+  "optWhenManual": {
+    "message": "tylko gdy klikniesz przycisk"
+  },
+  "optWhenBoth": {
+    "message": "przyciskiem, a także gdy przeglądarka się zamyka albo startuje"
+  },
+  "optExtraLine": {
+    "message": "Włączone: $1, zakres: $2, $3."
+  },
+  "optPresetOffNote": {
+    "message": "Tylko historia, zgodnie z twoimi regułami. Nic więcej nie jest ruszane."
+  },
+  "optPresetLightNote": {
+    "message": "Cache znika przy każdym czyszczeniu, więc strony będą się ładować trochę wolniej."
+  },
+  "optPresetStandardNote": {
+    "message": "Cache i cookies znikają przy każdym czyszczeniu. Strony cię nie zapamiętają, więc możesz musieć zalogować się ponownie."
+  },
+  "optPresetNuclearNote": {
+    "message": "Cache, cookies, tekst formularzy, historia pobrań i cała historia, przy każdym wyzwalaczu."
+  },
+  "optPresetCustomNote": {
+    "message": "Twój własny zestaw z tych czterech przełączników."
+  },
+  "optCookiesWarnOn": {
+    "message": "Cookies są usuwane na każdej stronie poza listą poniżej, więc logowania wszędzie indziej się kończą."
+  },
+  "optCookiesWarnOff": {
+    "message": "Wyłączone. Cookies znikają tylko wtedy, gdy włączysz przełącznik cookies w sekcji czyszczenia powyżej albo klikniesz przycisk poniżej."
+  },
+  "optTestNothing": {
+    "message": "Jeszcze nic nie sprawdzono."
+  },
+  "optTestKeepEmpty": {
+    "message": "Lista zachowanych jest pusta, więc nic nie jest czyszczone."
+  },
+  "optTestNoRules": {
+    "message": "Brak aktywnych reguł, więc nic nie byłoby wyczyszczone."
+  },
+  "optTestKept": {
+    "message": "Zachowane: ta strona jest na liście zachowanych."
+  },
+  "optTestNotKept": {
+    "message": "Nie ma jej na liście zachowanych, więc zostałaby wyczyszczona."
+  },
+  "optTestNoMatch": {
+    "message": "Żadna reguła tego nie łapie, więc zostaje w historii."
+  },
+  "optCookieConfirm": {
+    "message": "Wyczyścić cookies i dane stron?\n\nCookies są usuwane dla całej domeny, więc kończą się wszystkie logowania na tej stronie, nie tylko to, na którym byłeś. Razem z nimi znika pamięć strony (local storage, IndexedDB, service workery), bo wyczyszczenie jednego bez drugiego zostawia stronę w połowie zalogowaną.\n\nTo nigdy nie dzieje się w trakcie przeglądania. Dzieje się, gdy klikniesz przycisk, a przy zamknięciu albo starcie tylko wtedy, gdy tak ustawisz poniżej."
+  },
+  "optClearNowAsk": {
+    "message": "Wyczyścić teraz: $1, zakres: $2?"
+  },
+  "optCancelledClear": {
+    "message": "Anulowane, nic nie zostało wyczyszczone."
+  },
+  "optCancelledWipe": {
+    "message": "Anulowane, nic nie zostało wyczyszczone."
+  },
+  "optWipeAllConfirm": {
+    "message": "Uzbroić czyszczenie całej historii?\n\nKażde uruchomienie skasuje wtedy całą historię przeglądania, a nie tylko to, co łapią twoje reguły. Każde czyszczenie i tak trzeba potwierdzić dwa razy, a samo uzbrojenie nic nie usuwa.\n\nTo dotyczy tylko historii. Cookies, cache i pobrane pliki zależą od przełączników „Dodatkowo czyść” powyżej."
+  },
+  "optLockOffPin": {
+    "message": "Wpisz PIN, żeby wyłączyć blokadę."
+  },
+  "optLockHidden": {
+    "message": "Ukryte. Lista wróci, gdy wpiszesz PIN."
+  },
+  "optImportCancelled": {
+    "message": "Import anulowany, więc żadne reguły nie zostały dodane."
+  },
+  "optImported": {
+    "message": "Zaimportowane reguły: $1."
+  },
+  "optImportedSkipped": {
+    "message": "Zaimportowane reguły: $1, pominięte: $2."
+  },
+  "optImportFailed": {
+    "message": "Import się nie udał: $1"
+  },
+  "optNuclearConfirm": {
+    "message": "FULL czyści cache, cookies, tekst formularzy, historię pobrań i całą historię przeglądania.\n\nKażde uruchomienie będzie to robić. Kontynuować?"
+  },
+  "optStandardConfirm": {
+    "message": "To czyści cookies i dane stron przy każdym uruchomieniu. Logowania na tych stronach się kończą. Kontynuować?"
+  },
+  "optCookieAllConfirm": {
+    "message": "Wyczyścić cookies na wszystkich stronach poza listą zachowanych? Logowania gdzie indziej się kończą."
+  },
+  "optTabsRefused": {
+    "message": "Dostęp do kart został odrzucony, więc to zostaje wyłączone."
+  },
+  "optTabsGranted": {
+    "message": "Dostęp do kart przyznany."
+  },
+  "optTabsRefusedMsg": {
+    "message": "Dostęp do kart odrzucony."
+  },
+  "optCookiePruneAsk": {
+    "message": "Wyczyścić cookies na wszystkim poza zachowanymi stronami: $1?"
+  },
+  "optCookieAllAsk": {
+    "message": "Wyczyścić wszystkie cookies w tej przeglądarce?"
+  },
+  "optCancelled": {
+    "message": "Anulowane."
+  },
+  "optCookieCleared": {
+    "message": "Wyczyszczone cookies: $1."
+  },
+  "optNothingToClear": {
+    "message": "Nie ma czego czyścić."
+  },
   "optRulesFile": {
     "message": "Twoja lista w pliku"
   },

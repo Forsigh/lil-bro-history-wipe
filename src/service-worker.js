@@ -2,6 +2,7 @@
 // Service worker. The only place that deletes anything.
 
 import { explainMatch, excerptAround, isWipeableUrl } from './matcher.js';
+import { t, setLang } from './i18n.js';
 import {
   getState,
   saveState,
@@ -94,10 +95,14 @@ async function notify(count, phase) {
 /** The one call site for chrome.browsingData. Only a button or an opted-in trigger. */
 async function clearExtra(phase) {
   const { settings } = await getState();
+  await useLang();
   const selection = extraSelection(settings);
-  if (!selection) return { ok: false, error: 'No extra data is switched on.' };
+  if (!selection) return { ok: false, error: t('errNoExtrasOn') || 'No extra data is switched on.' };
   if (!chrome.browsingData || typeof chrome.browsingData.remove !== 'function') {
-    return { ok: false, error: 'This browser build gives the extension no access to browsing data.' };
+    return {
+      ok: false,
+      error: t('errNoBrowsingData') || 'This browser build gives the extension no access to browsing data.',
+    };
   }
 
   const since = extraSinceMs(settings);
@@ -107,7 +112,10 @@ async function clearExtra(phase) {
     await chrome.browsingData.remove(since ? { since } : {}, selection);
   } catch (e) {
     log('browsingData.remove failed', e);
-    return { ok: false, error: 'Chrome refused the clear: ' + (e && e.message ? e.message : e) };
+    return {
+      ok: false,
+      error: t('errClearRefused', [e && e.message ? e.message : String(e)]) || 'Chrome refused the clear: ' + (e && e.message ? e.message : e),
+    };
   }
 
   await pushLog([
@@ -145,7 +153,8 @@ function cookieUrl(c) {
 
 /** Every cookie for one host, unless that host is on the keep list. */
 async function clearCookiesFor(host, settings) {
-  if (!chrome.cookies) return { ok: false, removed: 0, error: 'No cookie access.' };
+  await useLang();
+  if (!chrome.cookies) return { ok: false, removed: 0, error: t('errNoCookies') || 'No cookie access.' };
   if (cookieKept(settings, host)) return { ok: true, removed: 0, kept: true };
   let removed = 0;
   for (const c of await chrome.cookies.getAll({ domain: host })) {
@@ -161,7 +170,8 @@ async function clearCookiesFor(host, settings) {
 
 /** Everything except the keep list. Used by the start trigger and the button. */
 async function pruneCookies(settings) {
-  if (!chrome.cookies) return { ok: false, removed: 0, error: 'No cookie access.' };
+  await useLang();
+  if (!chrome.cookies) return { ok: false, removed: 0, error: t('errNoCookies') || 'No cookie access.' };
   let removed = 0;
   for (const c of await chrome.cookies.getAll({})) {
     if (cookieKept(settings, c.domain)) continue;
@@ -276,22 +286,48 @@ if (chrome.permissions && chrome.permissions.onAdded) {
   });
 }
 
+/**
+ * The worker writes wording of its own: the two right-click entries, the notifications,
+ * and the errors the pages show word for word. It has no page to apply a locale to, so it
+ * loads the language itself, and each of those sites asks for the message it needs.
+ */
+async function useLang() {
+  try {
+    const { settings } = await getState();
+    await setLang(settings.lang);
+  } catch {
+    // An unreadable store leaves the English fallback in place, which is the safe way round.
+  }
+}
+
 async function ensureMenus() {
   try {
+    await useLang();
     await chrome.contextMenus.removeAll();
     chrome.contextMenus.create({
       id: 'lb-add-domain',
-      title: 'Lil Bro: wipe this site from history',
+      title: t('menuWipeSite') || 'Lil Bro: wipe this site from history',
       contexts: ['page'],
     });
     chrome.contextMenus.create({
       id: 'lb-add-url',
-      title: 'Lil Bro: wipe this exact page',
+      title: t('menuWipePage') || 'Lil Bro: wipe this exact page',
       contexts: ['page', 'link'],
     });
   } catch (e) {
     log('menu setup failed', e);
   }
+}
+
+// The titles live in the browser's own menu until they are replaced, so a language
+// change has to rebuild them: without this the menu stays in the old language.
+if (chrome.storage && chrome.storage.onChanged) {
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== 'local' || !changes.settings) return;
+    const before = changes.settings.oldValue && changes.settings.oldValue.lang;
+    const after = changes.settings.newValue && changes.settings.newValue.lang;
+    if (before !== after) ensureMenus().catch(() => {});
+  });
 }
 
 // ---------------------------------------------------------------------------
@@ -690,11 +726,14 @@ chrome.runtime.onInstalled.addListener((details) => {
  */
 async function notifyLockedMenu() {
   try {
+    await useLang();
     await chrome.notifications.create('lilbro-lock-' + Date.now(), {
       type: 'basic',
       iconUrl: chrome.runtime.getURL('src/icons/icon128.png'),
       title: 'Lil Bro',
-      message: 'The PIN lock is on, so the list was left alone. Unlock it in the popup to add a site.',
+      message:
+        t('notifyLocked') ||
+        'The PIN lock is on, so the list was left alone. Unlock it in the popup to add a site.',
     });
   } catch (e) {
     log('notification failed', e);
@@ -727,7 +766,8 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
 /** Shared by the popup and options page: "Wipe now" and the read-only preview. */
 async function manualRun(dryRun) {
   const { settings, rules } = await getState();
-  if (!settings.enabled) return { ok: false, error: 'Lil Bro is paused.' };
+  await useLang();
+  if (!settings.enabled) return { ok: false, error: t('notifyPaused') || 'Lil Bro is paused.' };
 
   // The extra clear rides along with a manual wipe when it is switched on and the
   // user asked for it here. A preview never clears anything.
@@ -766,7 +806,9 @@ async function manualRun(dryRun) {
   if (!live.length) {
     return {
       ok: false,
-      error: allow ? 'Add at least one site to keep first.' : 'No active rules yet.',
+      error: allow
+        ? t('errKeepListEmpty') || 'Add at least one site to keep first.'
+        : t('errNoActiveRules') || 'No active rules yet.',
     };
   }
 

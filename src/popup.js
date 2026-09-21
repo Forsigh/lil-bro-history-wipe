@@ -131,12 +131,12 @@ function render() {
   const extras = extraOn(s);
   $('extraRow').classList.toggle('hidden', !extras);
   if (extras) {
-    $('extraBtn').textContent = 'Clear now';
-    $('extraLine').textContent = `Also clearing: ${describeExtras(s)}, ${
-      EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince
-    }.`;
+    $('extraBtn').textContent = t('clearNow') || 'Clear now';
+    $('extraLine').textContent =
+      t('popAlsoClearing', [describeExtras(s), EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince]) ||
+      `Also clearing: ${describeExtras(s)}, ${EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince}.`;
   } else {
-    $('extraLine').textContent = 'History only.';
+    $('extraLine').textContent = t('popHistoryOnly') || 'History only.';
   }
 
   document.documentElement.dataset.theme = s.theme || 'auto';
@@ -145,7 +145,8 @@ function render() {
   $('queueInfo').textContent =
     s.mode === 'realtime'
       ? ''
-      : `${queued} ${queued === 1 ? 'entry' : 'entries'} queued, wiped ${
+      : t(s.mode === 'onclose' ? 'popQueueClose' : 'popQueueStart', [queued]) ||
+        `${queued} ${queued === 1 ? 'entry' : 'entries'} queued, wiped ${
           s.mode === 'onclose' ? 'when you close the browser' : 'at your next start'
         }.`;
 
@@ -226,8 +227,8 @@ function addRule(rule) {
       isLocked()
         ? (state.settings.listMode === 'allow' ? t('keptOnly') || 'Kept.' : t('addedOnly') || 'Added.')
         : state.settings.listMode === 'allow'
-          ? `Keeping ${describeRule(rule)}.`
-          : `Added ${describeRule(rule)}.`,
+          ? t('popKeptRule', [describeRule(rule)]) || `Keeping ${describeRule(rule)}.`
+          : t('popAddedRule', [describeRule(rule)]) || `Added ${describeRule(rule)}.`,
       'ok'
     );
   });
@@ -289,11 +290,15 @@ $('previewBtn').addEventListener('click', () => requestRun('preview'));
  * for and stops there.
  */
 $('extraBtn').addEventListener('click', () => {
-  setMsg('Clearing…');
+  setMsg(t('msgClearing') || 'Clearing…');
   chrome.runtime.sendMessage({ type: 'clearExtra' }, (res) => {
     if (chrome.runtime.lastError) return setMsg(chrome.runtime.lastError.message, 'err');
-    if (!res || !res.ok) return setMsg((res && res.error) || 'The clear failed.', 'err');
-    setMsg(`Cleared ${res.kinds} (${EXTRA_SINCE_LABELS[res.since] || res.since}). Chrome gives no count.`, 'ok');
+    if (!res || !res.ok) return setMsg((res && res.error) || t('errClearFailed') || 'The clear failed.', 'err');
+    setMsg(
+      t('resClearedNoCount', [res.kinds, EXTRA_SINCE_LABELS[res.since] || res.since]) ||
+        `Cleared ${res.kinds} (${EXTRA_SINCE_LABELS[res.since] || res.since}). Chrome gives no count.`,
+      'ok'
+    );
   });
 });
 
@@ -344,13 +349,19 @@ function resetArm(message) {
   armTimer = null;
   $('phraseRow').classList.add('hidden');
   $('confirmPhrase').value = '';
-  $('wipeBtn').textContent = state.settings.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
+  $('wipeBtn').textContent = state.settings.wipeAllHistory
+    ? t('wipeAllNow') || 'Wipe ALL history now'
+    : t('wipeNow') || 'Wipe now';
   setMsg(message || '');
 }
 
 $('confirmPhraseBtn').addEventListener('click', () => {
   if (!checkPhrase($('confirmPhrase').value)) {
-    setMsg(`That is not the phrase, so nothing was armed. It must read exactly: ${WIPE_ALL_PHRASE}`, 'err');
+    setMsg(
+      t('errPhraseMismatch', [WIPE_ALL_PHRASE]) ||
+        `That is not the phrase, so nothing was armed. It must read exactly: ${WIPE_ALL_PHRASE}`,
+      'err'
+    );
     return;
   }
   phraseOk = true;
@@ -364,32 +375,37 @@ $('confirmPhraseBtn').addEventListener('click', () => {
 
 function runAction(type) {
   const isPreview = type === 'preview';
-  setMsg(isPreview ? 'Looking for matches…' : 'Wiping…');
+  setMsg(isPreview ? t('msgLooking') || 'Looking for matches…' : t('msgWiping') || 'Wiping…');
   $('previewList').innerHTML = '';
   chrome.runtime.sendMessage({ type }, (res) => {
     if (chrome.runtime.lastError) return setMsg(chrome.runtime.lastError.message, 'err');
-    if (!res || !res.ok) return setMsg((res && res.error) || 'Run failed.', 'err');
+    if (!res || !res.ok) return setMsg((res && res.error) || t('errRunFailed') || 'Run failed.', 'err');
 
     if (isPreview) {
       setMsg(
         res.matched
           ? res.wipeAll
-            ? `Wipe-all is armed: all ${res.scanned} entries would be erased.`
+            ? t('resArmedAll', [res.scanned]) ||
+              `Wipe-all is armed: all ${res.scanned} entries would be erased.`
             : state.settings.listMode === 'allow'
-              ? `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} not on your keep list would be wiped.`
-              : `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} would be wiped (scanned ${res.scanned}).`
-          : `Nothing would be wiped after scanning ${res.scanned} entries.`,
+              ? t('resKeepWould', [res.matched]) ||
+                `Entries not on your keep list that would be wiped: ${res.matched}.`
+              : t('resWould', [res.matched, res.scanned]) ||
+                `Entries that would be wiped: ${res.matched} (scanned ${res.scanned}).`
+          : t('resNothing', [res.scanned]) ||
+            `Nothing would be wiped after scanning ${res.scanned} entries.`,
         res.matched ? 'ok' : 'mini'
       );
       renderPreview(res.sample || []);
       return;
     }
 
-    const extra = res.extra && res.extra.ok ? ` Extra data cleared too (${res.extra.kinds}).` : '';
+    const extra = res.extra && res.extra.ok ? t('resExtraCleared', [res.extra.kinds]) || ` Extra data cleared too (${res.extra.kinds}).` : '';
     setMsg(
       (res.wipeAll
-        ? `Erased ${res.deleted} entries, the entire history.`
-        : `Scanned ${res.scanned}, wiped ${res.deleted}.`) + extra,
+        ? t('resErasedAll', [res.deleted]) || `Erased ${res.deleted} entries, the entire history.`
+        : t('resScannedWiped', [res.scanned, res.deleted]) || `Scanned ${res.scanned}, wiped ${res.deleted}.`) +
+        extra,
       res.deleted || extra ? 'ok' : 'mini'
     );
     if (res.deleted) renderPreview(res.sample || []);

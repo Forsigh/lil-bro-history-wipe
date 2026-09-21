@@ -4,6 +4,6 @@
   "type": "module",
   "description": "Dev harness only. The extension itself has no build step and no dependencies.",
   "scripts": {
-    "test": "node tests/matcher.test.mjs && node tests/gate.test.mjs && node tests/lock.test.mjs && node tests/worker.test.mjs && node tests/pages.test.mjs && node tests/i18n.test.mjs && node tests/upgrade.test.mjs && node tests/schema.test.mjs && node tests/release.test.mjs && node tests/listing.test.mjs"
+    "test": "node tests/matcher.test.mjs && node tests/gate.test.mjs && node tests/lock.test.mjs && node tests/worker.test.mjs && node tests/pages.test.mjs && node tests/i18n.test.mjs && node tests/english.test.mjs && node tests/upgrade.test.mjs && node tests/schema.test.mjs && node tests/release.test.mjs && node tests/listing.test.mjs"
   }
 }

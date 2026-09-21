@@ -1206,6 +1206,39 @@ try {
     // afterwards, which is what tools/make_shot_sheets.py does.
     const shotPopup = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
     await shoot(shotPopup, 'popup-compact.png', 360, 520, false);
+
+    // A Polish screen must not carry an English sentence. Every bundle value that differs
+    // between the two locales is looked for in what the pages actually render, because a
+    // key a locale lacks falls back to the English literal sitting beside it in the code.
+    // No unit test can see that, and it is exactly how English kept appearing in the
+    // Polish build while every check passed.
+    if (shotLang === 'pl') {
+      const enBundle = JSON.parse(readFileSync(path.join(ROOT, '_locales/en/messages.json'), 'utf8'));
+      const plBundle = JSON.parse(readFileSync(path.join(ROOT, '_locales/pl/messages.json'), 'utf8'));
+      const esc = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const englishOnly = Object.keys(enBundle)
+        .filter((k) => {
+          const m = enBundle[k].message;
+          return plBundle[k] && plBundle[k].message !== m && m.length >= 22 && m.includes(' ');
+        })
+        .map((k) => ({
+          key: k,
+          re: new RegExp(
+            esc(enBundle[k].message).replace(/\\\$[123]/g, '.{0,24}').replace(/\\n+/g, '\\s+'),
+            'i'
+          ),
+        }));
+      const popupText = await shotPopup.evaluate('document.body.innerText');
+      const langCheck = await openPage(`chrome-extension://${id}/src/options.html`);
+      const optionsText = await langCheck.evaluate('document.body.innerText');
+      await closePage(langCheck.id);
+      const hits = englishOnly.filter((e) => e.re.test(popupText) || e.re.test(optionsText));
+      record(
+        'no English sentence is left on a Polish screen',
+        hits.length === 0,
+        hits.length ? hits.slice(0, 4).map((h) => h.key).join(', ') : `${englishOnly.length} sentences checked`
+      );
+    }
     await closePage(shotPopup.id);
 
     const shotOptions = await openPage(`chrome-extension://${id}/src/options.html`);

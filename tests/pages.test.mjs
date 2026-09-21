@@ -76,7 +76,9 @@ if (!defaultsBlock) {
   const used = new Set();
   for (const file of sources) {
     const src = readFileSync(join(root, file), 'utf8');
-    for (const m of src.matchAll(/settings\.([A-Za-z_][A-Za-z0-9_]*)/g)) used.add(m[1]);
+    // The storage-change listener reads changes.settings.oldValue, which is not a
+    // setting of ours, so only real settings.<key> references count.
+    for (const m of src.matchAll(/(?<!changes\.)\bsettings\.([A-Za-z_][A-Za-z0-9_]*)/g)) used.add(m[1]);
   }
   for (const key of used) {
     if (!known.has(key)) {
@@ -102,8 +104,10 @@ if (!ruleTypeBlock) {
 const uiTypes = ruleTypeBlock
   ? [...ruleTypeBlock[1].matchAll(/<option value="([a-z]+)"/g)].map((m) => m[1])
   : [];
+// The labels are looked up per read now, so each type is written as a getter rather
+// than a plain value: get domain() { return t('ruleDomain') || '...' }
 const engineTypes = typeBlock
-  ? [...typeBlock[1].matchAll(/^\s*([a-z]+)\s*:/gm)].map((m) => m[1])
+  ? [...typeBlock[1].matchAll(/^\s*(?:get\s+)?([a-z]+)\s*[:(]/gm)].map((m) => m[1])
   : [];
 for (const t of uiTypes) {
   if (!engineTypes.includes(t)) {

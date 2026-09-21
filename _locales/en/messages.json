@@ -440,6 +440,405 @@
   "lockPopupNote": {
     "message": "The list stays hidden while the PIN is on. Unlock it in the settings."
   },
+  "optStatusLine": {
+    "message": ": everything you add stays on this computer."
+  },
+  "lockEmpty": {
+    "message": "Type a PIN first."
+  },
+  "lockTooShort": {
+    "message": "At least $1 characters, so it is not a one-key guess."
+  },
+  "lockMismatch": {
+    "message": "The two PINs are not the same."
+  },
+  "lockWrong": {
+    "message": "Wrong PIN."
+  },
+  "lockWrongLeftOne": {
+    "message": "Wrong PIN. 1 try left."
+  },
+  "lockWrongLeftMany": {
+    "message": "Wrong PIN. $1 tries left."
+  },
+  "lockLockedOut": {
+    "message": "Too many tries. Wait $1s."
+  },
+  "lockSaved": {
+    "message": "PIN saved. Your list stays hidden until you unlock it."
+  },
+  "lockRemoved": {
+    "message": "PIN removed. Nothing is hidden any more."
+  },
+  "lockOpen": {
+    "message": "Unlocked for now. Reloading this page hides the list again."
+  },
+  "lockListHidden": {
+    "message": "Your list is hidden while the lock is on."
+  },
+  "lockForgot": {
+    "message": "Forgot the PIN?"
+  },
+  "lockRecoveryLead": {
+    "message": "There is no internet connection here, so no reset link can be sent. Type lilbro instead: the PIN goes, and so does everything the extension has saved. Every site and word on your list, every switch, the log, the count. None of it comes back."
+  },
+  "lockRecoveryWrong": {
+    "message": "That is not the word."
+  },
+  "lockRecoveryDone": {
+    "message": "PIN removed, and everything saved is gone. The extension is back to square one."
+  },
+  "lockHonest": {
+    "message": "This keeps the list off the screen when someone else opens these pages. It does not encrypt anything, and anyone who can reach your browser settings can still take the extension out."
+  },
+  "gateWipeAllPhrase": {
+    "message": "Step 1 of 2: type $1 below to arm it."
+  },
+  "gateWipeAllStep1": {
+    "message": "Step 1 of 2\n\nAll your history will be wiped: every entry, not just the ones that match your rules.\n\nCookies, cache, passwords and site data are not touched.\n\nType $1 to continue:"
+  },
+  "gateWipeAllConfirm": {
+    "message": "Step 2 of 2\n\nAre you sure you want to continue?\n\nThe entire browsing history will be erased. This cannot be undone."
+  },
+  "gateWipeAllStep2": {
+    "message": "Confirm: erase ALL history"
+  },
+  "gateWipeAllArmed": {
+    "message": "Step 2 of 2: click the red button to erase everything."
+  },
+  "gateWipeAllTimeout": {
+    "message": "Confirmation timed out. Nothing was wiped, so start again."
+  },
+  "gateWipeNowConfirm": {
+    "message": "Wipe the history entries that match your rules now?\n\nThis cannot be undone. Nothing outside your rules is touched, and cookies and cache are never touched."
+  },
+  "gateWipeAllArm": {
+    "message": "Wipe everything from now on?\n\nEvery trigger will erase the whole history instead of just your list. Arming this erases nothing by itself, and each wipe still asks twice."
+  },
+  "gateKeepListConfirm": {
+    "message": "Turn the keep list on?\n\nEvery site you have not listed gets erased from history, instead of only the sites you listed.\n\nCookies, cache, passwords and site data are not touched."
+  },
+  "gateKeepListEmpty": {
+    "message": "Add at least one site to keep before switching this on."
+  },
+  "gateArmWipeNow": {
+    "message": "Click again to wipe"
+  },
+  "gateWipeNowHint": {
+    "message": "Click the button once more to wipe the entries that match your rules."
+  },
+  "gateWipeNowTimeout": {
+    "message": "Timed out - nothing was wiped. Click Wipe now to start again."
+  },
+  "gateClearLogConfirm": {
+    "message": "Clear the local log of wiped entries? History itself is not affected."
+  },
+  "gateRemoveRule": {
+    "message": "Remove the rule for $1?\n\nAlready-wiped entries stay wiped and nothing in your history changes."
+  },
+  "gateImportConfirm": {
+    "message": "Add $1 rule(s) from that file? Existing rules are kept."
+  },
+  "extraCache": {
+    "message": "Cache"
+  },
+  "extraCookies": {
+    "message": "Cookies and site data"
+  },
+  "extraDownloads": {
+    "message": "Download history"
+  },
+  "extraFormData": {
+    "message": "Saved form text"
+  },
+  "sinceHour": {
+    "message": "the last hour"
+  },
+  "sinceDay": {
+    "message": "the last day"
+  },
+  "sinceWeek": {
+    "message": "the last week"
+  },
+  "sinceMonth": {
+    "message": "the last month"
+  },
+  "sinceAll": {
+    "message": "everything, however old"
+  },
+  "modeLabelRealtime": {
+    "message": "Instantly, as I browse"
+  },
+  "modeLabelOnclose": {
+    "message": "When I close the browser"
+  },
+  "modeLabelStartup": {
+    "message": "When I start the browser"
+  },
+  "errUnknownType": {
+    "message": "Unknown rule type."
+  },
+  "errNoValue": {
+    "message": "Enter a value first."
+  },
+  "errBadDomain": {
+    "message": "That does not look like a domain (example.com)."
+  },
+  "errFullDomain": {
+    "message": "Use a full domain, e.g. example.com"
+  },
+  "errUrlScheme": {
+    "message": "Start the URL with http:// or https://"
+  },
+  "errShortKeyword": {
+    "message": "Keywords need at least 2 characters."
+  },
+  "warnShortKeyword": {
+    "message": "Short keywords can match unrelated pages. Check the tester below."
+  },
+  "warnLongKeyword": {
+    "message": "Long keyword phrases rarely match. A single word usually works better."
+  },
+  "errRegexTooLong": {
+    "message": "Regular expressions are capped at $1 characters."
+  },
+  "errRegexNested": {
+    "message": "A group that repeats inside another repeated group makes the browser crawl on long page titles. Write (ab)+ instead of (ab+)+, or use a keyword rule."
+  },
+  "errRegexInvalid": {
+    "message": "Invalid regular expression: $1"
+  },
+  "errNoRulesArray": {
+    "message": "No rules array in that file."
+  },
+  "menuWipeSite": {
+    "message": "Lil Bro: wipe this site from history"
+  },
+  "menuWipePage": {
+    "message": "Lil Bro: wipe this exact page"
+  },
+  "notifyLocked": {
+    "message": "The PIN lock is on, so the list was left alone. Unlock it in the popup to add a site."
+  },
+  "notifyPaused": {
+    "message": "Lil Bro is paused."
+  },
+  "errNoExtrasOn": {
+    "message": "No extra data is switched on."
+  },
+  "errNoBrowsingData": {
+    "message": "This browser build gives the extension no access to browsing data."
+  },
+  "errClearRefused": {
+    "message": "Chrome refused the clear: $1"
+  },
+  "errNoCookies": {
+    "message": "No cookie access."
+  },
+  "errKeepListEmpty": {
+    "message": "Add at least one site to keep first."
+  },
+  "errNoActiveRules": {
+    "message": "No active rules yet."
+  },
+  "popHistoryOnly": {
+    "message": "History only."
+  },
+  "popAlsoClearing": {
+    "message": "Also clearing: $1, $2."
+  },
+  "popQueueClose": {
+    "message": "$1 queued, wiped when you close the browser."
+  },
+  "popQueueStart": {
+    "message": "$1 queued, wiped at your next start."
+  },
+  "popKeptRule": {
+    "message": "Keeping $1."
+  },
+  "popAddedRule": {
+    "message": "Added $1."
+  },
+  "msgClearing": {
+    "message": "Clearing…"
+  },
+  "msgLooking": {
+    "message": "Looking for matches…"
+  },
+  "msgWiping": {
+    "message": "Wiping…"
+  },
+  "errClearFailed": {
+    "message": "The clear failed."
+  },
+  "errRunFailed": {
+    "message": "Run failed."
+  },
+  "errPhraseMismatch": {
+    "message": "That is not the phrase, so nothing was armed. It must read exactly: $1"
+  },
+  "resClearedNoCount": {
+    "message": "Cleared $1 ($2). Chrome gives no count."
+  },
+  "resClearedNoCountOpt": {
+    "message": "Cleared $1 ($2). Chrome reports no count, so there is none to show."
+  },
+  "resArmedAll": {
+    "message": "Wipe-all is armed: all $1 entries would be erased."
+  },
+  "resKeepWould": {
+    "message": "Entries not on your keep list that would be wiped: $1."
+  },
+  "resWould": {
+    "message": "Entries that would be wiped: $1 (scanned $2)."
+  },
+  "resNothing": {
+    "message": "Nothing would be wiped after scanning $1 entries."
+  },
+  "resErasedAll": {
+    "message": "Erased $1 entries, the entire history."
+  },
+  "resScannedWiped": {
+    "message": "Scanned $1, wiped $2."
+  },
+  "resExtraCleared": {
+    "message": " Extra data cleared too ($1)."
+  },
+  "resAlsoCleared": {
+    "message": "Also cleared $1 ($2). Chrome reports no count."
+  },
+  "resExtraSkipped": {
+    "message": "Extra clear skipped: $1"
+  },
+  "resFirst25": {
+    "message": "First 25 matches:"
+  },
+  "resMatches": {
+    "message": "Matches:"
+  },
+  "optKeepWarn": {
+    "message": "On: everything not on your list is being wiped. Cookies and cache are separate."
+  },
+  "optWipeAllArmed": {
+    "message": "ARMED: the entire history is erased on every trigger above, and \"Wipe now\" empties it immediately."
+  },
+  "optWipeAllOff": {
+    "message": "Off by default. Your rules are still being applied."
+  },
+  "optWhenManual": {
+    "message": "only when you press a button"
+  },
+  "optWhenBoth": {
+    "message": "on a button, and again when the browser closes or starts"
+  },
+  "optExtraLine": {
+    "message": "On: $1, covering $2, $3."
+  },
+  "optPresetOffNote": {
+    "message": "History only, following your rules. Nothing else is touched."
+  },
+  "optPresetLightNote": {
+    "message": "Cache goes with each run, so pages will load a little slower."
+  },
+  "optPresetStandardNote": {
+    "message": "Cache and cookies go with each run. Sites will not remember you, so you may have to log in again."
+  },
+  "optPresetNuclearNote": {
+    "message": "Cache, cookies, saved form text, download history and all of your history, at every trigger."
+  },
+  "optPresetCustomNote": {
+    "message": "Your own mix of the four switches."
+  },
+  "optCookiesWarnOn": {
+    "message": "Cookies are deleted for every site except the list below, so logins everywhere else end."
+  },
+  "optCookiesWarnOff": {
+    "message": "Off. Cookies are only cleared if you turn on the cookie switch in Clearing above, or press the button below."
+  },
+  "optTestNothing": {
+    "message": "Nothing tested yet."
+  },
+  "optTestKeepEmpty": {
+    "message": "The keep list is empty, so nothing is wiped."
+  },
+  "optTestNoRules": {
+    "message": "No active rules, so nothing would be wiped."
+  },
+  "optTestKept": {
+    "message": "Kept: this page is on your keep list."
+  },
+  "optTestNotKept": {
+    "message": "Not on your keep list, so this would be wiped."
+  },
+  "optTestNoMatch": {
+    "message": "No rule matches this, so it stays in history."
+  },
+  "optCookieConfirm": {
+    "message": "Clear cookies and site data?\n\nCookies are removed for the whole registrable domain, so every login on that site ends, not just the page you were on. Site storage (local storage, IndexedDB, service workers) goes with them, because clearing one without the other leaves a site half logged in and half not.\n\nThis never runs while you browse. It runs when you press a button, and at close or start only if you set that below."
+  },
+  "optClearNowAsk": {
+    "message": "Clear $1 now, covering $2?"
+  },
+  "optCancelledClear": {
+    "message": "Cancelled, nothing was cleared."
+  },
+  "optCancelledWipe": {
+    "message": "Cancelled, nothing was wiped."
+  },
+  "optWipeAllConfirm": {
+    "message": "Arm the whole-history wipe?\n\nEvery trigger will then erase your entire browsing history instead of only matching your rules. Each wipe still has to be confirmed twice on its own, and arming this does not erase anything by itself.\n\nThis is history only. Cookies, cache and downloads answer to the \"Also clear\" switches above."
+  },
+  "optLockOffPin": {
+    "message": "Type your PIN to switch the lock off."
+  },
+  "optLockHidden": {
+    "message": "Hidden. The list comes back when you type the PIN."
+  },
+  "optImportCancelled": {
+    "message": "Import cancelled, so no rules were added."
+  },
+  "optImported": {
+    "message": "Imported $1 rule(s)."
+  },
+  "optImportedSkipped": {
+    "message": "Imported $1 rule(s), skipped $2."
+  },
+  "optImportFailed": {
+    "message": "Import failed: $1"
+  },
+  "optNuclearConfirm": {
+    "message": "FULL clears cache, cookies, saved form text, download history and all of your browsing history.\n\nEvery trigger will do that. Continue?"
+  },
+  "optStandardConfirm": {
+    "message": "This clears cookies and site data with each run. Logins on those sites end. Continue?"
+  },
+  "optCookieAllConfirm": {
+    "message": "Clear cookies for every site except your keep list? Logins elsewhere end."
+  },
+  "optTabsRefused": {
+    "message": "Tab access was refused, so this stays off."
+  },
+  "optTabsGranted": {
+    "message": "Tab access granted."
+  },
+  "optTabsRefusedMsg": {
+    "message": "Tab access refused."
+  },
+  "optCookiePruneAsk": {
+    "message": "Clear cookies for everything except your $1 kept site(s)?"
+  },
+  "optCookieAllAsk": {
+    "message": "Clear every cookie in this browser?"
+  },
+  "optCancelled": {
+    "message": "Cancelled."
+  },
+  "optCookieCleared": {
+    "message": "Cleared $1 cookies."
+  },
+  "optNothingToClear": {
+    "message": "Nothing to clear."
+  },
   "optRulesFile": {
     "message": "Your list as a file"
   },

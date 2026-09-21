@@ -2,6 +2,8 @@
 // The optional PIN lock, and the wording that goes with it. Pure crypto helpers so
 // the pages stay thin and the rules can be tested under node (WebCrypto is there too).
 
+import { t } from './i18n.js';
+
 export const MIN_PIN_LENGTH = 4;
 export const PIN_ITERATIONS = 150000;
 export const MAX_ATTEMPTS = 5;
@@ -9,24 +11,64 @@ export const LOCKOUT_MS = 30000;
 // There is no server, so there is no reset email. This word is the way out.
 export const RECOVERY_WORD = 'lilbro';
 
+/**
+ * The wording that goes with the PIN, in the language the pages are showing.
+ *
+ * These are getters, not plain values: a table built once at import time would be
+ * frozen before the locale is even fetched, which is how English ends up on a Polish
+ * screen. Each read looks the message up again, and the English literal stays as the
+ * fallback for a locale that has not been translated yet.
+ */
 export const LOCK_MESSAGES = {
-  empty: 'Type a PIN first.',
-  tooShort: `At least ${MIN_PIN_LENGTH} characters, so it is not a one-key guess.`,
-  mismatch: 'The two PINs are not the same.',
-  wrong: 'Wrong PIN.',
-  wrongLeft: (left) => `Wrong PIN. ${left} ${left === 1 ? 'try' : 'tries'} left.`,
-  lockedOut: (secs) => `Too many tries. Wait ${secs}s.`,
-  saved: 'PIN saved. Your list stays hidden until you unlock it.',
-  removed: 'PIN removed. Nothing is hidden any more.',
-  open: 'Unlocked for now. Reloading this page hides the list again.',
-  listHidden: 'Your list is hidden while the lock is on.',
-  forgot: 'Forgot the PIN?',
-  recoveryLead:
-    'There is no internet connection here, so no reset link can be sent. Type lilbro instead: the PIN goes, and so does everything the extension has saved. Every site and word on your list, every switch, the log, the count. None of it comes back.',
-  recoveryWrong: 'That is not the word.',
-  recoveryDone: 'PIN removed, and everything saved is gone. The extension is back to square one.',
-  honest:
-    'This keeps the list off the screen when someone else opens these pages. It does not encrypt anything, and anyone who can reach your browser settings can still take the extension out.',
+  get empty() {
+    return t('lockEmpty') || 'Type a PIN first.';
+  },
+  get tooShort() {
+    return t('lockTooShort', [MIN_PIN_LENGTH]) || `At least ${MIN_PIN_LENGTH} characters, so it is not a one-key guess.`;
+  },
+  get mismatch() {
+    return t('lockMismatch') || 'The two PINs are not the same.';
+  },
+  get wrong() {
+    return t('lockWrong') || 'Wrong PIN.';
+  },
+  wrongLeft: (left) =>
+    (left === 1 ? t('lockWrongLeftOne', [left]) : t('lockWrongLeftMany', [left])) ||
+    `Wrong PIN. ${left} ${left === 1 ? 'try' : 'tries'} left.`,
+  lockedOut: (secs) => t('lockLockedOut', [secs]) || `Too many tries. Wait ${secs}s.`,
+  get saved() {
+    return t('lockSaved') || 'PIN saved. Your list stays hidden until you unlock it.';
+  },
+  get removed() {
+    return t('lockRemoved') || 'PIN removed. Nothing is hidden any more.';
+  },
+  get open() {
+    return t('lockOpen') || 'Unlocked for now. Reloading this page hides the list again.';
+  },
+  get listHidden() {
+    return t('lockListHidden') || 'Your list is hidden while the lock is on.';
+  },
+  get forgot() {
+    return t('lockForgot') || 'Forgot the PIN?';
+  },
+  get recoveryLead() {
+    return (
+      t('lockRecoveryLead') ||
+      'There is no internet connection here, so no reset link can be sent. Type lilbro instead: the PIN goes, and so does everything the extension has saved. Every site and word on your list, every switch, the log, the count. None of it comes back.'
+    );
+  },
+  get recoveryWrong() {
+    return t('lockRecoveryWrong') || 'That is not the word.';
+  },
+  get recoveryDone() {
+    return t('lockRecoveryDone') || 'PIN removed, and everything saved is gone. The extension is back to square one.';
+  },
+  get honest() {
+    return (
+      t('lockHonest') ||
+      'This keeps the list off the screen when someone else opens these pages. It does not encrypt anything, and anyone who can reach your browser settings can still take the extension out.'
+    );
+  },
 };
 
 function toHex(bytes) {

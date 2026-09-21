@@ -92,7 +92,9 @@ async function load() {
     runTest();
   }
   $('version').textContent =
-    'Lil Bro v' + chrome.runtime.getManifest().version + ': everything you add stays on this computer.';
+    'Lil Bro v' +
+    chrome.runtime.getManifest().version +
+    (t('optStatusLine') || ': everything you add stays on this computer.');
 }
 
 /** A PIN is set and this page has not been unlocked yet. */
@@ -148,12 +150,14 @@ function renderSettings() {
   $('advOn').checked = !!s.advanced;
   $('advBox').classList.toggle('hidden', !s.advanced);
   $('langPick').value = s.lang || 'auto';
-  $('keepWarn').textContent =
-    s.listMode === 'allow' ? 'On: everything not on your list is being wiped. Cookies and cache are separate.' : '';
-  $('wipeNowBtn').textContent = s.wipeAllHistory ? 'Wipe ALL history now' : 'Wipe now';
+  $('keepWarn').textContent = s.listMode === 'allow'
+    ? t('optKeepWarn') || 'On: everything not on your list is being wiped. Cookies and cache are separate.'
+    : '';
+  $('wipeNowBtn').textContent = s.wipeAllHistory ? t('wipeAllNow') || 'Wipe ALL history now' : t('wipeNow') || 'Wipe now';
   $('wipeAllWarn').textContent = s.wipeAllHistory
-    ? 'ARMED: the entire history is erased on every trigger above, and "Wipe now" empties it immediately.'
-    : 'Off by default. Your rules are still being applied.';
+    ? t('optWipeAllArmed') ||
+      'ARMED: the entire history is erased on every trigger above, and "Wipe now" empties it immediately.'
+    : t('optWipeAllOff') || 'Off by default. Your rules are still being applied.';
 
   const enabled = s.enabled;
   const dot = 'dot' + (enabled ? '' : ' off') + (s.wipeAllHistory ? ' danger' : '');
@@ -201,9 +205,9 @@ function renderExtras() {
     const reach = EXTRA_SINCE_LABELS[s.extraSince] || s.extraSince;
     const when =
       s.extraTrigger === 'manual'
-        ? 'only when you press a button'
-        : 'on a button, and again when the browser closes or starts';
-    setMsg($('extraWarn'), `On: ${kinds}, covering ${reach}, ${when}.`, 'warn');
+        ? t('optWhenManual') || 'only when you press a button'
+        : t('optWhenBoth') || 'on a button, and again when the browser closes or starts';
+    setMsg($('extraWarn'), t('optExtraLine', [kinds, reach, when]) || `On: ${kinds}, covering ${reach}, ${when}.`, 'warn');
   }
   renderPresets();
   renderCookies();
@@ -217,11 +221,15 @@ function renderPresets() {
   }
   $('customRow').classList.toggle('hidden', name !== 'custom');
   const notes = {
-    off: 'History only, following your rules. Nothing else is touched.',
-    light: 'Cache goes with each run, so pages will load a little slower.',
-    standard: 'Cache and cookies go with each run. Sites will not remember you, so you may have to log in again.',
-    nuclear: 'Cache, cookies, saved form text, download history and all of your history, at every trigger.',
-    custom: 'Your own mix of the four switches.',
+    off: t('optPresetOffNote') || 'History only, following your rules. Nothing else is touched.',
+    light: t('optPresetLightNote') || 'Cache goes with each run, so pages will load a little slower.',
+    standard:
+      t('optPresetStandardNote') ||
+      'Cache and cookies go with each run. Sites will not remember you, so you may have to log in again.',
+    nuclear:
+      t('optPresetNuclearNote') ||
+      'Cache, cookies, saved form text, download history and all of your history, at every trigger.',
+    custom: t('optPresetCustomNote') || 'Your own mix of the four switches.',
   };
   setMsg($('presetNote'), notes[name] || '', name === 'nuclear' ? 'err' : 'mini');
 }
@@ -236,8 +244,10 @@ function renderCookies() {
   setMsg(
     $('cookiesWarn'),
     on
-      ? 'Cookies are deleted for every site except the list below, so logins everywhere else end.'
-      : 'Off. Cookies are only cleared if you turn on the cookie switch in Clearing above, or press the button below.'
+      ? t('optCookiesWarnOn') ||
+          'Cookies are deleted for every site except the list below, so logins everywhere else end.'
+      : t('optCookiesWarnOff') ||
+          'Off. Cookies are only cleared if you turn on the cookie switch in Clearing above, or press the button below.'
   );
   $('tabsPermBtn').classList.toggle('hidden', !s.cookiesOnTabClose);
 }
@@ -379,7 +389,7 @@ function runTest() {
   const url = $('testUrl').value.trim();
   const title = $('testTitle').value.trim();
   if (!url && !title) {
-    setMsg($('testOut'), 'Nothing tested yet.');
+    setMsg($('testOut'), t('optTestNothing') || 'Nothing tested yet.');
     return;
   }
   const live = activeRules(state.rules);
@@ -387,7 +397,9 @@ function runTest() {
   if (!live.length) {
     setMsg(
       $('testOut'),
-      keep ? 'The keep list is empty, so nothing is wiped.' : 'No active rules, so nothing would be wiped.',
+      keep
+        ? t('optTestKeepEmpty') || 'The keep list is empty, so nothing is wiped.'
+        : t('optTestNoRules') || 'No active rules, so nothing would be wiped.',
       'warn'
     );
     return;
@@ -396,7 +408,9 @@ function runTest() {
   if (keep) {
     setMsg(
       $('testOut'),
-      rule ? 'Kept: this page is on your keep list.' : 'Not on your keep list, so this would be wiped.',
+      rule
+        ? t('optTestKept') || 'Kept: this page is on your keep list.'
+        : t('optTestNotKept') || 'Not on your keep list, so this would be wiped.',
       rule ? 'ok' : 'warn'
     );
     return;
@@ -405,7 +419,7 @@ function runTest() {
     const typeName = t(`rule${rule.type[0].toUpperCase()}${rule.type.slice(1)}`) || RULE_TYPES[rule.type] || rule.type;
     setMsg($('testOut'), t('wouldBeWiped', [typeName, describeRule(rule)]) || `Would be wiped by: ${typeName} → ${describeRule(rule)}`, 'ok');
   } else {
-    setMsg($('testOut'), 'No rule matches this, so it stays in history.', 'mini');
+    setMsg($('testOut'), t('optTestNoMatch') || 'No rule matches this, so it stays in history.', 'mini');
   }
 }
 
@@ -470,12 +484,13 @@ for (const [id, key] of [
     const wantsOn = $(id).checked;
     if (wantsOn && key === 'extraCookies') {
       const ok = window.confirm(
-        'Clear cookies and site data?\n\n' +
-          'Cookies are removed for the whole registrable domain, so every login on that site ends, not just the ' +
-          'page you were on. Site storage (local storage, IndexedDB, service workers) goes with them, because ' +
-          'clearing one without the other leaves a site half logged in and half not.\n\n' +
-          'This never runs while you browse. It runs when you press a button, and at close or start only if you ' +
-          'set that below.'
+        t('optCookieConfirm') ||
+          'Clear cookies and site data?\n\n' +
+            'Cookies are removed for the whole registrable domain, so every login on that site ends, not just the ' +
+            'page you were on. Site storage (local storage, IndexedDB, service workers) goes with them, because ' +
+            'clearing one without the other leaves a site half logged in and half not.\n\n' +
+            'This never runs while you browse. It runs when you press a button, and at close or start only if you ' +
+            'set that below.'
       );
       if (!ok) {
         $(id).checked = false;
@@ -502,23 +517,29 @@ $('extraTrigger').addEventListener('change', async () => {
 
 $('extraNowBtn').addEventListener('click', () => {
   const reach = EXTRA_SINCE_LABELS[state.settings.extraSince] || state.settings.extraSince;
-  if (!window.confirm(`Clear ${describeExtras(state.settings)} now, covering ${reach}?`)) {
-    setMsg($('extraMsg'), 'Cancelled, nothing was cleared.');
+  if (
+    !window.confirm(
+      t('optClearNowAsk', [describeExtras(state.settings), reach]) ||
+        `Clear ${describeExtras(state.settings)} now, covering ${reach}?`
+    )
+  ) {
+    setMsg($('extraMsg'), t('optCancelledClear') || 'Cancelled, nothing was cleared.');
     return;
   }
-  setMsg($('extraMsg'), 'Clearing…');
+  setMsg($('extraMsg'), t('msgClearing') || 'Clearing…');
   chrome.runtime.sendMessage({ type: 'clearExtra' }, (res) => {
     if (chrome.runtime.lastError) {
       setMsg($('extraMsg'), chrome.runtime.lastError.message, 'err');
       return;
     }
     if (!res || !res.ok) {
-      setMsg($('extraMsg'), (res && res.error) || 'The clear failed.', 'err');
+      setMsg($('extraMsg'), (res && res.error) || t('errClearFailed') || 'The clear failed.', 'err');
       return;
     }
     setMsg(
       $('extraMsg'),
-      `Cleared ${res.kinds} (${EXTRA_SINCE_LABELS[res.since] || res.since}). Chrome reports no count, so there is none to show.`,
+      t('resClearedNoCountOpt', [res.kinds, EXTRA_SINCE_LABELS[res.since] || res.since]) ||
+        `Cleared ${res.kinds} (${EXTRA_SINCE_LABELS[res.since] || res.since}). Chrome reports no count, so there is none to show.`,
       'ok'
     );
     load();
@@ -531,10 +552,11 @@ $('wipeAll').addEventListener('change', async () => {
   const wantsOn = $('wipeAll').checked;
   if (wantsOn) {
     const ok = window.confirm(
-      'Arm the whole-history wipe?\n\n' +
-        'Every trigger will then erase your entire browsing history instead of only matching your rules. ' +
-        'Each wipe still has to be confirmed twice on its own, and arming this does not erase anything by itself.\n\n' +
-        'This is history only. Cookies, cache and downloads answer to the "Also clear" switches above.'
+      t('optWipeAllConfirm') ||
+        'Arm the whole-history wipe?\n\n' +
+          'Every trigger will then erase your entire browsing history instead of only matching your rules. ' +
+          'Each wipe still has to be confirmed twice on its own, and arming this does not erase anything by itself.\n\n' +
+          'This is history only. Cookies, cache and downloads answer to the "Also clear" switches above.'
     );
     if (!ok) {
       $('wipeAll').checked = false;
@@ -571,7 +593,7 @@ $('lockEnabled').addEventListener('change', async () => {
   if (!wantsOn && configured) {
     // Switching the lock off is itself a locked action.
     $('lockEnabled').checked = true;
-    showUnlock('remove', 'Type your PIN to switch the lock off.');
+    showUnlock('remove', t('optLockOffPin') || 'Type your PIN to switch the lock off.');
     return;
   }
   if (!wantsOn) {
@@ -606,7 +628,7 @@ $('lockSave').addEventListener('click', async () => {
 $('lockNowBtn').addEventListener('click', async () => {
   unlocked = false;
   await load();
-  setMsg($('lockMsg'), 'Hidden. The list comes back when you type the PIN.', 'ok');
+  setMsg($('lockMsg'), t('optLockHidden') || 'Hidden. The list comes back when you type the PIN.', 'ok');
 });
 
 $('lockUnlock').addEventListener('click', async () => {
@@ -717,8 +739,9 @@ async function confirmDestructive() {
       setMsg(
         $('sweepMsg'),
         gate.reason === 'phrase-mismatch'
-          ? `The phrase did not match, so nothing was wiped. It must read exactly: ${WIPE_ALL_PHRASE}`
-          : 'Cancelled, nothing was wiped.',
+          ? t('errPhraseMismatch', [WIPE_ALL_PHRASE]) ||
+            `The phrase did not match, so nothing was wiped. It must read exactly: ${WIPE_ALL_PHRASE}`
+          : t('optCancelledWipe') || 'Cancelled, nothing was wiped.',
         'warn'
       );
     }
@@ -726,7 +749,7 @@ async function confirmDestructive() {
   }
 
   const gate = await singleConfirm(() => window.confirm(MESSAGES.wipeNowConfirm));
-  if (!gate.ok) setMsg($('sweepMsg'), 'Cancelled, nothing was wiped.');
+  if (!gate.ok) setMsg($('sweepMsg'), t('optCancelledWipe') || 'Cancelled, nothing was wiped.');
   return gate.ok;
 }
 
@@ -735,7 +758,7 @@ async function runAction(type) {
 
   if (!isPreview && !(await confirmDestructive())) return;
 
-  setMsg($('sweepMsg'), isPreview ? 'Looking for matches…' : 'Wiping…');
+  setMsg($('sweepMsg'), isPreview ? t('msgLooking') || 'Looking for matches…' : t('msgWiping') || 'Wiping…');
   $('previewList').innerHTML = '';
   chrome.runtime.sendMessage({ type }, (res) => {
     if (chrome.runtime.lastError) {
@@ -743,7 +766,7 @@ async function runAction(type) {
       return;
     }
     if (!res || !res.ok) {
-      setMsg($('sweepMsg'), (res && res.error) || 'Run failed.', 'err');
+      setMsg($('sweepMsg'), (res && res.error) || t('errRunFailed') || 'Run failed.', 'err');
       return;
     }
 
@@ -752,17 +775,29 @@ async function runAction(type) {
         $('sweepMsg'),
         res.matched
           ? res.wipeAll
-            ? `Wipe-all is armed: all ${res.scanned} entries would be erased.`
+            ? t('resArmedAll', [res.scanned]) ||
+              `Wipe-all is armed: all ${res.scanned} entries would be erased.`
             : state.settings.listMode === 'allow'
-              ? `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} not on your keep list would be wiped.`
-              : `${res.matched} ${res.matched === 1 ? 'entry' : 'entries'} would be wiped (scanned ${res.scanned}).`
-          : `Nothing would be wiped after scanning ${res.scanned} entries.`,
+              ? t('resKeepWould', [res.matched]) ||
+                `Entries not on your keep list that would be wiped: ${res.matched}.`
+              : t('resWould', [res.matched, res.scanned]) ||
+                `Entries that would be wiped: ${res.matched} (scanned ${res.scanned}).`
+          : t('resNothing', [res.scanned]) ||
+            `Nothing would be wiped after scanning ${res.scanned} entries.`,
         res.matched ? 'ok' : 'mini'
       );
     } else if (res.wipeAll) {
-      setMsg($('sweepMsg'), `Erased ${res.deleted} entries, the entire history.`, 'ok');
+      setMsg(
+        $('sweepMsg'),
+        t('resErasedAll', [res.deleted]) || `Erased ${res.deleted} entries, the entire history.`,
+        'ok'
+      );
     } else {
-      setMsg($('sweepMsg'), `Scanned ${res.scanned}, wiped ${res.deleted}.`, res.deleted ? 'ok' : 'mini');
+      setMsg(
+        $('sweepMsg'),
+        t('resScannedWiped', [res.scanned, res.deleted]) || `Scanned ${res.scanned}, wiped ${res.deleted}.`,
+        res.deleted ? 'ok' : 'mini'
+      );
     }
 
     // The extra clear cannot be counted, so it is reported by name only.
@@ -770,11 +805,12 @@ async function runAction(type) {
       if (res.extra.ok) {
         setMsg(
           $('extraMsg'),
-          `Also cleared ${res.extra.kinds} (${EXTRA_SINCE_LABELS[res.extra.since] || res.extra.since}). Chrome reports no count.`,
+          t('resAlsoCleared', [res.extra.kinds, EXTRA_SINCE_LABELS[res.extra.since] || res.extra.since]) ||
+            `Also cleared ${res.extra.kinds} (${EXTRA_SINCE_LABELS[res.extra.since] || res.extra.since}). Chrome reports no count.`,
           'ok'
         );
       } else {
-        setMsg($('extraMsg'), `Extra clear skipped: ${res.extra.error}`, 'warn');
+        setMsg($('extraMsg'), t('resExtraSkipped', [res.extra.error]) || `Extra clear skipped: ${res.extra.error}`, 'warn');
       }
     }
 
@@ -790,7 +826,10 @@ function renderPreview(sample) {
   const head = document.createElement('div');
   head.className = 'row mini';
   head.style.marginTop = '10px';
-  head.textContent = sample.length >= 25 ? 'First 25 matches:' : 'Matches:';
+  head.textContent =
+    sample.length >= 25
+      ? t('resFirst25') || 'First 25 matches:'
+      : t('resMatches') || 'Matches:';
   list.appendChild(head);
 
   for (const item of sample) {
@@ -840,7 +879,7 @@ $('importFile').addEventListener('change', async (e) => {
   try {
     const incoming = parseExport(await file.text());
     if (!window.confirm(MESSAGES.importConfirm(incoming.rules.length + incoming.skipped))) {
-      setMsg($('importMsg'), 'Import cancelled, so no rules were added.');
+      setMsg($('importMsg'), t('optImportCancelled') || 'Import cancelled, so no rules were added.');
       e.target.value = '';
       return;
     }
@@ -852,7 +891,10 @@ $('importFile').addEventListener('change', async (e) => {
     await saveState({ rules: state.rules });
     setMsg(
       $('importMsg'),
-      `Imported ${incoming.rules.length} rule(s)${incoming.skipped ? `, skipped ${incoming.skipped}` : ''}.`,
+      (incoming.skipped
+        ? t('optImportedSkipped', [incoming.rules.length, incoming.skipped])
+        : t('optImported', [incoming.rules.length])) ||
+        `Imported ${incoming.rules.length} rule(s)${incoming.skipped ? `, skipped ${incoming.skipped}` : ''}.`,
       'ok'
     );
     renderSettings();
@@ -864,7 +906,7 @@ $('importFile').addEventListener('change', async (e) => {
     renderRules();
     runTest();
   } catch (err) {
-    setMsg($('importMsg'), `Import failed: ${err.message}`, 'err');
+    setMsg($('importMsg'), t('optImportFailed', [err.message]) || `Import failed: ${err.message}`, 'err');
   }
   e.target.value = '';
 });
@@ -885,8 +927,10 @@ for (const btn of document.querySelectorAll('.preset')) {
     if (name === 'nuclear' || patch.extraCookies) {
       const ok = window.confirm(
         name === 'nuclear'
-          ? 'FULL clears cache, cookies, saved form text, download history and all of your browsing history.\n\nEvery trigger will do that. Continue?'
-          : 'This clears cookies and site data with each run. Logins on those sites end. Continue?'
+          ? t('optNuclearConfirm') ||
+              'FULL clears cache, cookies, saved form text, download history and all of your browsing history.\n\nEvery trigger will do that. Continue?'
+          : t('optStandardConfirm') ||
+              'This clears cookies and site data with each run. Logins on those sites end. Continue?'
       );
       if (!ok) return;
     }
@@ -909,7 +953,13 @@ $('cookieKeep').addEventListener('change', async () => {
 for (const id of ['cookiesOnStart', 'cookiesOnTabClose']) {
   $(id).addEventListener('change', async () => {
     const wantsOn = $(id).checked;
-    if (wantsOn && !window.confirm('Clear cookies for every site except your keep list? Logins elsewhere end.')) {
+    if (
+      wantsOn &&
+      !window.confirm(
+        t('optCookieAllConfirm') ||
+          'Clear cookies for every site except your keep list? Logins elsewhere end.'
+      )
+    ) {
       $(id).checked = false;
       return;
     }
@@ -919,7 +969,7 @@ for (const id of ['cookiesOnStart', 'cookiesOnTabClose']) {
       if (!granted) {
         state.settings.cookiesOnTabClose = false;
         $(id).checked = false;
-        setMsg($('cookiesWarn'), 'Tab access was refused, so this stays off.', 'err');
+        setMsg($('cookiesWarn'), t('optTabsRefused') || 'Tab access was refused, so this stays off.', 'err');
       }
     }
     await saveState({ settings: state.settings });
@@ -940,29 +990,39 @@ async function askTabs() {
 
 $('tabsPermBtn').addEventListener('click', async () => {
   const granted = await askTabs();
-  setMsg($('cookieMsg'), granted ? 'Tab access granted.' : 'Tab access refused.', granted ? 'ok' : 'err');
+  setMsg(
+    $('cookieMsg'),
+    granted ? t('optTabsGranted') || 'Tab access granted.' : t('optTabsRefusedMsg') || 'Tab access refused.',
+    granted ? 'ok' : 'err'
+  );
 });
 
 $('cookieNowBtn').addEventListener('click', () => {
   const kept = (state.settings.cookieKeep || []).length;
   const ask = kept
-    ? `Clear cookies for everything except your ${kept} kept site(s)?`
-    : 'Clear every cookie in this browser?';
+    ? t('optCookiePruneAsk', [kept]) || `Clear cookies for everything except your ${kept} kept site(s)?`
+    : t('optCookieAllAsk') || 'Clear every cookie in this browser?';
   if (!window.confirm(ask)) {
-    setMsg($('cookieMsg'), 'Cancelled.');
+    setMsg($('cookieMsg'), t('optCancelled') || 'Cancelled.');
     return;
   }
-  setMsg($('cookieMsg'), 'Clearing…');
+  setMsg($('cookieMsg'), t('msgClearing') || 'Clearing…');
   chrome.runtime.sendMessage({ type: 'pruneCookies' }, (res) => {
     if (chrome.runtime.lastError) {
       setMsg($('cookieMsg'), chrome.runtime.lastError.message, 'err');
       return;
     }
     if (!res || !res.ok) {
-      setMsg($('cookieMsg'), (res && res.error) || 'The clear failed.', 'err');
+      setMsg($('cookieMsg'), (res && res.error) || t('errClearFailed') || 'The clear failed.', 'err');
       return;
     }
-    setMsg($('cookieMsg'), res.removed ? `Cleared ${res.removed} cookies.` : 'Nothing to clear.', 'ok');
+    setMsg(
+      $('cookieMsg'),
+      res.removed
+        ? t('optCookieCleared', [res.removed]) || `Cleared ${res.removed} cookies.`
+        : t('optNothingToClear') || 'Nothing to clear.',
+      'ok'
+    );
     load();
   });
 });
