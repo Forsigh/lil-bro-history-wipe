@@ -41,6 +41,38 @@ MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", 
 VERSION = None
 
 
+def refresh_handover(version, artifact, digest):
+    """Re-derive the Desktop handover's own claims from the artifact just built.
+
+    The README and the version table are the two files a person reads at upload time, and
+    both had drifted: the delivery rewrote the file names in the README but left the last
+    release's byte count and hash sitting beside the new one, and the table had not been
+    copied across since 1.5.7. The numbers are mechanical, so they are re-derived here.
+    Everything else in that file is prose, which is listed rather than guessed at.
+    """
+    import datetime
+
+    if not DESKTOP.exists():
+        return
+    shutil.copy2(ROOT / "docs" / "VERSIONS.md", DESKTOP / "VERSIONS.md")
+    readme = DESKTOP / "README.txt"
+    if not readme.exists():
+        return
+    text = readme.read_text(encoding="utf-8")
+    size = artifact.stat().st_size
+    text = re.sub(r"\(\d[\d,]* bytes, sha256 [0-9a-f]{16,}\)", f"({size} bytes, sha256 {digest})", text)
+    today = datetime.date.today()
+    text = re.sub(
+        r"Last sorted: \d+ [A-Z][a-z]+ \d{4}, \d+\.\d+\.\d+",
+        f"Last sorted: {today.day} {today.strftime('%B')} {today.year}, {version}",
+        text,
+    )
+    readme.write_bytes(text.encode("utf-8"))
+    stale = sorted({m.group(0) for m in re.finditer(r"\b1\.\d+\.\d+\b", text) if m.group(0) != version})
+    if stale:
+        say(f"handover README also names {', '.join(stale)}: re-read those lines before uploading")
+
+
 def say(message):
     print(f"  {message}", flush=True)
 
@@ -367,6 +399,9 @@ def main():
         text = re.sub(r"load-unpacked-1\.\d+\.\d+", f"load-unpacked-{version}", text)
         text = re.sub(r"UPLOAD-1\.\d+\.\d+", f"UPLOAD-{version}", text)
         readme.write_bytes(text.encode("utf-8"))
+    # The table and the README's numbers are re-derived from the artifact just built
+    # rather than assumed to be current: that is the pair that went stale here.
+    refresh_handover(version, artifact, digest)
     say(f"delivered to {DESKTOP}")
 
     print()
