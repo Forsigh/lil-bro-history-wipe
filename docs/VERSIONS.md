@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 1.7.4.
+different builds called themselves 1.3.0. The current code is numbered 1.7.5.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 1.7.5 | 21 Sep | `9937210` | `3db5165cd9cd5c19` | The popup and the settings page work again, and this is what was actually wrong. The file that turns a log entry into a readable line, src/logtext.js, was never added to the list o |
 | 1.7.4 | 21 Sep | `1a7310b` | `0888d922bf846956` | If something goes wrong while the popup or the settings page is starting, the extension says so now. Both of them used to sit on the word "Loading" for good, with every control dea |
 | 1.7.3 | 21 Sep | `e6beca4` | `a66eb645dbef1f03` | Nothing on screen changes. The code behind it lost some weight. |
 | 1.7.2 | 21 Sep | `bd67199` | `883f8cf1e3fa015b` | The High contrast theme is readable now. Every button in that theme was painted the accent yellow, including the ones that write their own words in white or grey: the "Forgot the P |
