@@ -2,10 +2,7 @@
 
 # Lil Bro Wipe – History Cleaner
 
-[![tests](https://github.com/Forsigh/lil-bro-history-wipe/actions/workflows/tests.yml/badge.svg)](https://github.com/Forsigh/lil-bro-history-wipe/actions/workflows/tests.yml)
-[![Get it on the Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-get%20it-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lil-bro-history-wipe/fbdfjomihgegaemjljbcmmdmgmadlebg)
-[![Open an issue](https://img.shields.io/badge/Open%20an%20issue-%23121011?logo=github&logoColor=white)](https://github.com/Forsigh/lil-bro-history-wipe/issues/new)
-[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-support%20the%20work-ffdd00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/forsigh)
+[![tests](https://img.shields.io/github/actions/workflow/status/Forsigh/lil-bro-history-wipe/tests.yml?style=for-the-badge&label=tests)](https://github.com/Forsigh/lil-bro-history-wipe/actions/workflows/tests.yml)
 
 Keeps the sites and words you choose out of your browsing history, in any Chromium browser. No
 account, no server, nothing sent anywhere.
@@ -20,7 +17,7 @@ sites you never want touched.
 
 ## Install
 
-[**Get it on the Chrome Web Store**](https://chromewebstore.google.com/detail/lil-bro-history-wipe/fbdfjomihgegaemjljbcmmdmgmadlebg)
+<a href="https://chromewebstore.google.com/detail/lil-bro-history-wipe/fbdfjomihgegaemjljbcmmdmgmadlebg"><img src="store/chrome-web-store-badge.png" alt="Available in the Chrome Web Store" width="206" height="58"></a>
 
 Or by hand:
 
@@ -42,9 +39,13 @@ Or by hand:
 
 ## Support
 
-Like my work? [Buy me a coffee](https://buymeacoffee.com/forsigh).
+Like my work?
 
-Something broken? [Open an issue](https://github.com/Forsigh/lil-bro-history-wipe/issues).
+<a href="https://buymeacoffee.com/forsigh"><img src="store/buy-me-a-coffee.png" alt="Buy me a coffee" width="200"></a>
+
+Something broken, or a site you want covered?
+
+<a href="https://github.com/Forsigh/lil-bro-history-wipe/issues/new"><img src="https://img.shields.io/badge/open_an_issue-yes-2f363d?style=for-the-badge&logo=github" alt="Open an issue"></a>
 
 ## Privacy
 
