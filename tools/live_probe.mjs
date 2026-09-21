@@ -1134,6 +1134,159 @@ try {
     await closePage(look.id);
   }
 
+  // --- 12c. every word in every theme can be read ---------------------------
+  // A theme is a pile of colour pairs, and an unreadable pair only shows up in the
+  // rendered page: each token reads fine on its own. Every element's own text colour is
+  // composited onto its real backdrop, translucent ancestors included, and measured
+  // against the WCAG ratio for its size: 4.5 for body text, 3 for large or bold text.
+  {
+    const themes = await (async () => {
+      const p = await openPage(`chrome-extension://${id}/src/options.html`);
+      const list = await p.evaluate(`[...document.querySelectorAll('.theme')].map((b) => b.dataset.theme)`);
+      await closePage(p.id);
+      return list;
+    })();
+
+    const sweep = `(() => {
+      const parse = (c) => {
+        const m = String(c).match(/rgba?\\(([^)]+)\\)/);
+        if (!m) return null;
+        const p = m[1].split(',').map((x) => parseFloat(x));
+        return { r: p[0], g: p[1], b: p[2], a: p.length > 3 ? p[3] : 1 };
+      };
+      const lin = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4); };
+      const lum = (c) => 0.2126 * lin(c.r) + 0.7152 * lin(c.g) + 0.0722 * lin(c.b);
+      const over = (fg, bg) => ({
+        r: fg.r * fg.a + bg.r * (1 - fg.a),
+        g: fg.g * fg.a + bg.g * (1 - fg.a),
+        b: fg.b * fg.a + bg.b * (1 - fg.a),
+        a: 1,
+      });
+      const name = (el) => el.tagName.toLowerCase() +
+        (el.id ? '#' + el.id : '') +
+        (typeof el.className === 'string' && el.className.trim()
+          ? '.' + el.className.trim().split(' ').slice(0, 2).join('.')
+          : '');
+      // A background is a stack: image layers on top, the colour underneath. Reading only
+      // backgroundColor walks past the gradient, and reading only the gradient's first
+      // stop reads a 16% tint as a solid colour. All the layers come back top-first, so
+      // the walk can composite them in the order the browser paints them.
+      const paints = (node) => {
+        const cs = getComputedStyle(node);
+        const out = [];
+        const img = cs.backgroundImage;
+        if (img && img !== 'none') {
+          for (const s of img.match(/rgba?\\([^)]*\\)/g) || []) {
+            const c = parse(s);
+            if (c) out.push(c);
+          }
+        }
+        const flat = parse(cs.backgroundColor);
+        if (flat && flat.a > 0) out.push(flat);
+        return out;
+      };
+      const rootPaint = () => {
+        // documentElement is often transparent, and a transparent colour is still a
+        // truthy object, so it has to be tested for opacity rather than existence or the
+        // walk silently falls back to white and every dark theme reads as light.
+        for (const el of [document.documentElement, document.body]) {
+          const c = parse(getComputedStyle(el).backgroundColor);
+          if (c && c.a >= 1) return c;
+        }
+        return { r: 255, g: 255, b: 255, a: 1 };
+      };
+      const backdrop = (el) => {
+        let node = el;
+        // The walk starts on the page's own colour, so a translucent paint that reaches
+        // the top (accent-soft at 16%) is composited onto something instead of being
+        // reported as a solid accent, which fakes a contrast ratio of 1 everywhere.
+        let acc = rootPaint();
+        let from = null;
+        while (node) {
+          const layers = paints(node);
+          if (layers.length) {
+            if (!from) from = name(node);
+            for (let i = layers.length - 1; i >= 0; i--) acc = over(layers[i], acc);
+            // An opaque layer anywhere in the stack stops everything behind it.
+            if (layers.some((c) => c.a >= 1)) break;
+          }
+          node = node.parentElement;
+        }
+        return { bg: acc, from: from || 'the page' };
+      };
+      const ratio = (a, b) => {
+        const l1 = lum(a), l2 = lum(b);
+        return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+      };
+      const bad = [];
+      let checked = 0;
+      for (const el of document.querySelectorAll('body *')) {
+        const cs = getComputedStyle(el);
+        if (cs.display === 'none' || cs.visibility === 'hidden' || parseFloat(cs.opacity) < 0.1) continue;
+        const own = [...el.childNodes].filter((n) => n.nodeType === 3 && n.textContent.trim().length > 1);
+        if (!own.length) continue;
+        const fg0 = parse(cs.color);
+        if (!fg0) continue;
+        const { bg, from } = backdrop(el);
+        const fg = over(fg0, bg);
+        const size = parseFloat(cs.fontSize);
+        const weight = parseInt(cs.fontWeight, 10) || 400;
+        const need = size >= 24 || (size >= 18.66 && weight >= 700) ? 3 : 4.5;
+        const r = ratio(fg, bg);
+        checked++;
+        if (r < need) {
+          bad.push({
+            el: name(el),
+            text: own.map((n) => n.textContent.trim()).join(' ').slice(0, 30),
+            ratio: Math.round(r * 100) / 100,
+            need,
+            color: cs.color,
+            on: 'rgb(' + [bg.r, bg.g, bg.b].map((v) => Math.round(v)).join(', ') + ')',
+            from,
+          });
+        }
+      }
+      bad.sort((a, b) => a.ratio - b.ratio);
+      return JSON.stringify({ checked, total: bad.length, worst: bad.slice(0, 6) });
+    })()`;
+
+    const unreadable = [];
+    let measured = 0;
+    for (const theme of themes) {
+      await ev(`(async()=>{
+        const s = (await chrome.storage.local.get('settings')).settings || {};
+        await chrome.storage.local.set({ settings: Object.assign({}, s, { theme: ${JSON.stringify(theme)} }) });
+        return 'ok';
+      })()`);
+      for (const page of ['options.html', 'popup.html']) {
+        const p = await openPage(`chrome-extension://${id}/src/${page}`);
+        const res = JSON.parse(await p.evaluate(sweep));
+        await closePage(p.id);
+        measured += res.checked;
+        if (res.total) unreadable.push({ theme, page, total: res.total, worst: res.worst });
+      }
+    }
+    record(
+      'every word in every theme can be read',
+      unreadable.length === 0,
+      unreadable.length
+        ? unreadable.map((u) => `${u.theme}/${u.page.replace('.html', '')}:${u.total}`).join(' ') +
+            ' | ' +
+            unreadable
+              .slice(0, 6)
+              .map(
+                (u) =>
+                  `${u.theme}: ` +
+                  u.worst
+                    .slice(0, 2)
+                    .map((w) => `${w.el} "${w.text}" ${w.ratio} on ${w.on} from ${w.from} (need ${w.need})`)
+                    .join('; ')
+              )
+              .join(' | ')
+        : `${measured} text elements measured across ${themes.length} themes x 2 pages`
+    );
+  }
+
   // --- 13. optional screenshots: the compact popup, the classic one, the options --
   // node tools/live_probe.mjs <port> <browser> <output-dir> [en|pl] [theme]
   const shotsDir = process.argv[4];

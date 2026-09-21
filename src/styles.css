@@ -416,6 +416,14 @@ select {
   background-repeat: no-repeat;
 }
 
+/* The list that opens is drawn by the browser, not by the closed control, so it needs
+   its own colours: white text on a white list looks fine in a screenshot of the closed
+   select and unreadable the moment anyone opens it. */
+select option {
+  background: var(--bg);
+  color: var(--text);
+}
+
 textarea {
   width: 100%;
   font: 13px/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace;
@@ -1197,8 +1205,8 @@ body.popup #openOptions:hover {
   --card-2: #f4f7fb;
   --line: #dfe5ee;
   --text: #131b26;
-  --muted: #5b6a80;
-  --accent: #0f766e;
+  --muted: #5b697f;
+  --accent: #0f746d;
   --accent-dim: #0d9488;
   --accent-soft: rgba(15, 118, 110, 0.1);
   --on-accent: #ffffff;
@@ -1219,14 +1227,14 @@ body.popup #openOptions:hover {
   --card-2: #f6f0e3;
   --line: #e2d8c3;
   --text: #2b2620;
-  --muted: #6f665a;
-  --accent: #8f6129;
+  --muted: #6c6458;
+  --accent: #8b5e28;
   --accent-dim: #b58234;
   --accent-soft: rgba(154, 107, 47, 0.1);
   --on-accent: #fffaf0;
   --danger: #a13a2f;
   --danger-soft: rgba(161, 58, 47, 0.1);
-  --warn: #8a6d1f;
+  --warn: #85691e;
   --ring: rgba(154, 107, 47, 0.35);
   --shadow-1: 0 1px 2px rgba(80, 60, 30, 0.07), 0 10px 26px -16px rgba(80, 60, 30, 0.35);
   --shadow-2: 0 2px 6px rgba(80, 60, 30, 0.09), 0 18px 38px -18px rgba(80, 60, 30, 0.4);
@@ -1241,7 +1249,7 @@ body.popup #openOptions:hover {
   --card-2: #111826;
   --line: #1c2436;
   --text: #eaf7ff;
-  --muted: #7f8ea8;
+  --muted: #8595b0;
   --accent: #22d3ee;
   --accent-dim: #0891b2;
   --accent-soft: rgba(34, 211, 238, 0.13);
@@ -1263,7 +1271,7 @@ body.popup #openOptions:hover {
   --card-2: #2b333c;
   --line: #39424c;
   --text: #e6eaf0;
-  --muted: #9aa6b4;
+  --muted: #a3afbe;
   --accent: #86a8cc;
   --accent-dim: #6f93bb;
   --accent-soft: rgba(134, 168, 204, 0.14);
@@ -1333,8 +1341,8 @@ body.popup #openOptions:hover {
     --card-2: #f4f7fb;
     --line: #dfe5ee;
     --text: #131b26;
-    --muted: #5b6a80;
-    --accent: #0f766e;
+    --muted: #5b697f;
+    --accent: #0f746d;
     --accent-dim: #0d9488;
     --accent-soft: rgba(15, 118, 110, 0.1);
     --on-accent: #ffffff;
@@ -1397,7 +1405,22 @@ body.popup #openOptions:hover {
   box-shadow: none;
 }
 
+/* The solid buttons keep their flat accent fill; everything else keeps the fill its own
+   rules gave it. Painting the accent across every button put white text on yellow: the
+   ghost buttons, the theme pills and the preset notes all turned unreadable, which is
+   the opposite of what this theme is for. */
 :root[data-theme='contrast'] button {
-  background: var(--accent);
   box-shadow: none;
+}
+
+:root[data-theme='contrast'] button:not(.ghost):not(.theme):not(.preset):not(.danger):not(.switch) {
+  background: var(--accent);
+}
+
+/* The switch names its own state in the accent colour, so filling it with the accent
+   hides the word. It keeps its transparent body and gets an edge instead. */
+:root[data-theme='contrast'] .switch {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 4px 8px;
 }
