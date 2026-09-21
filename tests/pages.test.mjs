@@ -322,12 +322,21 @@ if (!readFileSync(join(root, 'src/styles.css'), 'utf8').includes('body.locked .l
   console.log('  FAIL styles.css does not hide .lockable sections while locked');
   fail++;
 }
-for (const file of ['src/options.js', 'src/popup.js']) {
-  const src = readFileSync(join(root, file), 'utf8');
-  if (!src.includes("from './lock.js'") || !src.includes('verifyPin(')) {
-    console.log(`  FAIL ${file} does not ask for a PIN before showing the list`);
-    fail++;
-  }
+// The settings page is the one that takes a PIN and holds the list. The popup is the
+// opposite: it hides the list and asks for nothing, because a box that only disappears
+// once you type into it protects nothing.
+if (!optionsSrc.includes("from './lock.js'") || !optionsSrc.includes('verifyPin(')) {
+  console.log('  FAIL the settings page does not ask for a PIN before showing the list');
+  fail++;
+}
+const popupHtmlEarly = readFileSync(join(root, 'src/popup.html'), 'utf8');
+if (popupSrc.includes('verifyPin(') || /type="password"/.test(popupHtmlEarly)) {
+  console.log('  FAIL the popup asks for a PIN again — it is meant to hide the list and ask for nothing');
+  fail++;
+}
+if (!popupSrc.includes('lockPopupNote') || !popupSrc.includes("'lockCard')")) {
+  console.log('  FAIL the popup no longer says why the list is missing');
+  fail++;
 }
 if (!lockSrc.includes('crypto.subtle') || !lockSrc.includes('PBKDF2')) {
   console.log('  FAIL lock.js no longer hashes the PIN with PBKDF2');
@@ -370,12 +379,13 @@ if (!storeSrc.includes('export async function factoryReset')) {
   console.log('  FAIL store.js has no factoryReset — the recovery path would have nothing to call');
   fail++;
 }
-for (const file of ['src/options.js', 'src/popup.js']) {
-  const src = readFileSync(join(root, file), 'utf8');
-  if (!src.includes('checkRecovery(') || !src.includes('factoryReset(')) {
-    console.log(`  FAIL ${file} lost the forgotten-PIN way out`);
-    fail++;
-  }
+if (!optionsSrc.includes('checkRecovery(') || !optionsSrc.includes('factoryReset(')) {
+  console.log('  FAIL the settings page lost the forgotten-PIN way out');
+  fail++;
+}
+if (popupSrc.includes('checkRecovery(') || popupSrc.includes('factoryReset(')) {
+  console.log('  FAIL the popup is running the recovery path again — that belongs on the settings page');
+  fail++;
 }
 console.log('  lock: list sections gated, PIN hashed, lock takes hold at once, menu cannot edit around it');
 

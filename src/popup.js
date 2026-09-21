@@ -9,9 +9,6 @@ import {
   buildRule,
   describeRule,
   normalizeDomain,
-  readAttempts,
-  writeAttempts,
-  factoryReset,
   extraOn,
   describeExtras,
   EXTRA_SINCE_LABELS,
@@ -23,15 +20,7 @@ import {
   WIPE_ALL_PHRASE,
   ARM_WINDOW_MS,
 } from './confirm-gate.js';
-import {
-  verifyPin,
-  isLockConfigured,
-  attemptState,
-  checkRecovery,
-  LOCK_MESSAGES,
-  MAX_ATTEMPTS,
-  LOCKOUT_MS,
-} from './lock.js';
+import { isLockConfigured } from './lock.js';
 import { findMatch, isWipeableUrl } from './matcher.js';
 import { whyLine, headline, hostLabel } from './logtext.js';
 import { applyI18n, setLang, t } from './i18n.js';
@@ -44,17 +33,9 @@ let currentTitle = '';
 let armAt = null;
 let phraseOk = false;
 let armTimer = null;
-// Unlocking lasts as long as the popup is open; the wrong-PIN throttle outlives it.
-let unlocked = false;
 
 function setMsg(text, kind = 'mini') {
   const el = $('wipeMsg');
-  el.textContent = text || '';
-  el.className = 'row ' + kind;
-}
-
-function setLockMsg(text, kind = 'mini') {
-  const el = $('lockMsg');
   el.textContent = text || '';
   el.className = 'row ' + kind;
 }
@@ -70,23 +51,30 @@ async function load() {
   $('version').textContent = 'Lil Bro v' + chrome.runtime.getManifest().version;
 }
 
-/** A PIN is set and this popup has not been unlocked. */
+/**
+ * A PIN is set. The popup is a small control surface, so it keeps working: the switch,
+ * the two runs and adding the site in front of you all stay. What it does not do is
+ * name anything on the list, and it does not ask for the PIN, because there is nothing
+ * here worth a lock screen and a box that only disappears once you type in it is a
+ * worse answer than plain hiding.
+ */
 function isLocked() {
-  return isLockConfigured(state.settings) && !unlocked;
+  return isLockConfigured(state.settings);
 }
 
-/** Take the parts that would name a site off the screen, and offer the PIN box. */
+/** Take the parts that would name the list off the screen, and say where to unlock. */
 function applyLock() {
   const locked = isLocked();
   document.body.classList.toggle('locked', locked);
   $('lockCard').classList.toggle('hidden', !locked);
   if (!locked) return;
-  $('lockNote').textContent = LOCK_MESSAGES.listHidden;
+  $('lockNote').textContent =
+    t('lockPopupNote') || 'The list stays hidden while the PIN is on. Unlock it in the settings.';
   $('previewList').innerHTML = '';
+  // A scan here only ever produced that list, so it would do nothing visible.
+  $('previewBtn').disabled = true;
   $('wipeMsg').textContent = '';
-  // The verdict says what happens to this tab, so it goes with the rest.
   $('siteVerdict').textContent = '';
-  setLockMsg('');
 }
 
 function render() {
@@ -165,13 +153,8 @@ function render() {
 }
 
 async function loadCurrentTab() {
-  if (isLocked()) {
-    // The lock is on, so the current tab is not named anywhere in this page.
-    $('sitePreview').textContent = LOCK_MESSAGES.listHidden;
-    $('addDomainBtn').disabled = true;
-    $('addUrlBtn').disabled = true;
-    return;
-  }
+  // Even with the PIN on, the site in front of you is worth naming: it is on screen
+  // anyway, and adding it is the one thing this popup is for that protects you.
   try {
     const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
     currentUrl = (tab && tab.url) || '';
@@ -279,49 +262,6 @@ $('scopeAll').addEventListener('change', async () => {
   state.settings.wipeAllHistory = true;
   await saveState({ settings: state.settings });
   render();
-});
-
-$('lockUnlock').addEventListener('click', async () => {
-  const { fails, lastFailAt } = await readAttempts();
-  const gate = attemptState(fails, lastFailAt, Date.now());
-  if (gate.blocked) {
-    setLockMsg(LOCK_MESSAGES.lockedOut(Math.ceil(gate.waitMs / 1000)), 'err');
-    return;
-  }
-  const ok = await verifyPin($('lockPin').value, state.settings);
-  $('lockPin').value = '';
-  if (!ok) {
-    const next = fails + 1;
-    await writeAttempts(next, Date.now());
-    const left = MAX_ATTEMPTS - next;
-    setLockMsg(
-      left > 0 ? LOCK_MESSAGES.wrongLeft(left) : LOCK_MESSAGES.lockedOut(Math.ceil(LOCKOUT_MS / 1000)),
-      'err'
-    );
-    return;
-  }
-  unlocked = true;
-  await writeAttempts(0, 0);
-  await load();
-  setLockMsg(LOCK_MESSAGES.open, 'ok');
-});
-
-$('lockForgot').addEventListener('click', () => {
-  $('forgotRow').classList.add('hidden');
-  $('recoverRow').classList.remove('hidden');
-  setLockMsg(LOCK_MESSAGES.recoveryLead, 'warn');
-  $('lockRecovery').focus();
-});
-
-$('lockRecoverBtn').addEventListener('click', async () => {
-  if (!checkRecovery($('lockRecovery').value)) {
-    setLockMsg(LOCK_MESSAGES.recoveryWrong, 'err');
-    return;
-  }
-  await factoryReset();
-  unlocked = true;
-  await load();
-  setLockMsg(LOCK_MESSAGES.recoveryDone, 'ok');
 });
 
 $('addDomainBtn').addEventListener('click', () => {

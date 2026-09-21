@@ -437,6 +437,9 @@
   "logCookies": {
     "message": "cookies for this site, on tab close"
   },
+  "lockPopupNote": {
+    "message": "The list stays hidden while the PIN is on. Unlock it in the settings."
+  },
   "optRulesFile": {
     "message": "Your list as a file"
   },

@@ -437,6 +437,9 @@
   "logCookies": {
     "message": "ciasteczka tej strony, przy zamknięciu karty"
   },
+  "lockPopupNote": {
+    "message": "Lista zostaje ukryta, dopóki PIN jest włączony. Odblokujesz ją w ustawieniach."
+  },
   "optRulesFile": {
     "message": "Twoja lista w pliku"
   },

@@ -760,18 +760,24 @@ try {
     await pop5.evaluate(`JSON.stringify({
       bodyLocked: document.body.classList.contains('locked'),
       card: !document.getElementById('lockCard').classList.contains('hidden'),
-      forgot: !document.getElementById('forgotRow').classList.contains('hidden'),
-      recover: document.getElementById('recoverRow').classList.contains('hidden'),
+      note: document.getElementById('lockNote').textContent.trim(),
+      pinFields: document.querySelectorAll('input[type=password]').length,
+      scanDisabled: document.getElementById('previewBtn').disabled === true,
       addHidden: getComputedStyle(document.getElementById('addDomainBtn').closest('.card')).display === 'none',
+      controlsHidden: getComputedStyle(document.getElementById('previewBtn').closest('.card')).display === 'none',
+      listRows: document.getElementById('previewList').children.length,
       verdict: document.getElementById('siteVerdict').textContent.trim(),
       status: document.getElementById('status').textContent.trim()
     })`)
   );
-  record('popup shows the lock card when a PIN exists', lockView2.card && lockView2.bodyLocked, lockView2.status);
-  record('popup lock offers the way out as well', lockView2.forgot === true && lockView2.recover === true);
-  // Adding is allowed while the lock is on: the button names no site, so it gives
-  // nothing away. What stays hidden is anything that lists what is being cleaned.
-  record('popup can still add while locked', lockView2.addHidden === false);
+  record('popup notes the lock instead of putting up a lock screen',
+    lockView2.card && lockView2.bodyLocked && lockView2.note.length > 10, lockView2.note);
+  // The popup used to take a PIN and do nothing with it, which is the thing that was
+  // removed: there is now no password field on this page at all.
+  record('the popup asks for no PIN', lockView2.pinFields === 0, `${lockView2.pinFields} password field(s)`);
+  record('the popup keeps its controls', lockView2.addHidden === false && lockView2.controlsHidden === false);
+  record('the list is off the screen and the scan is off with it',
+    lockView2.listRows === 0 && lockView2.scanDisabled === true);
   // The verdict names what happens to this tab, so it says nothing while locked.
   record('popup says nothing about the tab while locked', lockView2.verdict === '', `"${lockView2.verdict}"`);
   await closePage(pop5.id);
