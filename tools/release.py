@@ -67,6 +67,10 @@ def refresh_handover(version, artifact, digest):
         f"Last sorted: {today.day} {today.strftime('%B')} {today.year}, {version}",
         text,
     )
+    # Two more numbers in that file are mechanical: the standing instructions are phrased
+    # without a version, and these sentences carry one only as a fact of the newest build.
+    text = re.sub(r"1\.0\.1 through \d+\.\d+\.\d+", f"1.0.1 through {version}", text)
+    text = re.sub(r"1\.3\.5 -> \d+\.\d+\.\d+", f"1.3.5 -> {version}", text)
     readme.write_bytes(text.encode("utf-8"))
     stale = sorted({m.group(0) for m in re.finditer(r"\b1\.\d+\.\d+\b", text) if m.group(0) != version})
     if stale:
