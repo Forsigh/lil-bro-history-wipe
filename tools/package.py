@@ -11,6 +11,7 @@ nothing from store/ or docs/ may sneak in.
 import hashlib
 import json
 import pathlib
+import re
 import sys
 import zipfile
 
@@ -25,6 +26,7 @@ FILES = [
     "src/confirm-gate.js",
     "src/lock.js",
     "src/i18n.js",
+    "src/logtext.js",
     "src/options.html",
     "src/options.js",
     "src/popup.html",
@@ -45,11 +47,40 @@ def sha256(data: bytes) -> str:
     return hashlib.sha256(data).hexdigest()
 
 
+def unresolved_imports(names) -> list:
+    """Every relative import in the packaged scripts has to point at a packaged file.
+
+    A module the pages import and the list omits does not fail the build: every check here
+    only ever looks at what the list already contains, so the zip comes out complete as far
+    as it can tell and the browser is what notices, as a page that never starts. That is
+    exactly what happened. src/logtext.js was added with the log rewrite and never added
+    here, so the popup and the settings page could not load in seven releases.
+    """
+    have = set(names)
+    problems = []
+    for name in names:
+        if not name.endswith(".js"):
+            continue
+        source = (ROOT / name).read_text(encoding="utf-8")
+        for spec in re.findall(r"from\s+['\"](\.[^'\"]+)['\"]", source):
+            target = str(pathlib.PurePosixPath(pathlib.PurePosixPath(name).parent) / spec)
+            if target not in have:
+                problems.append(f"{name} imports {spec}, which is not in the file list")
+    return problems
+
+
 def main() -> int:
     manifest = json.loads((ROOT / "manifest.json").read_text(encoding="utf-8"))
     version = manifest["version"]
     out = ROOT / "builds" / f"lil-bro-wipe-{version}.zip"
     out.parent.mkdir(exist_ok=True)
+
+    problems = unresolved_imports(FILES)
+    if problems:
+        print("the file list is missing something the package imports:")
+        for problem in problems:
+            print("  ", problem)
+        return 1
 
     crlf = []
     for name in FILES:
