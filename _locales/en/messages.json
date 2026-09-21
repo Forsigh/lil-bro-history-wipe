@@ -341,9 +341,6 @@
   "siteNoSite": {
     "message": "This tab has no wipeable site."
   },
-  "optLangHint": {
-    "message": "Auto follows your browser. More languages get added as they are written."
-  },
   "langAuto": {
     "message": "Auto (my browser)"
   },

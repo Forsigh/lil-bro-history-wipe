@@ -341,9 +341,6 @@
   "siteNoSite": {
     "message": "Ta karta nie ma strony do czyszczenia."
   },
-  "optLangHint": {
-    "message": "Auto idzie za twoją przeglądarką. Kolejne języki dodajemy, gdy są napisane."
-  },
   "langAuto": {
     "message": "Auto (moja przeglądarka)"
   },
