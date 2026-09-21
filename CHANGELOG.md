@@ -2,6 +2,14 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.7.3
+
+Nothing on screen changes. The code behind it lost some weight.
+
+The rule that turns whatever you paste into a plain domain was written out twice, once beside the matching code and once beside the state helpers. There is one copy of it now, and it lives with the matching.
+
+Three pieces of code that nothing called are gone, and so are three wording entries in both language files that only those pieces used. One of them said "Instantly, as I browse", which the settings page stopped saying a while ago: the row that picks when the cleaning happens has its own wording, and it was never the same sentence.
+
 ## 1.7.2
 
 The High contrast theme is readable now. Every button in that theme was painted the accent yellow, including the ones that write their own words in white or grey: the "Forgot the PIN?" button, the theme pills, and the notes under each preset were yellow on yellow, which is the opposite of the one thing that theme exists to do. The yellow now stays on the buttons that are solidly an accent button, and the rest keep the fill they were designed with. The On/Off switch was the worst of them, because it says its own state in the accent colour, so it keeps a clear body and picks up an outline instead.
