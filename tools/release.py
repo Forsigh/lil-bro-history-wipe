@@ -266,6 +266,12 @@ def main():
                         say(line.strip()[:110])
                     break
                 say(f"{lang} probe attempt {attempt} failed, retrying" if attempt == 1 else "")
+                if attempt == 1:
+                    # Keep the reason. A retry that says nothing about why the first run
+                    # failed hides an intermittent defect behind a passing second run,
+                    # and this line is the only place it would ever have been visible.
+                    why = [l.strip() for l in done.stdout.strip().splitlines() if l.strip()]
+                    say(f"  it said: {' | '.join(l[:100] for l in why[-3:])}")
             else:
                 print(done.stdout[-2500:], done.stderr[-1500:])
                 die(f"the {lang} probe failed twice, so nothing was built")
