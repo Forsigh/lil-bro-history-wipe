@@ -1,8 +1,12 @@
 // Lil Bro Wipe: History Cleaner
 // Shared state helpers. Used by the service worker and every extension page.
 
-import { hasNestedQuantifier, REGEX_MAX_PATTERN } from './matcher.js';
+import { hasNestedQuantifier, normalizeDomain, REGEX_MAX_PATTERN } from './matcher.js';
 import { t } from './i18n.js';
+
+// One rule for what a domain is, and it lives with the matching code. Re-exported here
+// because every page already reaches for the state helpers.
+export { normalizeDomain };
 
 export const DEFAULT_SETTINGS = {
   enabled: true,
@@ -217,38 +221,10 @@ export const RULE_TYPES = {
   },
 };
 
-export const MODE_LABELS = {
-  get realtime() {
-    return t('modeLabelRealtime') || 'Instantly, as I browse';
-  },
-  get onclose() {
-    return t('modeLabelOnclose') || 'When I close the browser';
-  },
-  get startup() {
-    return t('modeLabelStartup') || 'When I start the browser';
-  },
-};
-
 export const SCHEMA_VERSION = 1;
 
 export function newId() {
   return 'r' + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4);
-}
-
-export function normalizeDomain(value) {
-  let v = String(value == null ? '' : value).trim().toLowerCase();
-  if (!v) return '';
-  if (v.includes('://')) {
-    try {
-      v = new URL(v).hostname;
-    } catch {
-      v = v.split('://')[1] || '';
-    }
-  }
-  v = v.split('/')[0].split('?')[0].split('#')[0].split(':')[0];
-  v = v.replace(/^\.+/, '').replace(/\.+$/, '');
-  if (v.startsWith('www.')) v = v.slice(4);
-  return v;
 }
 
 function canonUrlForRule(value) {
@@ -624,7 +600,4 @@ export function describeRule(rule) {
   }
 }
 
-export function describeMode(settings) {
-  if (!settings.enabled) return 'Paused';
-  return MODE_LABELS[settings.mode] || settings.mode;
-}
+

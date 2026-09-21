@@ -77,11 +77,6 @@ export function applyI18n(root = document) {
   }
 }
 
-/** The language the browser asks for, for a footer or a settings note. */
-export function uiLanguage() {
-  return browserLanguage();
-}
-
 /** The language the page is showing, for dates, times and numbers. */
 export function currentLang() {
   return current;

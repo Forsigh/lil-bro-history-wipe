@@ -563,15 +563,6 @@
   "sinceAll": {
     "message": "wszystko, niezależnie od wieku"
   },
-  "modeLabelRealtime": {
-    "message": "Od razu, w trakcie przeglądania"
-  },
-  "modeLabelOnclose": {
-    "message": "Gdy zamykam przeglądarkę"
-  },
-  "modeLabelStartup": {
-    "message": "Gdy startuję przeglądarkę"
-  },
   "errUnknownType": {
     "message": "Nieznany typ reguły."
   },

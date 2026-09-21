@@ -563,15 +563,6 @@
   "sinceAll": {
     "message": "everything, however old"
   },
-  "modeLabelRealtime": {
-    "message": "Instantly, as I browse"
-  },
-  "modeLabelOnclose": {
-    "message": "When I close the browser"
-  },
-  "modeLabelStartup": {
-    "message": "When I start the browser"
-  },
   "errUnknownType": {
     "message": "Unknown rule type."
   },
