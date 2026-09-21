@@ -146,11 +146,95 @@ export function itemMatchesRule(item, rule) {
   }
 }
 
-/** First matching rule wins. Returns the rule or null. */
-export function findMatch(item, rules) {
+/**
+ * Which of the item's two texts the rule landed in, and where in it. Kept honest by
+ * itemMatchesRule, which is asked first, so this can never disagree with it about
+ * whether something matched, only about where.
+ */
+function whereIn(url, title, rule) {
+  const value = rule.value;
+  if (rule.type === 'keyword') {
+    const inUrl = keywordAt(url, value, rule.wholeWord);
+    if (inUrl) return { field: 'url', word: value, at: inUrl.at };
+    const inTitle = keywordAt(title, value, rule.wholeWord);
+    if (inTitle) return { field: 'title', word: value, at: inTitle.at };
+    return { field: 'url', word: value, at: null };
+  }
+  if (rule.type === 'regex') {
+    const inUrl = regexAt(url, value);
+    if (inUrl) return { field: 'url', word: inUrl.word, at: inUrl.at };
+    const inTitle = regexAt(title, value);
+    if (inTitle) return { field: 'title', word: inTitle.word, at: inTitle.at };
+    return { field: 'url', word: value, at: null };
+  }
+  // A site rule and an address rule cover the whole address, so there is no one
+  // spot inside it that made them match.
+  return { field: 'url', word: value, at: null };
+}
+
+function keywordAt(text, keyword, wholeWord) {
+  const t = String(text || '');
+  const k = String(keyword || '');
+  if (!t || !k) return null;
+  const pattern = wholeWord
+    ? `(^|[^\\p{L}\\p{N}_])${escapeRegExp(k)}([^\\p{L}\\p{N}_]|$)`
+    : escapeRegExp(k);
+  try {
+    const m = new RegExp(pattern, 'iu').exec(t);
+    if (!m) return null;
+    // With the boundary groups in play the word starts after group 1.
+    return { at: m.index + (wholeWord ? (m[1] || '').length : 0) };
+  } catch {
+    return null;
+  }
+}
+
+function regexAt(text, source) {
+  const src = String(source == null ? '' : source);
+  if (!isRunnableRegex(src)) return null;
+  try {
+    const m = new RegExp(src, 'iu').exec(String(text || '').slice(0, REGEX_MAX_TEXT));
+    if (!m) return null;
+    return { at: m.index, word: m[0] || src };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * The text around a match, cut to something a person can take in at a glance.
+ * Addresses are routinely two kilobytes of token, and the word that matched sits
+ * somewhere inside with nothing to say where, so the log shows the neighbourhood.
+ */
+export function excerptAround(text, at, word, span = 26) {
+  const t = String(text || '');
+  if (!t) return '';
+  const len = String(word || '').length;
+  const start = at == null ? 0 : Math.max(0, at - span);
+  const end = at == null ? Math.min(t.length, span * 2) : Math.min(t.length, at + len + span);
+  let cut = t.slice(start, end).replace(/\s+/g, ' ').trim();
+  if (start > 0) cut = `…${cut}`;
+  if (end < t.length) cut = `${cut}…`;
+  return cut;
+}
+
+/**
+ * First matching rule wins, with the detail the log needs to explain itself.
+ * Returns { rule, field, word, at } or null.
+ */
+export function explainMatch(item, rules) {
   if (!isWipeableUrl(item && item.url)) return null;
+  const url = String((item && item.url) || '');
+  const title = String((item && item.title) || '');
   for (const rule of rules || []) {
-    if (itemMatchesRule(item, rule)) return rule;
+    if (!itemMatchesRule(item, rule)) continue;
+    return { rule, ...whereIn(url, title, rule) };
   }
   return null;
+}
+
+/** First matching rule wins. Returns the rule or null. */
+export function findMatch(item, rules) {
+  const hit = explainMatch(item, rules);
+  return hit ? hit.rule : null;
 }

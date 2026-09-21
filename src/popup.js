@@ -33,6 +33,7 @@ import {
   LOCKOUT_MS,
 } from './lock.js';
 import { findMatch, isWipeableUrl } from './matcher.js';
+import { whyLine, headline, hostLabel } from './logtext.js';
 import { applyI18n, setLang, t } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
@@ -462,13 +463,19 @@ function renderPreview(sample) {
   for (const item of sample.slice(0, 5)) {
     const div = document.createElement('div');
     div.className = 'logline';
-    const u = document.createElement('span');
-    u.className = 'u';
-    u.textContent = item.url;
-    const r = document.createElement('span');
-    r.className = 'r';
-    r.textContent = item.rule;
-    div.append(u, r);
+    const head = document.createElement('span');
+    head.className = 'h';
+    head.textContent = headline(item);
+    const why = document.createElement('span');
+    why.className = 'w';
+    why.textContent = whyLine(t, item);
+    const meta = document.createElement('span');
+    meta.className = 'm';
+    const host = document.createElement('span');
+    host.className = 'a';
+    host.textContent = hostLabel(item.url);
+    meta.append(host);
+    div.append(head, why, meta);
     list.appendChild(div);
   }
 }

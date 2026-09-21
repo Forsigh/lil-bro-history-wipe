@@ -404,6 +404,39 @@
   "optClearLog": {
     "message": "Wyczyść tę listę"
   },
+  "logFound": {
+    "message": "Znaleziono „$1”"
+  },
+  "logWordInAddress": {
+    "message": "słowo „$1” w adresie"
+  },
+  "logWordInTitle": {
+    "message": "słowo „$1” w tytule strony"
+  },
+  "logPatternInAddress": {
+    "message": "wzorzec „$1” w adresie"
+  },
+  "logPatternInTitle": {
+    "message": "wzorzec „$1” w tytule strony"
+  },
+  "logSite": {
+    "message": "strona „$1”"
+  },
+  "logAddressStarts": {
+    "message": "adres zaczyna się od „$1”"
+  },
+  "logKeepList": {
+    "message": "nie ma go na liście zachowanych"
+  },
+  "logWipeAll": {
+    "message": "wszystko, na twoje polecenie"
+  },
+  "logExtras": {
+    "message": "dodatkowe dane, o które prosisz"
+  },
+  "logCookies": {
+    "message": "ciasteczka tej strony, przy zamknięciu karty"
+  },
   "optRulesFile": {
     "message": "Twoja lista w pliku"
   },

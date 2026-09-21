@@ -22,6 +22,7 @@ import {
 } from './store.js';
 import { applyI18n, currentLang, setLang, t } from './i18n.js';
 import { findMatch } from './matcher.js';
+import { whyLine, headline, hostLabel, shorten } from './logtext.js';
 import {
   doubleConfirm,
   singleConfirm,
@@ -326,6 +327,11 @@ function renderStats() {
     state.settings.mode === 'realtime' ? '' : t('queueLine', [String(queued), when]) || `${queued} queued, wiped ${when}.`;
 }
 
+/**
+ * What was cleaned, said the way a person reads it: the page title first, then the
+ * reason in words, then when it happened and where. Entries written by an older build
+ * have only the rule string, so they still show that rather than nothing.
+ */
 function renderLog() {
   const list = $('logList');
   list.innerHTML = '';
@@ -335,16 +341,30 @@ function renderLog() {
   for (const e of entries.slice(0, 50)) {
     const row = document.createElement('div');
     row.className = 'logline';
-    const u = document.createElement('span');
-    u.className = 'u';
-    u.textContent = e.url;
-    const r = document.createElement('span');
-    r.className = 'r';
-    r.textContent = e.rule || '';
-    const t = document.createElement('span');
-    t.className = 'mini';
-    t.textContent = fmtWhen(e.at);
-    row.append(u, r, t);
+
+    const head = document.createElement('span');
+    head.className = 'h';
+    const named = headline(e);
+    head.textContent = named ? t('logFound', [named]) || `Found “${named}”` : '';
+    head.title = [e.title, e.url].filter(Boolean).join('\n');
+
+    const why = document.createElement('span');
+    why.className = 'w';
+    why.textContent = whyLine(t, e);
+
+    const meta = document.createElement('span');
+    meta.className = 'm';
+    const when = document.createElement('span');
+    when.textContent = fmtWhen(e.at);
+    const host = document.createElement('span');
+    host.className = 'a';
+    host.textContent = hostLabel(e.url);
+    const detail = document.createElement('code');
+    detail.textContent = e.excerpt || shorten(e.url, 72);
+    detail.title = e.url;
+    meta.append(when, host, detail);
+
+    row.append(head, why, meta);
     list.appendChild(row);
   }
 }
@@ -776,13 +796,19 @@ function renderPreview(sample) {
   for (const item of sample) {
     const row = document.createElement('div');
     row.className = 'logline';
-    const u = document.createElement('span');
-    u.className = 'u';
-    u.textContent = item.url;
-    const r = document.createElement('span');
-    r.className = 'r';
-    r.textContent = item.rule;
-    row.append(u, r);
+    const title = document.createElement('span');
+    title.className = 'h';
+    title.textContent = headline(item);
+    const why = document.createElement('span');
+    why.className = 'w';
+    why.textContent = whyLine(t, item);
+    const meta = document.createElement('span');
+    meta.className = 'm';
+    const host = document.createElement('span');
+    host.className = 'a';
+    host.textContent = hostLabel(item.url);
+    meta.append(host);
+    row.append(title, why, meta);
     list.appendChild(row);
   }
 }

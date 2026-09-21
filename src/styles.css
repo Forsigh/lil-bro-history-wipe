@@ -781,27 +781,49 @@ td.value {
   background: var(--accent-soft);
 }
 
+/* A log row is read, not scanned: the page title first, then why it went, then when
+   and from where. An address is often two kilobytes of token with the matching
+   letters in the middle, so it is shown as the neighbourhood around the match. */
 .logline {
-  padding: 8px 0;
+  padding: 9px 0;
   border-top: 1px solid var(--line);
   font-size: 13px;
-  display: flex;
-  gap: 10px;
-  align-items: baseline;
+  display: grid;
+  gap: 2px;
 }
 
-.logline .u {
-  flex: 1 1 auto;
-  word-break: break-all;
-  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
-  font-size: 12px;
-  color: var(--muted);
+.logline .h {
+  color: var(--text);
+  overflow-wrap: anywhere;
 }
 
-.logline .r {
+.logline .w {
   color: var(--accent);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.logline .m {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  color: var(--muted);
+  font-size: 12px;
+  min-width: 0;
+}
+
+.logline .m .a {
   white-space: nowrap;
-  font-weight: 560;
+}
+
+.logline .m code {
+  font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+  font-size: 11px;
+  color: var(--muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 /* --- status dots, pills, counters --------------------------------------- */

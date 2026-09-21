@@ -1323,5 +1323,52 @@ function check(label, fn) {
     assert.equal(noPerm.db.cookieRemovals.length, 0));
 }
 
+// ---------------------------------------------------------------------------
+// 12. the log explains itself: which text matched, which word, and where in it
+// ---------------------------------------------------------------------------
+{
+  const tokenUrl = 'https://news.example/watch?v=' + 'x'.repeat(180) + 'Gay' + 'y'.repeat(180);
+  const f = makeFakeChrome([]);
+  f.store.local.rules = [{ id: 'r1', type: 'keyword', value: 'gay', enabled: true }];
+  f.store.local.settings = { mode: 'realtime', sweepExistingOnStartup: false, notifyOnWipe: false };
+  await boot(f.chrome, f.store);
+
+  f.listeners.onVisited[0]({
+    url: tokenUrl,
+    title: '2 Gay Guys dancing in the kitchen - Video',
+    lastVisitTime: Date.now(),
+  });
+  await waitFor('keyword wipe', () => f.db.deleted.includes(tokenUrl));
+
+  const entry = () => f.store.local.log[0];
+  check('log: the page title is kept, so the row reads as something', () =>
+    assert.equal(entry().title, '2 Gay Guys dancing in the kitchen - Video'));
+  check('log: the reason says which word', () => assert.equal(entry().word, 'gay'));
+  check('log: the reason says which of the two texts it was in', () =>
+    assert.equal(entry().why, 'word-url'));
+  check('log: the excerpt shows the word in its neighbourhood', () =>
+    assert.ok(entry().excerpt.includes('Gay')));
+  check('log: the excerpt is a neighbourhood, not the address', () =>
+    assert.ok(entry().excerpt.length < 90));
+  check('log: the excerpt says it was cut', () =>
+    assert.ok(entry().excerpt.startsWith('…') && entry().excerpt.endsWith('…')));
+  check('log: the whole address is still stored, so nothing is lost', () =>
+    assert.equal(entry().url, tokenUrl));
+
+  // A site rule covers the whole address, so there is no single spot to point at.
+  const site = makeFakeChrome([]);
+  site.store.local.rules = [{ id: 'r2', type: 'domain', value: 'example.com', enabled: true }];
+  site.store.local.settings = { mode: 'realtime', sweepExistingOnStartup: false, notifyOnWipe: false };
+  await boot(site.chrome, site.store);
+  site.listeners.onVisited[0]({ url: 'https://example.com/a', title: 'Example', lastVisitTime: Date.now() });
+  await waitFor('site wipe', () => site.db.deleted.includes('https://example.com/a'));
+  check('log: a site rule says so and names the site', () =>
+    assert.equal(site.store.local.log[0].why, 'site'));
+  check('log: a site rule points at no spot inside the address', () =>
+    assert.equal(site.store.local.log[0].excerpt, ''));
+  check('log: the rule string is still written for anything else reading it', () =>
+    assert.equal(site.store.local.log[0].rule, 'example.com'));
+}
+
 console.log(`\nworker: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

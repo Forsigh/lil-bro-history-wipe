@@ -1,6 +1,8 @@
 // Unit tests for the matching engine: node tests/matcher.test.mjs
 import {
   findMatch,
+  explainMatch,
+  excerptAround,
   hostMatches,
   urlMatches,
   keywordMatches,
@@ -128,6 +130,67 @@ console.log('regex input truncation');
 const longTail = 'x'.repeat(REGEX_MAX_TEXT) + 'needle';
 ok('match beyond the cap is not seen', findMatch({ url: 'https://ok.example/', title: longTail }, [regex('needle')]), null);
 ok('match inside the cap is seen', !!findMatch({ url: 'https://ok.example/', title: 'x'.repeat(20) + 'needle' }, [regex('needle')]), true);
+
+console.log('why an entry went: which text, which word, and where in it');
+
+// A URL of the kind that made the log unreadable: two kilobytes of token with the
+// matching letters somewhere inside.
+const tokenUrl = 'https://nordaccount.com/oauth2/initiate?challenge=' + 'N'.repeat(180) + 'zDgaY_krxd6DvgF' + 'Q'.repeat(180);
+const inToken = explainMatch({ url: tokenUrl, title: 'Sign in' }, [keyword('gay')]);
+ok('a word buried in a token is still reported', !!inToken, true);
+ok('and it says the address is where it landed', inToken.field, 'url');
+ok('the letters at that spot really are the word', tokenUrl.slice(inToken.at, inToken.at + 3), 'gaY');
+
+ok('a word only in the title says title',
+  explainMatch({ url: 'https://x.example/a', title: 'two gay guys dancing' }, [keyword('gay')]).field, 'title');
+ok('when both hold it, the address is named',
+  explainMatch({ url: 'https://x.example/gay', title: 'gay' }, [keyword('gay')]).field, 'url');
+ok('the word reported is the rule value, not the letters found',
+  explainMatch({ url: 'https://x.example/GAY', title: '' }, [keyword('gay')]).word, 'gay');
+
+// Whole word: the index has to account for the boundary group in front of the match.
+const whole = explainMatch({ url: 'https://x.example/a', title: 'buy shoes now' }, [keyword('shoes', true)]);
+ok('whole word: the index points at the word itself', whole.at, 4);
+ok('whole word: no partial hit means no explanation', explainMatch({ url: 'https://shoeshine.example/', title: '' }, [keyword('shoes', true)]), null);
+
+// Rules that cover a whole address have no one spot in it that made them match.
+const site = explainMatch({ url: 'https://example.com/a', title: 'Example' }, [domain('example.com')]);
+ok('a site rule has no spot to point at', site.at, null);
+ok('and it carries the site', site.word, 'example.com');
+ok('an address rule carries the prefix', explainMatch({ url: 'https://example.com/private/1', title: '' }, [url('https://example.com/private')]).word, 'https://example.com/private');
+const pat = explainMatch({ url: 'https://x.example/', title: 'Hello World' }, [regex('World')]);
+ok('a pattern reports the text it matched', pat.word, 'World');
+ok('and which text that was in', pat.field, 'title');
+
+ok('a chrome:// page explains nothing', explainMatch({ url: 'chrome://settings', title: 'gay' }, [keyword('gay')]), null);
+
+// The neighbourhood, which is what a row shows instead of the address.
+const cut = excerptAround(tokenUrl, inToken.at, 'gay');
+ok('the excerpt contains the word', cut.toLowerCase().includes('gay'), true);
+ok('it is a neighbourhood, not the address', cut.length < 90, true);
+ok('it marks both cuts', cut.startsWith('…') && cut.endsWith('…'), true);
+console.log(`    the row would read: ${cut}`);
+ok('a short text is not decorated', excerptAround('cheap shoes', 6, 'shoes'), 'cheap shoes');
+ok('an excerpt from the start has one cut only', excerptAround('shoes and more', 0, 'shoes').startsWith('…'), false);
+
+// The property the log depends on: the explanation never disagrees with the decision.
+const items = [
+  { url: 'https://nordaccount.com/x?c=' + 'a'.repeat(50) + 'gay', title: 'Sign in' },
+  { url: 'https://ok.example/p', title: 'two gay guys dancing' },
+  { url: 'https://shoeshine.example/', title: '' },
+  { url: 'chrome://settings', title: 'gay' },
+  { url: 'https://example.com/private/1', title: '' },
+  { url: 'https://translate.google.com/?text=hi', title: '' },
+];
+const rules = [keyword('gay'), keyword('shoes', true), domain('example.com'), url('https://example.com/private'), regex('^https://translate\\.google\\.[^/]+/')];
+for (const rule of rules) {
+  for (const item of items) {
+    const decided = findMatch(item, [rule]);
+    const explained = explainMatch(item, [rule]);
+    ok(`agrees with itself for ${rule.type} on ${item.url.slice(0, 28)}`,
+      String(decided && decided.id) === String(explained && explained.rule.id), true);
+  }
+}
 
 console.log(`\nmatcher: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

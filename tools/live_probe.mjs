@@ -1279,6 +1279,46 @@ try {
       `${rowFit.tiles} tiles as ${rowFit.lines.join('+')} per line, container ${rowFit.clientWidth}px, display:${rowFit.display}, cols:${rowFit.columns}, widths:${rowFit.widths}, tops:${rowFit.tops}`);
     await closePage(shotOptions.id);
 
+    // A log row is read by a person, so what one says is checked in the real page: the
+    // page title first, then the reason in words, then the bit of the address around the
+    // match rather than the whole two-kilobyte token it sits in. This runs before the
+    // lock below, because a locked page shows no log at all, by design.
+    const tokenUrl = 'https://nordaccount.com/oauth2/initiate?challenge=' + 'N'.repeat(120) + 'zDgaY_krxd6DvgF' + 'Q'.repeat(120);
+    const seeded = await openPage(`chrome-extension://${id}/src/options.html`);
+    await seeded.evaluate(`(async()=>{
+      const at = Date.now();
+      await chrome.storage.local.set({ log: [
+        { url: ${JSON.stringify(tokenUrl)}, title: '2 Gay Guys dancing in the kitchen - Video', rule: 'keyword "gay"',
+          why: 'word-url', word: 'gay', excerpt: '…zDgaY_krxd6DvgF…', at },
+        { url: 'https://news.example/watch', title: '', rule: 'keyword "gay"',
+          why: 'word-title', word: 'gay', excerpt: '', at: at - 1000 },
+        { url: 'https://old.example/x', title: 'An older row', rule: 'example.com', at: at - 2000 }
+      ] });
+      return true;
+    })()`);
+    await closePage(seeded.id);
+    // A fresh page rather than a reload in place: navigating while an evaluate is
+    // pending loses its result.
+    const logPage = await openPage(`chrome-extension://${id}/src/options.html`);
+    await sleep(500);
+    const rows = await logPage.evaluate(`(() => [...document.querySelectorAll('#logList .logline')].map((r) => ({
+      head: (r.querySelector('.h') || {}).textContent || '',
+      why: (r.querySelector('.w') || {}).textContent || '',
+      meta: (r.querySelector('.m') || {}).innerText || ''
+    })))()`);
+    const row = (i) => rows[i] || { head: '', why: '', meta: '' };
+    record('a log row leads with what the page was called',
+      /2 Gay Guys dancing/.test(row(0).head), `${row(0).head}`);
+    record('a log row says which word, and which of the two texts held it',
+      /gay/i.test(row(0).why) && /address|adres/i.test(row(0).why), `${row(0).why}`);
+    record('a log row shows the neighbourhood of the match, not the whole address',
+      /zDgaY/.test(row(0).meta) && !/N{20}/.test(row(0).why), `${row(0).meta.slice(0, 90)}`);
+    record('a row with no page title falls back to the site',
+      /news\.example/.test(row(1).head), `${row(1).head}`);
+    record('a row written by an older build still says something',
+      /example\.com/.test(row(2).why), `${row(2).why}`);
+    await closePage(logPage.id);
+
     // The same options page with a PIN set, which is what the lock looks like.
     await ev(`(async()=>{
       const hex=(b)=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');

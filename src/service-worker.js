@@ -1,7 +1,7 @@
 // Lil Bro Wipe: History Cleaner
 // Service worker. The only place that deletes anything.
 
-import { findMatch, isWipeableUrl } from './matcher.js';
+import { explainMatch, excerptAround, isWipeableUrl } from './matcher.js';
 import {
   getState,
   saveState,
@@ -111,7 +111,7 @@ async function clearExtra(phase) {
   }
 
   await pushLog([
-    { url: '(extra data)', title: kinds, rule: 'extra clear', at: Date.now(), phase },
+    { url: '(extra data)', title: kinds, rule: 'extra clear', why: 'extras', at: Date.now(), phase },
   ]);
   return { ok: true, kinds, since: settings.extraSince, took: Date.now() - started };
 }
@@ -253,6 +253,7 @@ async function onTabClosed(tabId) {
         url: host,
         title: `${res.removed} cookie${res.removed === 1 ? '' : 's'} cleared`,
         rule: 'cookie keep list',
+        why: 'cookies',
         at: Date.now(),
         phase: 'tab close',
       },
@@ -310,14 +311,36 @@ const KEEP_LIST_RULE = { type: 'domain', value: 'not on your keep list', include
  */
 function decideWipe(item, live, allow) {
   if (!isWipeableUrl(item && item.url)) return null;
-  const hit = findMatch(item, live);
+  const hit = explainMatch(item, live);
   if (!allow) return hit;
   if (!live.length || hit) return null;
-  return KEEP_LIST_RULE;
+  // Keep mode wipes what is not on the list, so there is no rule and no word that
+  // did it: the reason is the absence itself.
+  return { rule: KEEP_LIST_RULE, field: 'url', word: '', at: null };
 }
 
 /**
- * Delete already-matched items. targets: [{ url, title, rule }]
+ * The reason in the shape the log displays it: a code the pages translate, the word
+ * or value that was involved, and, when the match was somewhere inside an address,
+ * the bit of it around the match. An address is often two kilobytes of token with
+ * the matching letters in the middle, and nobody can read that.
+ */
+function describeWhy(url, title, hit) {
+  if (!hit) return { why: '', word: '', excerpt: '' };
+  const field = hit.field === 'title' ? 'title' : 'url';
+  const word = String(hit.word || '');
+  let code;
+  if (hit.rule === KEEP_LIST_RULE) code = 'keep-list';
+  else if (hit.rule && hit.rule.type === 'keyword') code = `word-${field}`;
+  else if (hit.rule && hit.rule.type === 'regex') code = `pattern-${field}`;
+  else if (hit.rule && hit.rule.type === 'domain') code = 'site';
+  else code = 'address';
+  const excerpt = field === 'url' && hit.at != null ? excerptAround(url, hit.at, word) : '';
+  return { why: code, word, excerpt };
+}
+
+/**
+ * Delete already-matched items. targets: [{ url, title, hit?, rule?, why? }]
  * Returns the number actually deleted.
  */
 async function wipeTargets(targets, phase) {
@@ -331,10 +354,19 @@ async function wipeTargets(targets, phase) {
         // deleteUrl needs the URL exactly as history.search() returned it.
         await chrome.history.deleteUrl({ url: t.url });
         deleted++;
+        const why = t.why
+          ? { why: t.why, word: t.word || '', excerpt: t.excerpt || '' }
+          : describeWhy(t.url, t.title || '', t.hit);
+        // A target from the live paths carries the rule object; one from the queue
+        // carries the sentence that was already written for it.
+        const ruleText = typeof t.rule === 'string' ? t.rule : describeRule(t.hit ? t.hit.rule : t.rule);
         logEntries.push({
           url: t.url,
           title: t.title || '',
-          rule: describeRule(t.rule),
+          rule: ruleText,
+          why: why.why,
+          word: why.word,
+          excerpt: why.excerpt,
           at: Date.now(),
           phase,
         });
@@ -398,13 +430,18 @@ async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dry
       const t = item.lastVisitTime || 0;
       if (t && (oldest === null || t < oldest)) oldest = t;
       if (!isWipeableUrl(item.url)) continue;
-      const rule = decideWipe(item, rules, allow);
-      if (!rule) continue;
+      const hit = decideWipe(item, rules, allow);
+      if (!hit) continue;
       matched++;
       if (sample.length < PREVIEW_SAMPLE) {
-        sample.push({ url: item.url, title: item.title || '', rule: describeRule(rule) });
+        sample.push({
+          url: item.url,
+          title: item.title || '',
+          rule: describeRule(hit.rule),
+          ...describeWhy(item.url, item.title || '', hit),
+        });
       }
-      targets.push({ url: item.url, title: item.title || '', rule });
+      targets.push({ url: item.url, title: item.title || '', hit });
     }
 
     if (!dryRun) deleted += await wipeTargets(targets, phase);
@@ -473,7 +510,7 @@ async function wipeEverything(phase) {
     return { deleted: 0 };
   }
   await pushLog([
-    { url: '(entire history)', title: '', rule: 'wipe all history', at: Date.now(), phase },
+    { url: '(entire history)', title: '', rule: 'wipe all history', why: 'wipe-all', at: Date.now(), phase },
   ]);
   await withLock(async () => saveState({ pending: [] }));
   return { deleted: counted };
@@ -483,7 +520,7 @@ async function wipeEverything(phase) {
 // deferred queue (used by "when I close" / "when I start")
 // ---------------------------------------------------------------------------
 
-async function queuePending(item, rule) {
+async function queuePending(item, hit) {
   return withLock(async () => {
     const { pending } = await getState();
     if (pending.length >= PENDING_CAP) return;
@@ -491,7 +528,9 @@ async function queuePending(item, rule) {
     pending.push({
       url: item.url,
       title: item.title || '',
-      rule: describeRule(rule),
+      rule: describeRule(hit && hit.rule ? hit.rule : hit),
+      // Kept so the log row can still say what happened and where, hours later.
+      ...describeWhy(item.url, item.title || '', hit),
       at: Date.now(),
     });
     await saveState({ pending });
@@ -504,7 +543,10 @@ async function flushPending(phase) {
   const targets = pending.map((p) => ({
     url: p.url,
     title: p.title,
-    rule: { type: 'domain', value: p.rule, includeSubdomains: false },
+    rule: p.rule,
+    why: p.why,
+    word: p.word,
+    excerpt: p.excerpt,
   }));
   const deleted = await wipeTargets(targets, phase);
 
@@ -602,7 +644,7 @@ async function handleVisit(item) {
   if (settings.wipeAllHistory) {
     if (settings.mode !== 'realtime') return;
     const deleted = await wipeTargets(
-      [{ url: item.url, title: item.title || '', rule: WIPE_ALL_RULE }],
+      [{ url: item.url, title: item.title || '', rule: WIPE_ALL_RULE, why: 'wipe-all' }],
       'realtime'
     );
     if (deleted) await bumpStats(deleted, 'realtime');
@@ -610,19 +652,19 @@ async function handleVisit(item) {
   }
 
   const live = activeRules(rules);
-  const rule = decideWipe(item, live, isKeepMode(settings));
-  if (!rule) return;
+  const hit = decideWipe(item, live, isKeepMode(settings));
+  if (!hit) return;
 
   if (settings.mode === 'realtime') {
     const deleted = await wipeTargets(
-      [{ url: item.url, title: item.title || '', rule }],
+      [{ url: item.url, title: item.title || '', hit }],
       'realtime'
     );
     if (deleted) await bumpStats(deleted, 'realtime');
     return;
   }
 
-  await queuePending(item, rule);
+  await queuePending(item, hit);
 }
 
 chrome.history.onVisited.addListener((item) => {

@@ -404,6 +404,39 @@
   "optClearLog": {
     "message": "Clear this list"
   },
+  "logFound": {
+    "message": "Found “$1”"
+  },
+  "logWordInAddress": {
+    "message": "word “$1” in the address"
+  },
+  "logWordInTitle": {
+    "message": "word “$1” in the page title"
+  },
+  "logPatternInAddress": {
+    "message": "pattern “$1” in the address"
+  },
+  "logPatternInTitle": {
+    "message": "pattern “$1” in the page title"
+  },
+  "logSite": {
+    "message": "site “$1”"
+  },
+  "logAddressStarts": {
+    "message": "address starts with “$1”"
+  },
+  "logKeepList": {
+    "message": "not on your keep list"
+  },
+  "logWipeAll": {
+    "message": "everything, on your order"
+  },
+  "logExtras": {
+    "message": "extra browsing data you asked to clear"
+  },
+  "logCookies": {
+    "message": "cookies for this site, on tab close"
+  },
   "optRulesFile": {
     "message": "Your list as a file"
   },
