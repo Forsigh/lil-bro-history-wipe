@@ -3,6 +3,9 @@
 # Lil Bro Wipe – History Cleaner
 
 [![tests](https://github.com/Forsigh/lil-bro-history-wipe/actions/workflows/tests.yml/badge.svg)](https://github.com/Forsigh/lil-bro-history-wipe/actions/workflows/tests.yml)
+[![Get it on the Chrome Web Store](https://img.shields.io/badge/Chrome%20Web%20Store-get%20it-4285F4?logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/lil-bro-history-wipe/fbdfjomihgegaemjljbcmmdmgmadlebg)
+[![Open an issue](https://img.shields.io/badge/Open%20an%20issue-%23121011?logo=github&logoColor=white)](https://github.com/Forsigh/lil-bro-history-wipe/issues/new)
+[![Buy me a coffee](https://img.shields.io/badge/Buy%20me%20a%20coffee-support%20the%20work-ffdd00?logo=buymeacoffee&logoColor=black)](https://buymeacoffee.com/forsigh)
 
 Keeps the sites and words you choose out of your browsing history, in any Chromium browser. No
 account, no server, nothing sent anywhere.
