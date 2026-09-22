@@ -2,6 +2,10 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.7.7
+
+Escape closes the delete confirmation now instead of leaving you sitting in it, and the focus goes back to the button you came from. The stylesheet lost a set of rules that had been written twice and a button style nothing used, 46 lines gone in total. The test suite also learned to check that every control on the popup and the settings page is a real button, so a future edit cannot leave one of them keyboard-unreachable.
+
 ## 1.7.6
 
 Press Alt+Shift+W on any page to take that site out of your history right then, without opening
