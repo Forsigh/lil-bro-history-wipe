@@ -350,6 +350,7 @@ export function parseExport(text) {
       value: raw.value,
       includeSubdomains: !!raw.includeSubdomains,
       wholeWord: !!raw.wholeWord,
+      exempt: !!raw.exempt,
     });
     if (result.ok) {
       result.rule.enabled = raw.enabled !== false;

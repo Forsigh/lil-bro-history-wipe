@@ -1030,5 +1030,8 @@
   },
   "glanceTotal": {
     "message": "$1 poza historią"
+  },
+  "notifyKept": {
+    "message": "Zostawione: $1 jest na liście „nie usuwaj”."
   }
 }

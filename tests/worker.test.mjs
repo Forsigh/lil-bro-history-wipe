@@ -76,11 +76,13 @@ function makeFakeChrome(seed = [], opts = {}) {
     history: {
       async search({ startTime = 0, endTime = Number.MAX_SAFE_INTEGER, maxResults = 100 } = {}) {
         db.searchCalls.push({ startTime, endTime, maxResults });
-        return db.items
+        const matched = db.items
           .filter((i) => (i.lastVisitTime || 0) >= startTime && (i.lastVisitTime || 0) <= endTime)
-          .sort((a, b) => (b.lastVisitTime || 0) - (a.lastVisitTime || 0))
-          .slice(0, maxResults)
-          .map((i) => ({ ...i }));
+          .sort((a, b) => (b.lastVisitTime || 0) - (a.lastVisitTime || 0));
+        // Chrome reads maxResults 0 as "no limit", which is how the engine asks for
+        // everything. Returning an empty list there would be a fake that lies.
+        const capped = maxResults > 0 ? matched.slice(0, maxResults) : matched;
+        return capped.map((i) => ({ ...i }));
       },
       async deleteUrl({ url }) {
         // Real chrome.history.deleteUrl removes every visit to that URL and does
@@ -689,6 +691,47 @@ function check(label, fn) {
 {
   const { DEFAULT_SETTINGS } = await import('../src/store.js');
   check('wipe-all: off by default', () => assert.equal(DEFAULT_SETTINGS.wipeAllHistory, false));
+
+// A never-delete rule has to hold on the paths that do not ask the matcher.
+{
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://keep.example/one', title: 'one', lastVisitTime: NOW },
+    { id: 'b', url: 'https://keep.example/two', title: 'two', lastVisitTime: NOW },
+    { id: 'c', url: 'https://gone.example/x', title: 'x', lastVisitTime: NOW },
+  ]);
+  f.store.local.rules = [
+    { id: 'k', type: 'domain', value: 'keep.example', enabled: true, exempt: true },
+    { id: 'w', type: 'domain', value: 'gone.example', enabled: true },
+  ];
+  f.store.local.settings = { ...DEFAULT_SETTINGS, mode: 'manual', notifyOnWipe: false, wipeAllHistory: true };
+
+  await boot(f.chrome, f.store);
+  await new Promise((r) => f.listeners.onMessage[0]({ type: 'wipeNow' }, {}, r));
+
+  check('wipe-all leaves the never-delete site standing', () =>
+    assert.deepEqual(
+      f.db.items.map((i) => i.url),
+      ['https://keep.example/one', 'https://keep.example/two']
+    ));
+  check('and it does not reach for deleteAll at all', () => assert.equal(f.db.calls.deleteAll, 0));
+}
+
+{
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://keep.example/one', title: 'one', lastVisitTime: NOW },
+  ]);
+  f.store.local.rules = [
+    { id: 'k', type: 'domain', value: 'keep.example', enabled: true, exempt: true },
+  ];
+  f.store.local.settings = { ...DEFAULT_SETTINGS, notifyOnWipe: false };
+
+  await boot(f.chrome, f.store);
+  const out = await new Promise((r) =>
+    f.listeners.onMessage[0]({ type: 'wipeSiteNow', url: 'https://keep.example/one' }, {}, r));
+
+  check('the shortcut on the site reports it was kept', () => assert.equal(out.kept, true));
+  check('and the entry is still in history', () => assert.equal(f.db.items.length, 1));
+}
 
   const start = [
     { id: 'w1', url: 'https://one.example/a', title: 'a', lastVisitTime: NOW, visitCount: 1 },

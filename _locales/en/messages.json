@@ -1030,5 +1030,8 @@
   },
   "glanceTotal": {
     "message": "$1 kept out"
+  },
+  "notifyKept": {
+    "message": "Kept: $1 is on your never-delete list."
   }
 }

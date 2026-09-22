@@ -1,7 +1,7 @@
 // Lil Bro Wipe: History Cleaner
 // Service worker. The only place that deletes anything.
 
-import { explainMatch, excerptAround, isWipeableUrl, rankUncovered } from './matcher.js';
+import { explainMatch, explainExempt, excerptAround, isWipeableUrl, rankUncovered } from './matcher.js';
 import { t, setLang, currentLang } from './i18n.js';
 import {
   getState,
@@ -596,11 +596,50 @@ async function countHistory(budgetMs = SWEEP_TIME_BUDGET_MS) {
   return count;
 }
 
+/** The rules that mean never delete, switched on. An exemption is a promise, so the
+ *  paths that do not go through the matcher ask this first. */
+async function activeKeeps() {
+  const { rules } = await getState();
+  return (rules || []).filter((rule) => rule && rule.exempt === true && rule.enabled !== false);
+}
+
 /**
  * Erase the entire history database. Only reachable when the user has switched on
  * the "wipe all history" toggle, never from the rule engine.
+ *
+ * With a never-delete rule in the list, "everything" cannot mean "including the sites
+ * you told it not to touch", and one blanket erase cannot tell one site from another.
+ * So it walks the URLs the same way the rules do instead of dropping the promise.
  */
 async function wipeEverything(phase) {
+  const kept = await activeKeeps();
+  if (kept.length) {
+    const all = await chrome.history.search({ text: '', startTime: 0, maxResults: 0 });
+    let deleted = 0;
+    for (const item of all) {
+      if (!isWipeableUrl(item.url)) continue;
+      if (explainExempt(item, kept)) continue;
+      try {
+        await chrome.history.deleteUrl({ url: item.url });
+        deleted += 1;
+      } catch (e) {
+        log('deleteUrl failed', item.url, e);
+      }
+    }
+    await pushLog([
+      {
+        url: '(entire history, except sites you never delete)',
+        title: '',
+        rule: 'wipe all history',
+        why: 'wipe-all-except',
+        at: Date.now(),
+        phase,
+      },
+    ]);
+    await withLock(async () => saveState({ pending: [] }));
+    return { deleted };
+  }
+
   const counted = await countHistory();
   try {
     await chrome.history.deleteAll();
@@ -917,7 +956,18 @@ async function wipeSiteNow(url) {
   const site = normalizeDomain(url || '');
   if (!site) return { ok: false, error: t('errNoSite') || 'No site to wipe.' };
   const found = await chrome.history.search({ text: site, startTime: 0, maxResults: 0 });
-  const targets = found.filter((entry) => entry.url && normalizeDomain(entry.url) === site);
+  const onSite = found.filter((entry) => entry.url && normalizeDomain(entry.url) === site);
+  const kept = await activeKeeps();
+  const targets = onSite.filter((entry) => !explainExempt(entry, kept));
+  if (!targets.length && onSite.length && kept.length) {
+    try {
+      await tell(t('notifyKept', [site]));
+    } catch (e) {
+      log('could not tell about the kept site', e);
+    }
+    log('kept by a never-delete rule:', site, onSite.length, 'entries');
+    return { ok: true, wiped: 0, kept: true };
+  }
   let wiped = 0;
   for (const entry of targets) {
     try {
