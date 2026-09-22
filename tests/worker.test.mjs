@@ -1370,5 +1370,34 @@ function check(label, fn) {
     assert.equal(site.store.local.log[0].rule, 'example.com'));
 }
 
+// ---------------------------------------------------------------------------
+// the suggestions: what you visit and no rule covers
+// ---------------------------------------------------------------------------
+{
+  const g = makeFakeChrome([
+    { id: 'a', url: 'https://covered.example/x', title: 'x', visitCount: 80, lastVisitTime: NOW },
+    { id: 'b', url: 'https://busy.example/a', title: 'a', visitCount: 30, lastVisitTime: NOW - 1000 },
+    { id: 'c', url: 'https://www.busy.example/b', title: 'b', visitCount: 20, lastVisitTime: NOW - 2000 },
+    { id: 'd', url: 'https://quiet.example/c', title: 'c', visitCount: 2, lastVisitTime: NOW - 3000 },
+  ]);
+  g.store.local.rules = [{ id: 'r1', type: 'domain', value: 'covered.example', includeSubdomains: true, enabled: true }];
+  g.store.local.settings = { mode: 'realtime', sweepExistingOnStartup: false, notifyOnWipe: false };
+  await boot(g.chrome, g.store);
+
+  const got = await new Promise((r) => g.listeners.onMessage[0]({ type: 'insights' }, {}, r));
+  check('the suggestions come back okay', () => assert.equal(got.ok, true));
+  check('a covered site is never suggested back, however busy it is', () =>
+    assert.equal(got.items.some((x) => x.host === 'covered.example'), false));
+  check('the busiest uncovered site is first', () => assert.equal(got.items[0].host, 'busy.example'));
+  check('www and the bare host are added up together', () => assert.equal(got.items[0].visits, 50));
+  check('the ranking follows how often, not how recent', () =>
+    assert.deepEqual(got.items.map((x) => x.host), ['busy.example', 'quiet.example']));
+  check('the read says how much it looked at', () => assert.equal(got.scanned, 4));
+  check('and the read leaves nothing behind in storage', () =>
+    assert.equal(g.store.local.insights, undefined));
+  check('the listener keeps the channel open', () =>
+    assert.equal(g.listeners.onMessage[0]({ type: 'insights' }, {}, () => {}), true));
+}
+
 console.log(`\nworker: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

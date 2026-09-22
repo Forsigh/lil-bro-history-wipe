@@ -271,9 +271,10 @@ if (!storeSrc.includes('extraSinceMs')) {
 }
 console.log('  extra clear: four kinds off by default, manual trigger, one funnel, no passwords');
 
-// Every destructive surface must go through the confirmation gates. Each page has
-// exactly two sendMessage call sites now: the wipe funnel, and the extra clear
-// with its own confirmation.
+// Every destructive surface must go through the confirmation gates. Each page has a
+// fixed number of sendMessage call sites. In options: the wipe funnel, the extra clear
+// with its own confirmation, the manual cookie clear, and the suggestions read, which
+// only reads and deletes nothing. A new destructive path still trips this count.
 const optionsSrc = readFileSync(join(root, 'src/options.js'), 'utf8');
 const popupSrc = readFileSync(join(root, 'src/popup.js'), 'utf8');
 
@@ -296,11 +297,17 @@ for (const [file, src, needed] of [
     }
   }
   const sends = (src.match(/chrome\.runtime\.sendMessage\(/g) || []).length;
-  const expected = file === 'src/options.js' ? 3 : 2;
+  const expected = file === 'src/options.js' ? 4 : 2;
   if (sends !== expected) {
     console.log(`  FAIL ${file} has ${sends} sendMessage call sites, expected ${expected}`);
     fail++;
   }
+}
+// The suggestions read is the one call that has to stay a read. If it ever learns to
+// delete something, it needs a confirmation gate and this line stops being true.
+if (!optionsSrc.includes("type: 'insights'")) {
+  console.log('  FAIL the suggestions read is gone from the settings page');
+  fail++;
 }
 if (!optionsSrc.includes('Clear cookies for everything except') || !optionsSrc.includes("type: 'pruneCookies'")) {
   console.log('  FAIL the manual cookie clear lost its confirmation or its message');

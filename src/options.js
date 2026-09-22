@@ -689,6 +689,64 @@ $('lockRecoverBtn').addEventListener('click', async () => {
   setMsg($('lockMsg'), LOCK_MESSAGES.recoveryDone, 'ok');
 });
 
+// The suggestions. Read on request, ranked on screen, and added through the same path
+// as anything else, so there is no second way to write a rule.
+function renderInsights(items) {
+  const box = $('insightsList');
+  box.textContent = '';
+  if (!items.length) {
+    const line = document.createElement('div');
+    line.className = 'row mini';
+    line.textContent = t('optInsightsEmpty');
+    const go = document.createElement('button');
+    go.className = 'ghost';
+    go.textContent = t('optInsightsEmptyAction');
+    go.addEventListener('click', () => {
+      $('ruleValue').focus();
+      $('ruleValue').scrollIntoView({ block: 'center' });
+    });
+    box.append(line, go);
+    return;
+  }
+  for (const row of items) {
+    const line = document.createElement('div');
+    line.className = 'row';
+    const site = document.createElement('span');
+    site.className = 'grow';
+    site.textContent = row.host;
+    const count = document.createElement('span');
+    count.className = 'mini';
+    count.textContent = t('optInsightsVisits', String(row.visits));
+    const add = document.createElement('button');
+    add.className = 'ghost';
+    add.textContent = t('optInsightsAdd');
+    add.addEventListener('click', () => {
+      $('ruleType').value = 'domain';
+      $('ruleValue').value = row.host;
+      $('addBtn').click();
+      add.disabled = true;
+      add.textContent = t('optInsightsAdded');
+    });
+    line.append(site, count, add);
+    box.append(line);
+  }
+}
+
+$('insightsBtn').addEventListener('click', () => {
+  const msg = $('insightsMsg');
+  msg.textContent = t('optInsightsWorking');
+  const restore = msg.textContent;
+  chrome.runtime.sendMessage({ type: 'insights' }, (res) => {
+    if (!res || !res.ok) {
+      msg.textContent = t('optInsightsFailed');
+      return;
+    }
+    msg.textContent = '';
+    renderInsights(res.items || []);
+    if (!restore) msg.textContent = '';
+  });
+});
+
 $('addBtn').addEventListener('click', async () => {
   const type = $('ruleType').value;
   const values = splitRuleValues(type, $('ruleValue').value);

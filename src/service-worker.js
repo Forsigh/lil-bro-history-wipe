@@ -1,7 +1,7 @@
 // Lil Bro Wipe: History Cleaner
 // Service worker. The only place that deletes anything.
 
-import { explainMatch, excerptAround, isWipeableUrl } from './matcher.js';
+import { explainMatch, excerptAround, isWipeableUrl, rankUncovered } from './matcher.js';
 import { t, setLang, currentLang } from './i18n.js';
 import {
   getState,
@@ -22,6 +22,11 @@ const SWEEP_PAGE_SIZE = 1000;
 const DELETE_CHUNK = 25;
 const PENDING_CAP = 5000;
 const PREVIEW_SAMPLE = 25;
+// The suggestion read: on request only, bounded in pages and in time, nothing stored.
+const INSIGHT_PAGES = 4;
+const INSIGHT_PAGE_SIZE = 1000;
+const INSIGHT_BUDGET_MS = 5000;
+const INSIGHT_LIMIT = 8;
 
 // ---------------------------------------------------------------------------
 // small helpers
@@ -904,6 +909,54 @@ async function wipeSiteNow(url) {
   return { ok: true, wiped, site };
 }
 
+/**
+ * What the person visits a lot and no rule covers: the suggestion side of the product.
+ * Read when the settings page asks, never in the background, and never stored. The
+ * answer is a list of hosts and counts that lives on screen until the page reloads.
+ */
+async function readInsights() {
+  const { rules } = await getState();
+  const live = activeRules(rules);
+  const started = Date.now();
+  const entries = [];
+  const seen = new Set();
+  let endTime = Date.now() + 60 * 1000; // the same small future pad the sweep uses
+
+  for (let page = 0; page < INSIGHT_PAGES; page += 1) {
+    if (Date.now() - started > INSIGHT_BUDGET_MS) break;
+    let batch;
+    try {
+      batch = await chrome.history.search({
+        text: '',
+        startTime: 0, // an omitted startTime means the last 24h, so it must be explicit
+        endTime,
+        maxResults: INSIGHT_PAGE_SIZE,
+      });
+    } catch (e) {
+      log('the history read behind the suggestions failed', e);
+      break;
+    }
+    if (!batch || !batch.length) break;
+    let oldest = null;
+    let fresh = 0;
+    for (const item of batch) {
+      if (!item || !item.url) continue;
+      const at = item.lastVisitTime || 0;
+      if (at && (oldest === null || at < oldest)) oldest = at;
+      if (seen.has(item.url)) continue;
+      seen.add(item.url);
+      fresh += 1;
+      entries.push(item);
+    }
+    if (!fresh) break; // nothing new on that page, so stop rather than spin
+    if (batch.length < INSIGHT_PAGE_SIZE) break;
+    if (oldest === null) break;
+    endTime = oldest - 1;
+  }
+
+  return { items: rankUncovered(entries, live, INSIGHT_LIMIT), scanned: entries.length };
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   if (!msg || typeof msg !== 'object') return false;
 
@@ -967,6 +1020,13 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
       // No deletion here. The options page "tester" does its own matching.
       reply({ ok: true, activeRules: live.length });
     })().catch((e) => reply({ ok: false, error: String(e) }));
+    return true;
+  }
+
+  if (msg.type === 'insights') {
+    readInsights()
+      .then((out) => reply({ ok: true, ...out }))
+      .catch((e) => reply({ ok: false, error: String(e) }));
     return true;
   }
 

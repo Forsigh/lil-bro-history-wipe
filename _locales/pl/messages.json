@@ -988,5 +988,32 @@
   },
   "wouldBeWiped": {
     "message": "Lista to łapie: $1, $2"
+  },
+  "optInsights": {
+    "message": "Co odwiedzasz, a nie ma tego na liście"
+  },
+  "optInsightsCheck": {
+    "message": "Przejrzyj moją historię"
+  },
+  "optInsightsWorking": {
+    "message": "Czytam historię…"
+  },
+  "optInsightsFailed": {
+    "message": "Nie udało się. Spróbuj za chwilę."
+  },
+  "optInsightsEmpty": {
+    "message": "Nic spoza listy nie jest odwiedzane dość często, żeby to proponować."
+  },
+  "optInsightsEmptyAction": {
+    "message": "Dodaj stronę ręcznie"
+  },
+  "optInsightsVisits": {
+    "message": "wizyty: $1"
+  },
+  "optInsightsAdd": {
+    "message": "Dodaj"
+  },
+  "optInsightsAdded": {
+    "message": "Dodano"
   }
 }

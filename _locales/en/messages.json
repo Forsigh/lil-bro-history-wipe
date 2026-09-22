@@ -988,5 +988,32 @@
   },
   "wouldBeWiped": {
     "message": "Your list catches this: $1 to $2"
+  },
+  "optInsights": {
+    "message": "What you visit and no rule covers"
+  },
+  "optInsightsCheck": {
+    "message": "Look through my history"
+  },
+  "optInsightsWorking": {
+    "message": "Reading your history…"
+  },
+  "optInsightsFailed": {
+    "message": "That did not work. Try again."
+  },
+  "optInsightsEmpty": {
+    "message": "Nothing outside your list is visited often enough to suggest yet."
+  },
+  "optInsightsEmptyAction": {
+    "message": "Add a site by hand"
+  },
+  "optInsightsVisits": {
+    "message": "visits: $1"
+  },
+  "optInsightsAdd": {
+    "message": "Add"
+  },
+  "optInsightsAdded": {
+    "message": "Added"
   }
 }
