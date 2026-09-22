@@ -169,6 +169,8 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("version", help="the new version, for example 1.5.9")
     parser.add_argument("--probe", type=int, help="port for a real-browser probe before building")
+    parser.add_argument("--shots", action="store_true",
+                        help="also make the store screenshots and the UPLOAD folder (ask first)")
     parser.add_argument("--dry-run", action="store_true", help="print the steps, save nothing")
     parser.add_argument("--no-push", action="store_true", help="stop before pushing and publishing")
     args = parser.parse_args()
@@ -208,6 +210,8 @@ def main():
             "insert the note into CHANGELOG.md",
             "run every suite",
             "probe the real extension in a browser" if args.probe else "skip the probe (no --probe)",
+            "no screenshots this time (--shots not given)" if not args.shots
+            else "make the store screenshots and the UPLOAD folder",
             f"package builds/{zip_name}",
             "write the row into docs/VERSIONS.md",
             "commit and push",
@@ -247,18 +251,21 @@ def main():
     # context is ready and gets an Uncaught for it. A flaky browser is not a broken extension,
     # and a real failure fails twice.
     def probe(lang, out):
-        return run([
-            "node", "tools/live_probe.mjs", str(args.probe), "",
-            str(out).replace("\\", "/"), lang,
-        ])
+        # The folder is the switch: with one, the probe photographs the pages as well as
+        # measuring them; without one it only measures. Screenshots are made when asked for.
+        argv = ["node", "tools/live_probe.mjs", str(args.probe), "",
+                str(out).replace("\\", "/") if out else "", lang]
+        return run(argv)
 
     sheets = None
     if args.probe:
-        sheets = {}
+        if args.shots:
+            sheets = {}
         for lang in ("en", "pl"):
-            out = ROOT / f"builds/.probe-{version}-{lang}"
-            shutil.rmtree(out, ignore_errors=True)
-            out.mkdir(parents=True)
+            out = ROOT / f"builds/.probe-{version}-{lang}" if args.shots else None
+            if out:
+                shutil.rmtree(out, ignore_errors=True)
+                out.mkdir(parents=True)
             for attempt in (1, 2):
                 done = probe(lang, out)
                 if done.returncode == 0 and "checks passed" in done.stdout:
@@ -275,6 +282,8 @@ def main():
             else:
                 print(done.stdout[-2500:], done.stderr[-1500:])
                 die(f"the {lang} probe failed twice, so nothing was built")
+            if not out:
+                continue
             sheet_dir = ROOT / f"builds/.sheets-{version}-{lang}"
             shutil.rmtree(sheet_dir, ignore_errors=True)
             sheet_dir.mkdir(parents=True)
@@ -388,29 +397,30 @@ def main():
     shutil.rmtree(unpacked, ignore_errors=True)
     staging.rename(unpacked)
     upload = DESKTOP / f"UPLOAD-{version}"
-    shutil.rmtree(upload, ignore_errors=True)
-    (upload / "all-languages").mkdir(parents=True)
-    (upload / "pl").mkdir(parents=True)
-    shots_en = sheets["en"] if sheets else DESKTOP / "screenshots" / "en"
-    shots_pl = sheets["pl"] if sheets else DESKTOP / "screenshots" / "pl"
-    if not sheets:
-        say("no probe ran, so the screenshots on the Desktop were reused as they are")
-    for name in sorted(p.name for p in pathlib.Path(shots_en).glob("*.png")):
-        shutil.copy2(pathlib.Path(shots_en) / name, upload / "all-languages" / name)
-        shutil.copy2(pathlib.Path(shots_en) / name, DESKTOP / "screenshots" / "en" / name)
-    for name in sorted(p.name for p in pathlib.Path(shots_pl).glob("*.png")):
-        shutil.copy2(pathlib.Path(shots_pl) / name, upload / "pl" / name)
-        shutil.copy2(pathlib.Path(shots_pl) / name, DESKTOP / "screenshots" / "pl" / name)
-    for lang, dest in (("en", upload / "all-languages"), ("pl", upload / "pl")):
-        marquee = DESKTOP / "graphics" / lang / "marquee-1400x560.png"
-        promo = DESKTOP / "graphics" / lang / "promo-440x280.png"
-        if marquee.exists():
-            shutil.copy2(marquee, dest / "marquee-1400x560.png")
-        if promo.exists() and lang == "en":
-            shutil.copy2(promo, dest / "small-promo-440x280.png")
-        src_promo = DESKTOP / "graphics" / lang / "promo-440x280.png"
-        if src_promo.exists() and lang == "pl":
-            shutil.copy2(src_promo, dest / "small-promo-440x280.png")
+    if args.shots:
+        shutil.rmtree(upload, ignore_errors=True)
+        (upload / "all-languages").mkdir(parents=True)
+        (upload / "pl").mkdir(parents=True)
+        shots_en = sheets["en"] if sheets else DESKTOP / "screenshots" / "en"
+        shots_pl = sheets["pl"] if sheets else DESKTOP / "screenshots" / "pl"
+        for name in sorted(p.name for p in pathlib.Path(shots_en).glob("*.png")):
+            shutil.copy2(pathlib.Path(shots_en) / name, upload / "all-languages" / name)
+            shutil.copy2(pathlib.Path(shots_en) / name, DESKTOP / "screenshots" / "en" / name)
+        for name in sorted(p.name for p in pathlib.Path(shots_pl).glob("*.png")):
+            shutil.copy2(pathlib.Path(shots_pl) / name, upload / "pl" / name)
+            shutil.copy2(pathlib.Path(shots_pl) / name, DESKTOP / "screenshots" / "pl" / name)
+        for lang, dest in (("en", upload / "all-languages"), ("pl", upload / "pl")):
+            marquee = DESKTOP / "graphics" / lang / "marquee-1400x560.png"
+            promo = DESKTOP / "graphics" / lang / "promo-440x280.png"
+            if marquee.exists():
+                shutil.copy2(marquee, dest / "marquee-1400x560.png")
+            if promo.exists():
+                shutil.copy2(promo, dest / "small-promo-440x280.png")
+    else:
+        # The pages change far more often than the listing needs new pictures, and a set
+        # that is a version behind is still a true picture of the UI. Nothing is written to
+        # the Desktop's screenshot folders unless this was asked for.
+        say("no screenshots this time: run with --shots when the store needs a new set")
     listing_dst = DESKTOP / "store-listing"
     shutil.rmtree(listing_dst, ignore_errors=True)
     shutil.copytree(ROOT / "store-listing", listing_dst)
@@ -435,7 +445,10 @@ def main():
     say(f"zip      builds/{zip_name}, {artifact.stat().st_size} bytes")
     say(f"sha256   {digest}")
     say(f"release  https://github.com/Forsigh/lil-bro-history-wipe/releases/tag/{version}")
-    say(f"upload   {upload}")
+    if args.shots:
+        say(f"upload   {upload}")
+    else:
+        say("upload   not remade this time: run with --shots when the store needs a new set")
 
 
 if __name__ == "__main__":
