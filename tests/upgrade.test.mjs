@@ -232,6 +232,12 @@ console.log('an installed 1.3.5 profile, read by this build');
     if (state.stats.wipedTotal !== 4821) throw new Error(`wipedTotal ${state.stats.wipedTotal}`);
     if (state.stats.lastRunPhase !== 'manual') throw new Error('lastRunPhase changed');
   });
+  check('a profile that predates the per-rule counts gets an empty map, not a hole', () => {
+    if (!state.stats.byRule || typeof state.stats.byRule !== 'object') {
+      throw new Error(`byRule came back as ${JSON.stringify(state.stats.byRule)}`);
+    }
+    if (Object.keys(state.stats.byRule).length !== 0) throw new Error('byRule was filled from somewhere');
+  });
   check('the queue is still there', () => {
     if (state.pending.length !== 1) throw new Error(`${state.pending.length} queued`);
   });
