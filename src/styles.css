@@ -30,6 +30,25 @@
   --shadow-2: 0 2px 4px rgba(0, 0, 0, 0.3), 0 16px 36px -16px rgba(0, 0, 0, 0.7);
   --glow: 0 0 0 1px var(--accent-soft), 0 8px 28px -14px var(--accent-soft);
   --ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Depth, states and motion, derived from the colours each theme already sets.
+     Nothing here is a new literal, so all eight themes keep the contrast they
+     were measured for and no component has to know which theme is on. */
+  --surface-2: color-mix(in srgb, var(--card) 92%, var(--text) 8%);
+  --surface-3: color-mix(in srgb, var(--card) 84%, var(--text) 16%);
+  --state-hover: color-mix(in srgb, currentColor 8%, transparent);
+  --state-pressed: color-mix(in srgb, currentColor 14%, transparent);
+  --t-fast: 140ms;
+  --t-base: 200ms;
+  --t-slow: 250ms;
+
+  /* spacing, one closed 4/8 scale so margins stop being ad hoc */
+  --s1: 4px;
+  --s2: 8px;
+  --s3: 12px;
+  --s4: 16px;
+  --s6: 24px;
+  --s8: 32px;
 }
 
 * {
@@ -1004,16 +1023,20 @@ body.popup {
 .hero-stat {
   display: flex;
   align-items: baseline;
-  gap: 6px;
-  margin: 10px 0 0;
-  font-size: 12.5px;
+  gap: var(--s2);
+  margin: var(--s3) 0 0;
+  font-size: 11px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--muted);
 }
 
 .hero-stat b {
   color: var(--text);
-  font-size: 17px;
+  font-size: 21px;
   font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: 0;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1393,4 +1416,17 @@ body.popup #openOptions:hover {
   border: 1px solid var(--line);
   border-radius: 999px;
   padding: 4px 8px;
+}
+
+/* Motion is for state changes and things arriving, never for decoration. Anyone
+   who asked their system for less movement gets the end state straight away. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
