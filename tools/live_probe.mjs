@@ -1093,13 +1093,16 @@ try {
   })()`);
   await closePage(optSeedPop.id);
 
-  const pop = await openPage(`chrome-extension://${id}/src/popup.html`);
+  const popCaught = await openPage(`chrome-extension://${id}/src/popup.html`);
   const popStat = JSON.parse(
-    await pop.evaluate(`(async()=>{
+    await popCaught.evaluate(`(async()=>{
       await new Promise(r=>setTimeout(r,700));
       const total = (document.getElementById('keptOut') || {}).textContent || '';
       const title = document.querySelector('#caughtCard [data-i18n]');
-      const rows = [...document.querySelectorAll('#topRules .row')].map((r)=>r.textContent.trim());
+      const rows = [...document.querySelectorAll('#topRules .row')].map((r)=>({
+        text: r.textContent.trim(),
+        count: (r.lastElementChild ? r.lastElementChild.textContent : '').trim(),
+      }));
       return JSON.stringify({ total: total.trim(), rows, title: title ? title.textContent.trim() : '' });
     })()`)
   );
@@ -1110,10 +1113,10 @@ try {
   );
   record(
     'the popup names the busiest rule and its count',
-    popStat.rows.some((row) => /\b42\b/.test(row)),
-    popStat.rows.join(' | ') || 'no rows were drawn'
+    popStat.rows.some((row) => /\b42\b/.test(row.count)),
+    popStat.rows.map((row) => row.text).join(' | ') || 'no rows were drawn'
   );
-  await closePage(pop.id);
+  await closePage(popCaught.id);
 
   await closePage(optLocked.id);
 
