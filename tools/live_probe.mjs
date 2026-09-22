@@ -966,6 +966,36 @@ try {
     sv.locked === false && sv.rows >= 2 && sv.named === true,
     `${sv.rows} rule row(s), named=${sv.named}`
   );
+
+  // A pasted list becomes one rule per line, or one per comma. The second half of
+  // this pair is where the teeth are: without the duplicate check, pasting a list
+  // twice would double it, and the first check alone would still pass.
+  const pasted = JSON.parse(
+    await optLocked.evaluate(`(async()=>{
+      const rows = () => document.getElementById('rulesBody').children.length;
+      const before = rows();
+      document.getElementById('ruleValue').value = 'paste-one.example\\npaste-two.example, paste-three.example';
+      document.getElementById('addBtn').click();
+      await new Promise(r=>setTimeout(r,900));
+      const after = rows();
+      const msg = document.getElementById('addMsg').textContent.trim();
+      document.getElementById('ruleValue').value = 'paste-one.example\\npaste-two.example';
+      document.getElementById('addBtn').click();
+      await new Promise(r=>setTimeout(r,900));
+      return JSON.stringify({ before, after, msg, again: rows() });
+    })()`)
+  );
+  record(
+    'a pasted list becomes one rule per line and per comma',
+    pasted.after - pasted.before === 3,
+    `${pasted.before} -> ${pasted.after} rows, message: ${pasted.msg}`
+  );
+  record(
+    'pasting the same values again does not double the list',
+    pasted.again === pasted.after,
+    `${pasted.after} -> ${pasted.again} rows`
+  );
+
   await closePage(optLocked.id);
 
   // --- 12. a profile that came from 1.3.5, opened by this build ---------------

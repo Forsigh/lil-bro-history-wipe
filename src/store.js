@@ -303,6 +303,21 @@ export function buildRule({ type, value, includeSubdomains = false, wholeWord = 
   return warning ? { ok: true, rule, warning } : { ok: true, rule };
 }
 
+/**
+ * A pasted list becomes one value per line, or one per comma. Keyword rules keep
+ * their commas, because a phrase is allowed to contain one.
+ */
+export function splitRuleValues(type, text) {
+  const out = [];
+  for (const line of String(text == null ? '' : text).split(/\r?\n/)) {
+    for (const bit of (type === 'keyword' ? [line] : line.split(','))) {
+      const value = bit.trim();
+      if (value) out.push(value);
+    }
+  }
+  return out;
+}
+
 export function mergeSettings(stored) {
   return { ...DEFAULT_SETTINGS, ...(stored && typeof stored === 'object' ? stored : {}) };
 }

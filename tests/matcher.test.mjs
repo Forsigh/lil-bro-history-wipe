@@ -15,7 +15,7 @@ import {
   REGEX_MAX_PATTERN,
   REGEX_MAX_TEXT,
 } from '../src/matcher.js';
-import { buildRule, normalizeDomain } from '../src/store.js';
+import { buildRule, normalizeDomain, splitRuleValues } from '../src/store.js';
 
 let pass = 0;
 let fail = 0;
@@ -191,6 +191,18 @@ for (const rule of rules) {
       String(decided && decided.id) === String(explained && explained.rule.id), true);
   }
 }
+
+// A pasted list: the field takes many values at once, and one of them may be junk.
+console.log('\npasted lists');
+ok('one value per line', splitRuleValues('domain', 'a.com\nb.com\nc.com'), ['a.com', 'b.com', 'c.com']);
+ok('commas split as well', splitRuleValues('domain', 'a.com, b.com'), ['a.com', 'b.com']);
+ok('blank lines and stray spaces go', splitRuleValues('domain', '  \n a.com \n\n'), ['a.com']);
+ok('a keyword keeps its comma', splitRuleValues('keyword', 'two guys, dancing'), ['two guys, dancing']);
+ok('an empty field makes nothing', splitRuleValues('domain', '   \n\t'), []);
+const pasted = splitRuleValues('domain', 'https://www.a.com/some/page\nb.com\nc.com, d.com');
+ok('four values out of three lines', pasted.length, 4);
+ok('every pasted site builds a rule', pasted.map((v) => buildRule({ type: 'domain', value: v }).ok), [true, true, true, true]);
+ok('a pasted line of junk is refused', buildRule({ type: 'domain', value: 'not a domain!' }).ok, false);
 
 console.log(`\nmatcher: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

@@ -74,6 +74,9 @@
   "addedOnly": {
     "message": "Added."
   },
+  "addedMany": {
+    "message": "Added $1 to the list, skipped $2."
+  },
   "keptOnly": {
     "message": "Kept."
   },
@@ -135,7 +138,7 @@
     "message": "Your list"
   },
   "optListHint": {
-    "message": "Anything on this list is cleaned. Sites, words, or address beginnings, whichever suits you."
+    "message": "Anything on this list is cleaned. Sites, words, or address beginnings, whichever suits you. Paste a whole list and each line goes in on its own."
   },
   "optKeepOnly": {
     "message": "Keep only the sites on my list, clean everything else"

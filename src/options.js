@@ -5,6 +5,7 @@ import {
   saveState,
   mergeSettings,
   buildRule,
+  splitRuleValues,
   parseExport,
   describeRule,
   activeRules,
@@ -689,30 +690,72 @@ $('lockRecoverBtn').addEventListener('click', async () => {
 });
 
 $('addBtn').addEventListener('click', async () => {
-  const result = buildRule({
-    type: $('ruleType').value,
-    value: $('ruleValue').value,
-    includeSubdomains: $('includeSubdomains').checked,
-    wholeWord: $('wholeWord').checked,
-  });
-  if (!result.ok) {
-    setMsg($('addMsg'), result.error, 'err');
+  const type = $('ruleType').value;
+  const values = splitRuleValues(type, $('ruleValue').value);
+  if (!values.length) {
+    setMsg($('addMsg'), t('errNoValue') || 'Enter a value first.', 'err');
     return;
   }
-  state.rules.push(result.rule);
-  await saveState({ rules: state.rules });
+  const made = [];
+  let warning = '';
+  let skipped = 0;
+  let firstError = '';
+  for (const value of values) {
+    const result = buildRule({
+      type,
+      value,
+      includeSubdomains: $('includeSubdomains').checked,
+      wholeWord: $('wholeWord').checked,
+    });
+    if (!result.ok) {
+      skipped += 1;
+      firstError = firstError || result.error;
+      continue;
+    }
+    const listed = state.rules.some(
+      (r) => r.type === result.rule.type && r.value === result.rule.value
+    );
+    if (listed || made.some((r) => r.value === result.rule.value)) {
+      skipped += 1;
+      continue;
+    }
+    made.push(result.rule);
+    warning = warning || result.warning || '';
+  }
+  if (made.length) {
+    state.rules.push(...made);
+    await saveState({ rules: state.rules });
+  }
   $('ruleValue').value = '';
-  const msg = result.warning || (isLocked() ? t('addedOnly') || 'Added.' : '');
-  // Unlocked, the new row appearing in the list is the confirmation, and a line
-  // repeating it is noise. While the lock is on the page may not name what was
-  // added, so it says the bare word the popup says and nothing more.
-  setMsg($('addMsg'), msg, msg ? (result.warning ? 'warn' : 'ok') : 'mini');
+  // One value behaves as it always did: the new row appearing in the list is the
+  // confirmation, and a line repeating it is noise. A pasted list says how much of
+  // it landed, and names the first value that could not be used. While the lock is
+  // on the page may not name what was added, so it says the bare word the popup says.
+  let msg = '';
+  let kind = 'mini';
+  if (values.length > 1) {
+    msg = t('addedMany', [made.length, skipped]) || `Added ${made.length} to the list, skipped ${skipped}.`;
+    if (skipped && firstError) msg += ` ${firstError}`;
+    kind = skipped ? 'warn' : 'ok';
+  } else if (made.length) {
+    msg = warning || (isLocked() ? t('addedOnly') || 'Added.' : '');
+    kind = warning ? 'warn' : 'ok';
+  } else {
+    msg = firstError;
+    kind = 'err';
+  }
+  setMsg($('addMsg'), msg, msg ? kind : 'mini');
   renderRules();
   runTest();
 });
 
+// Enter adds, Shift+Enter starts a new line: the field takes a pasted list, so a
+// second line sometimes has to be typed by hand.
 $('ruleValue').addEventListener('keydown', (e) => {
-  if (e.key === 'Enter') $('addBtn').click();
+  if (e.key === 'Enter' && !e.shiftKey) {
+    e.preventDefault();
+    $('addBtn').click();
+  }
 });
 
 $('testUrl').addEventListener('input', runTest);

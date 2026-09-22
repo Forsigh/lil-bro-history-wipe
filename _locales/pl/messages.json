@@ -74,6 +74,9 @@
   "addedOnly": {
     "message": "Dodane."
   },
+  "addedMany": {
+    "message": "Dodane do listy: $1, pominięte: $2."
+  },
   "keptOnly": {
     "message": "Zachowane."
   },
@@ -135,7 +138,7 @@
     "message": "Twoja lista"
   },
   "optListHint": {
-    "message": "Wszystko, co jest na tej liście, jest czyszczone. Strony, słowa albo początki adresów, jak wolisz."
+    "message": "Wszystko, co jest na tej liście, jest czyszczone. Strony, słowa albo początki adresów, jak wolisz. Wklej całą listę, a każda linia wejdzie osobno."
   },
   "optKeepOnly": {
     "message": "Zachowaj tylko strony z listy, resztę czyść"
