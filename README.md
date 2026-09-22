@@ -39,6 +39,10 @@ Or by hand:
   at your next start instead.
 - A deleted address can still appear in the address bar suggestions.
 - Cookies go for the whole site, so you are signed out there afterwards.
+- A site you allowed in the browser's own settings is something this cannot read, so it goes by the
+  list inside the extension and not by that one.
+- Deleting happens on this computer. A visit that was already synced to another device is not
+  something this can reach.
 - Everything you add, the list included, stays on this computer. It does not follow you to your
   other machines, and there is no account to sign in to.
 
