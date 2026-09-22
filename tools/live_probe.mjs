@@ -1562,6 +1562,33 @@ try {
     await shoot(shotLocked, 'options-locked.png', 640, 400, false, 2);
     await closePage(shotLocked.id);
   }
+  // The keyboard shortcut's job, driven through the same message it uses. A browser
+  // cannot be asked to press a key, so the work is exercised here and the command itself
+  // is checked in the manifest: between them both halves of the feature are covered.
+  const sitePage = await openPage(`chrome-extension://${id}/src/popup.html`);
+  const shortcut = JSON.parse(
+    await sitePage.evaluate(`(async () => {
+      const url = 'https://probe-site.test/one';
+      await chrome.history.addUrl({ url });
+      await chrome.history.addUrl({ url: 'https://probe-site.test/two' });
+      await chrome.history.addUrl({ url: 'https://example.com/keep-me' });
+      const search = () => chrome.history.search({ startTime: 0, maxResults: 0 });
+      const before = (await search()).filter((e) => e.url.includes('probe-site.test')).length;
+      const res = await new Promise((r) => chrome.runtime.sendMessage({ type: 'wipeSiteNow', url }, r));
+      const left = (await search()).filter((e) => e.url.includes('probe-site.test')).length;
+      const others = (await search()).filter((e) => e.url.includes('example.com/keep-me')).length;
+      return JSON.stringify({ before, left, others, res, commands: chrome.runtime.getManifest().commands });
+    })()`)
+  );
+  record('the shortcut takes that site out of history and leaves the rest alone',
+    shortcut.before === 2 && shortcut.left === 0 && shortcut.others === 1 &&
+      shortcut.res && shortcut.res.ok === true,
+    `${shortcut.before} there before, ${shortcut.left} after, ${shortcut.others} other site kept, wiped ${shortcut.res && shortcut.res.wiped}`);
+  record('the shortcut is declared, so the browser can offer it',
+    !!(shortcut.commands && shortcut.commands['wipe-site'] &&
+      shortcut.commands['wipe-site'].suggested_key),
+    JSON.stringify(shortcut.commands || null));
+  await closePage(sitePage.id);
 } catch (e) {
   record('probe ran to the end', false, String(e.message || e));
 } finally {

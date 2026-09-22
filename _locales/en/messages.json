@@ -1,30 +1,33 @@
 {
-
-  "stateOnVisit": { "message": "wiping on visit" },
-  "stateAtStart": { "message": "wiping at browser start" },
-  "stateAtClose": { "message": "wiping at browser close" },
-
-  "glanceToday": { "message": "today" },
-
-  "glanceOnYourList": { "message": "On your list" },
-  "glanceLastRun": { "message": "Last clean" },
+  "stateOnVisit": {
+    "message": "wiping on visit"
+  },
+  "stateAtStart": {
+    "message": "wiping at browser start"
+  },
+  "stateAtClose": {
+    "message": "wiping at browser close"
+  },
+  "glanceToday": {
+    "message": "today"
+  },
+  "glanceOnYourList": {
+    "message": "On your list"
+  },
+  "glanceLastRun": {
+    "message": "Last clean"
+  },
   "name": {
     "message": "Lil Bro Wipe – History Cleaner"
   },
   "description": {
     "message": "Wipes the sites and words you pick out of your history: as you browse, or the next time you open the browser."
   },
-  "actionTitle": {
-    "message": "Lil Bro"
-  },
   "brandSub": {
     "message": "History Cleaner"
   },
   "layoutBtn": {
     "message": "Classic"
-  },
-  "layoutTitle": {
-    "message": "Switch between the small popup and the classic one"
   },
   "switchOn": {
     "message": "On"
@@ -53,14 +56,8 @@
   "unlock": {
     "message": "Unlock"
   },
-  "forgotPin": {
-    "message": "Forgot the PIN?"
-  },
   "reset": {
     "message": "Reset"
-  },
-  "moreControls": {
-    "message": "More controls"
   },
   "scopeList": {
     "message": "Only my list"
@@ -79,15 +76,6 @@
   },
   "keptOnly": {
     "message": "Kept."
-  },
-  "noWipeableSite": {
-    "message": "This tab has nothing to clean."
-  },
-  "currentTab": {
-    "message": "This tab: $1"
-  },
-  "lockHidden": {
-    "message": "Hidden while the PIN is on."
   },
   "addSite": {
     "message": "Add to filter list"
@@ -127,12 +115,6 @@
   },
   "optModeRealtimeHint": {
     "message": "It cleans each visit as it happens."
-  },
-  "optModeOnClose": {
-    "message": "When I close the browser"
-  },
-  "optModeOnCloseHint": {
-    "message": "Quiet while you surf. It cleans when you close the browser, or the next time you open it if that moment is missed."
   },
   "optModeStartup": {
     "message": "When I open the browser"
@@ -566,6 +548,27 @@
   "startFailed": {
     "message": "Could not start"
   },
+  "cmdWipeSite": {
+    "message": "Wipe this site from history"
+  },
+  "notifyWiped": {
+    "message": "Wiped $1 from history."
+  },
+  "notifyWipedSite": {
+    "message": "Wiped $1 for $2."
+  },
+  "entryOne": {
+    "message": "1 entry"
+  },
+  "entryFew": {
+    "message": "$1 entries"
+  },
+  "entryMany": {
+    "message": "$1 entries"
+  },
+  "errNoSite": {
+    "message": "No site to wipe."
+  },
   "startFailedHint": {
     "message": "Reload the extension on the extensions page."
   },
@@ -839,11 +842,11 @@
   "optExport": {
     "message": "Export"
   },
+  "optExportNote": {
+    "message": "The file holds your list, so it is the way to move it to another computer."
+  },
   "optImport": {
     "message": "Import"
-  },
-  "optLock": {
-    "message": "Lock"
   },
   "optLockEnable": {
     "message": "Hide the list behind a PIN"
@@ -908,12 +911,6 @@
   "resumeTitle": {
     "message": "Start wiping again"
   },
-  "wipeSite": {
-    "message": "Wipe this site"
-  },
-  "wipePage": {
-    "message": "Wipe this exact page only"
-  },
   "wipeAllOn": {
     "message": "Wipe-all is ON: your whole history goes, not just your rules."
   },
@@ -949,12 +946,6 @@
   },
   "clearNow": {
     "message": "Clear now"
-  },
-  "alsoClearing": {
-    "message": "Also clearing: $1."
-  },
-  "historyOnly": {
-    "message": "History only."
   },
   "stateArmed": {
     "message": "Full wipe is on: all of your history goes"

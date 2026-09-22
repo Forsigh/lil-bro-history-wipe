@@ -1,30 +1,33 @@
 {
-
-  "stateOnVisit": { "message": "przy każdej wizycie" },
-  "stateAtStart": { "message": "przy starcie przeglądarki" },
-  "stateAtClose": { "message": "przy zamknięciu przeglądarki" },
-
-  "glanceToday": { "message": "dzisiaj" },
-
-  "glanceOnYourList": { "message": "Na liście" },
-  "glanceLastRun": { "message": "Ostatnie czyszczenie" },
+  "stateOnVisit": {
+    "message": "przy każdej wizycie"
+  },
+  "stateAtStart": {
+    "message": "przy starcie przeglądarki"
+  },
+  "stateAtClose": {
+    "message": "przy zamknięciu przeglądarki"
+  },
+  "glanceToday": {
+    "message": "dzisiaj"
+  },
+  "glanceOnYourList": {
+    "message": "Na liście"
+  },
+  "glanceLastRun": {
+    "message": "Ostatnie czyszczenie"
+  },
   "name": {
     "message": "Lil Bro Wipe – History Cleaner"
   },
   "description": {
     "message": "Czyści z historii wybrane strony i słowa: w trakcie przeglądania albo przy następnym otwarciu przeglądarki."
   },
-  "actionTitle": {
-    "message": "Lil Bro"
-  },
   "brandSub": {
     "message": "Czyszczenie historii"
   },
   "layoutBtn": {
     "message": "Klasyczny"
-  },
-  "layoutTitle": {
-    "message": "Przełącz między małym a klasycznym okienkiem"
   },
   "switchOn": {
     "message": "Wł."
@@ -53,14 +56,8 @@
   "unlock": {
     "message": "Odblokuj"
   },
-  "forgotPin": {
-    "message": "Nie pamiętasz PIN-u?"
-  },
   "reset": {
     "message": "Reset"
-  },
-  "moreControls": {
-    "message": "Więcej opcji"
   },
   "scopeList": {
     "message": "Tylko moja lista"
@@ -79,15 +76,6 @@
   },
   "keptOnly": {
     "message": "Zachowane."
-  },
-  "noWipeableSite": {
-    "message": "Ta karta nie ma czego czyścić."
-  },
-  "currentTab": {
-    "message": "Ta karta: $1"
-  },
-  "lockHidden": {
-    "message": "Ukryte, gdy PIN jest włączony."
   },
   "addSite": {
     "message": "Dodaj do listy"
@@ -127,12 +115,6 @@
   },
   "optModeRealtimeHint": {
     "message": "Czyści na bieżąco, więc nic nie zdąży się nazbierać."
-  },
-  "optModeOnClose": {
-    "message": "Kiedy zamykam przeglądarkę"
-  },
-  "optModeOnCloseHint": {
-    "message": "W trakcie przeglądania cisza. Czyści przy zamknięciu, a jeśli ten moment przepadnie, przy następnym otwarciu."
   },
   "optModeStartup": {
     "message": "Kiedy otwieram przeglądarkę"
@@ -566,6 +548,27 @@
   "startFailed": {
     "message": "Nie udało się uruchomić"
   },
+  "cmdWipeSite": {
+    "message": "Usuń tę stronę z historii"
+  },
+  "notifyWiped": {
+    "message": "Usunięto z historii: $1."
+  },
+  "notifyWipedSite": {
+    "message": "Usunięto dla $2: $1."
+  },
+  "entryOne": {
+    "message": "1 wpis"
+  },
+  "entryFew": {
+    "message": "$1 wpisy"
+  },
+  "entryMany": {
+    "message": "$1 wpisów"
+  },
+  "errNoSite": {
+    "message": "Nie ma strony do usunięcia."
+  },
   "startFailedHint": {
     "message": "Przeładuj rozszerzenie na stronie rozszerzeń."
   },
@@ -839,11 +842,11 @@
   "optExport": {
     "message": "Eksportuj"
   },
+  "optExportNote": {
+    "message": "Plik zawiera twoją listę, więc w ten sposób przeniesiesz ją na inny komputer."
+  },
   "optImport": {
     "message": "Importuj"
-  },
-  "optLock": {
-    "message": "Blokada"
   },
   "optLockEnable": {
     "message": "Ukryj listę za PIN-em"
@@ -908,12 +911,6 @@
   "resumeTitle": {
     "message": "Wznów czyszczenie"
   },
-  "wipeSite": {
-    "message": "Dodaj tę stronę do czyszczenia"
-  },
-  "wipePage": {
-    "message": "Dodaj dokładnie ten adres"
-  },
   "wipeAllOn": {
     "message": "Tryb całości włączony: znika cała historia, nie tylko twoje reguły."
   },
@@ -949,12 +946,6 @@
   },
   "clearNow": {
     "message": "Wyczyść teraz"
-  },
-  "alsoClearing": {
-    "message": "Dodatkowo czyści: $1."
-  },
-  "historyOnly": {
-    "message": "Tylko historia."
   },
   "stateArmed": {
     "message": "Pełne czyszczenie: znika cała historia"

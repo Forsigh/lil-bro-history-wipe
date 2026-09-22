@@ -5,6 +5,12 @@
   "description": "__MSG_description__",
   "default_locale": "en",
   "minimum_chrome_version": "110",
+  "commands": {
+    "wipe-site": {
+      "suggested_key": { "default": "Alt+Shift+W" },
+      "description": "__MSG_cmdWipeSite__"
+    }
+  },
   "permissions": [
     "history",
     "storage",

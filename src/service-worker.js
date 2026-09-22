@@ -2,7 +2,7 @@
 // Service worker. The only place that deletes anything.
 
 import { explainMatch, excerptAround, isWipeableUrl } from './matcher.js';
-import { t, setLang } from './i18n.js';
+import { t, setLang, currentLang } from './i18n.js';
 import {
   getState,
   saveState,
@@ -72,8 +72,23 @@ async function bumpStats(count, phase) {
   });
 }
 
-async function notify(count, phase) {
-  if (!count) return;
+/** The count as a word, in the plural form the language asks for: Polish has three, and
+ *  "2 wpisów" reads as wrong to anyone who speaks it. */
+function countWord(count) {
+  let form = 'entryMany';
+  try {
+    const picked = new Intl.PluralRules(currentLang()).select(count);
+    if (picked === 'one') form = 'entryOne';
+    else if (picked === 'few') form = 'entryFew';
+  } catch (e) {
+    if (count === 1) form = 'entryOne';
+  }
+  return t(form, [String(count)]) || String(count);
+}
+
+/** The one place a notification is raised, so the wording is decided by the caller. */
+async function tell(message) {
+  if (!message) return;
   const { settings } = await getState();
   if (!settings.notifyOnWipe) return;
   try {
@@ -81,11 +96,26 @@ async function notify(count, phase) {
       type: 'basic',
       iconUrl: chrome.runtime.getURL('src/icons/icon128.png'),
       title: 'Lil Bro',
-      message: `Wiped ${count} ${count === 1 ? 'entry' : 'entries'} from history (${phase}).`,
+      message,
     });
   } catch (e) {
     log('notification failed', e);
   }
+}
+
+async function notify(count) {
+  if (!count) return;
+  await tell(t('notifyWiped', [countWord(count)]) || `Wiped ${count} from history.`);
+}
+
+/** A wipe aimed at one site can name it, unless the PIN is on: then the count is all it says. */
+async function notifySite(site, count) {
+  if (!count) return;
+  const { settings } = await getState();
+  const message = settings.lockEnabled
+    ? t('notifyWiped', [countWord(count)]) || `Wiped ${count} from history.`
+    : t('notifyWipedSite', [countWord(count), site]) || `Wiped ${count} for ${site}.`;
+  await tell(message);
 }
 
 // ---------------------------------------------------------------------------
@@ -616,7 +646,7 @@ async function runSessionStart(phase = 'startup') {
       const shouldWipeAtBoot = settings.mode !== 'realtime' || settings.sweepExistingOnStartup;
       const wiped = shouldWipeAtBoot ? (await wipeEverything(phase)).deleted : 0;
       await bumpStats(wiped, phase);
-      await notify(wiped, phase);
+      await notify(wiped);
       const extra = extraAllowedAt(settings, phase) ? await clearExtra(phase) : null;
       const cookies = settings.cookiesOnStart ? await pruneCookies(settings) : null;
       return { deleted: wiped, wipeAll: true, skipped: !shouldWipeAtBoot, extra, cookies };
@@ -637,7 +667,7 @@ async function runSessionStart(phase = 'startup') {
     }
 
     await bumpStats(deleted, phase);
-    await notify(deleted, phase);
+    await notify(deleted);
     const extra = extraAllowedAt(settings, phase) ? await clearExtra(phase) : null;
     const cookies = settings.cookiesOnStart ? await pruneCookies(settings) : null;
     return { deleted, extra, cookies };
@@ -763,6 +793,16 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
   log('rule added from context menu:', describeRule(candidate.rule));
 });
 
+// The keyboard shortcut: wipe the site you are looking at, now, without opening anything.
+// A command counts as a gesture, so the popup does not have to be open for it to work.
+if (chrome.commands && chrome.commands.onCommand) {
+  chrome.commands.onCommand.addListener(async (command) => {
+    if (command !== 'wipe-site') return;
+    const res = await wipeSiteNow(await activeTabUrl());
+    if (!res.ok) log('shortcut did nothing:', res.error);
+  });
+}
+
 /** Shared by the popup and options page: "Wipe now" and the read-only preview. */
 async function manualRun(dryRun) {
   const { settings, rules } = await getState();
@@ -822,8 +862,53 @@ async function manualRun(dryRun) {
   };
 }
 
+/** The page in front of the user. A keyboard command counts as a gesture, which is what
+ *  activeTab is granted on, so this works from the shortcut without the tabs permission. */
+async function activeTabUrl() {
+  try {
+    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    return tab && tab.url ? tab.url : '';
+  } catch (e) {
+    log('could not read the active tab', e);
+    return '';
+  }
+}
+
+/** Take one site's entries out of history, now.
+ *
+ *  This is the keyboard shortcut's whole job. It deletes the exact URLs history hands back
+ *  and nothing else, and it uses the same site comparison a rule for that site would use,
+ *  so a shortcut can never reach beyond the site you are looking at. It does not touch the
+ *  list: a shortcut is for the page in front of you. */
+async function wipeSiteNow(url) {
+  const site = normalizeDomain(url || '');
+  if (!site) return { ok: false, error: t('errNoSite') || 'No site to wipe.' };
+  const found = await chrome.history.search({ text: site, startTime: 0, maxResults: 0 });
+  const targets = found.filter((entry) => entry.url && normalizeDomain(entry.url) === site);
+  let wiped = 0;
+  for (const entry of targets) {
+    try {
+      await chrome.history.deleteUrl({ url: entry.url });
+      wiped += 1;
+    } catch (e) {
+      log('deleteUrl failed', entry.url, e);
+    }
+  }
+  await notifySite(site, wiped);
+  log('wipe this site:', site, wiped, 'entries');
+  return { ok: true, wiped, site };
+}
+
 chrome.runtime.onMessage.addListener((msg, sender, reply) => {
   if (!msg || typeof msg !== 'object') return false;
+
+  if (msg.type === 'wipeSiteNow') {
+    const target = msg.url || '';
+    wipeSiteNow(target)
+      .then(reply)
+      .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
+    return true;
+  }
 
   if (msg.type === 'wipeNow') {
     manualRun(false)
