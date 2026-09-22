@@ -68,7 +68,7 @@ next launch.
 ### 3a. Single purpose description (max 1000 characters)
 
 ```
-Deletes the browsing history entries a user chooses, and optionally clears the browser data the user explicitly switches on. The user lists sites, subdomains, keywords, URLs or patterns; the extension matches those against browsing history and erases the matching entries, either as the user browses, when the browser closes, or at the next start. Cache, cookies and site data, download history and saved form text are cleared only when the user picks a preset or turns a switch on and asks for it. It has no other function.
+Deletes the browsing history entries a user chooses, and optionally clears the browser data the user explicitly switches on. The user lists sites, subdomains, keywords, URLs or patterns; the extension matches those against browsing history and erases the matching entries, either as the user browses, when the browser closes, or at the next start. Cache, cookies and site data, download history and saved form text are cleared only when the user picks a preset or turns a switch on and asks for it. The history permission is used for nothing else, apart from one read the user triggers from the settings page, which lists the sites visited most often that no rule covers so a rule can be added; that read is worked out on the page and stores nothing.
 ```
 
 ### 3b. Permission justifications (max 1000 characters each)
@@ -76,7 +76,7 @@ Deletes the browsing history entries a user chooses, and optionally clears the b
 **history**
 
 ```
-Required to read browsing history so the extension can find the entries matching the rules the user entered, and to delete only those entries. This is the extension's entire function. History is processed locally on the device, is never transmitted anywhere, and is not read for any other purpose.
+Required to read browsing history so the extension can find the entries matching the rules the user entered, and to delete only those entries. The same permission lets the settings page list the sites the user visits most that no rule covers, so they can decide what to add; that read runs only when the user presses the button for it and saves nothing from it. History is processed locally on the device and is never transmitted anywhere.
 ```
 
 **storage**

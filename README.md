@@ -11,6 +11,11 @@ You give it a list: a site, a word, one page, a pattern. It takes the matching e
 history while you browse, or at the start of your next session, without you thinking about it. Open
 the popup on any page and it tells you straight away whether that page is on the list.
 
+Each rule shows how much it has removed, so a rule doing nothing is easy to spot. In the advanced
+controls there is also a button that reads your history and lists the sites you visit most that no rule
+covers, with a visit count next to each, so the ones you meant to add are easier to find. That read
+runs when you press the button and works out its answer on the screen: nothing from it is saved.
+
 Cache, cookies, the download list and typed form text sit behind four presets, off until you switch
 one on. A PIN hides the list from anyone else using the same computer, and a keep list covers the
 sites you never want touched.
