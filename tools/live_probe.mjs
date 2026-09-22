@@ -996,6 +996,57 @@ try {
     `${pasted.after} -> ${pasted.again} rows`
   );
 
+  // The suggestions. The block sits with the advanced controls and under the lock, so
+  // this flips the lock off, looks, and puts it back the way it was.
+  const beforeSug = await openPage(`chrome-extension://${id}/src/options.html`);
+  await beforeSug.evaluate(`(async()=>{
+    const got = await new Promise(r=>chrome.storage.local.get('settings', r));
+    const s = Object.assign({}, got.settings, { lockEnabled: false, advanced: true });
+    await new Promise(r=>chrome.storage.local.set({ settings: s }, r));
+    return 'ok';
+  })()`);
+  await closePage(beforeSug.id);
+
+  const optSug = await openPage(`chrome-extension://${id}/src/options.html`);
+  const suggested = JSON.parse(
+    await optSug.evaluate(`(async()=>{
+      const btn = document.getElementById('insightsBtn');
+      const isButton = !!btn && btn.tagName === 'BUTTON';
+      const box = document.getElementById('advBox');
+      const visible = !!box && getComputedStyle(box).display !== 'none';
+      btn.click();
+      await new Promise(r=>setTimeout(r,2500));
+      const list = document.getElementById('insightsList');
+      const hosts = [...list.querySelectorAll('span.grow')].map((s)=>s.textContent.trim());
+      const got = await new Promise(r=>chrome.storage.local.get('rules', r));
+      const covered = (got.rules || []).map((x)=>String(x.value || '').toLowerCase());
+      return JSON.stringify({ isButton, visible, lines: list.children.length, hosts, covered });
+    })()`)
+  );
+  record(
+    'the suggestions sit with the advanced controls, behind a real button',
+    suggested.isButton === true && suggested.visible === true,
+    `button=${suggested.isButton}, advanced block visible=${suggested.visible}`
+  );
+  record(
+    'asking for suggestions answers on screen instead of leaving a blank box',
+    suggested.lines > 0,
+    `${suggested.lines} line(s), sites: ${suggested.hosts.join(', ') || 'none found'}`
+  );
+  record(
+    'nothing it suggests is a site the list already catches',
+    suggested.hosts.every((h) => !suggested.covered.includes(h.toLowerCase())),
+    `${suggested.hosts.length} suggested against ${suggested.covered.length} rule(s)`
+  );
+
+  await optSug.evaluate(`(async()=>{
+    const got = await new Promise(r=>chrome.storage.local.get('settings', r));
+    const s = Object.assign({}, got.settings, { lockEnabled: true });
+    await new Promise(r=>chrome.storage.local.set({ settings: s }, r));
+    return 'ok';
+  })()`);
+  await closePage(optSug.id);
+
   await closePage(optLocked.id);
 
   // --- 12. a profile that came from 1.3.5, opened by this build ---------------
