@@ -1566,24 +1566,31 @@ try {
   // cannot be asked to press a key, so the work is exercised here and the command itself
   // is checked in the manifest: between them both halves of the feature are covered.
   const sitePage = await openPage(`chrome-extension://${id}/src/popup.html`);
-  const shortcut = JSON.parse(
-    await sitePage.evaluate(`(async () => {
+  const rawShortcut = await sitePage.evaluate(`(async () => {
+    const out = { before: null, left: null, others: null, res: null, commands: null, error: null };
+    try {
+      out.commands = chrome.runtime.getManifest().commands || null;
       const url = 'https://probe-site.test/one';
       await chrome.history.addUrl({ url });
       await chrome.history.addUrl({ url: 'https://probe-site.test/two' });
       await chrome.history.addUrl({ url: 'https://example.com/keep-me' });
-      const search = () => chrome.history.search({ startTime: 0, maxResults: 0 });
-      const before = (await search()).filter((e) => e.url.includes('probe-site.test')).length;
-      const res = await new Promise((r) => chrome.runtime.sendMessage({ type: 'wipeSiteNow', url }, r));
-      const left = (await search()).filter((e) => e.url.includes('probe-site.test')).length;
-      const others = (await search()).filter((e) => e.url.includes('example.com/keep-me')).length;
-      return JSON.stringify({ before, left, others, res, commands: chrome.runtime.getManifest().commands });
-    })()`)
-  );
+      const search = () => chrome.history.search({ text: '', startTime: 0, maxResults: 0 });
+      out.before = (await search()).filter((e) => e.url.includes('probe-site.test')).length;
+      out.res = await new Promise((r) => chrome.runtime.sendMessage({ type: 'wipeSiteNow', url }, r));
+      out.left = (await search()).filter((e) => e.url.includes('probe-site.test')).length;
+      out.others = (await search()).filter((e) => e.url.includes('example.com/keep-me')).length;
+    } catch (e) {
+      out.error = String((e && e.message) || e);
+    }
+    return JSON.stringify(out);
+  })()`);
+  // The helper hands back an object when the page returned JSON and a string when it did
+  // not, so take either rather than assuming: the first version assumed and cost a run.
+  const shortcut = typeof rawShortcut === 'string' ? JSON.parse(rawShortcut) : rawShortcut;
   record('the shortcut takes that site out of history and leaves the rest alone',
     shortcut.before === 2 && shortcut.left === 0 && shortcut.others === 1 &&
-      shortcut.res && shortcut.res.ok === true,
-    `${shortcut.before} there before, ${shortcut.left} after, ${shortcut.others} other site kept, wiped ${shortcut.res && shortcut.res.wiped}`);
+      shortcut.res && shortcut.res.ok === true && !shortcut.error,
+    `${shortcut.before} there before, ${shortcut.left} after, ${shortcut.others} other site kept, wiped ${shortcut.res && shortcut.res.wiped}, error ${shortcut.error}`);
   record('the shortcut is declared, so the browser can offer it',
     !!(shortcut.commands && shortcut.commands['wipe-site'] &&
       shortcut.commands['wipe-site'].suggested_key),
