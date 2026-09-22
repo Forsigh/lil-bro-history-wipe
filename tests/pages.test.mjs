@@ -618,6 +618,30 @@ if (!/class="row sep"/.test(optionsHtmlSrc)) {
 } else {
   console.log('  choosing rows and on/off rows are separated by a rule, not by margin alone');
 }
-
+  
+// Every control the page wires a click to has to be a real <button>, or the
+// keyboard cannot reach it and Enter does nothing: a div with a listener looks
+// identical on screen and is unusable without a mouse.
+{
+  let bad = 0;
+  for (const [htmlFile, jsFile] of pairs) {
+    const htmlText = readFileSync(join(root, htmlFile), 'utf8');
+    const jsText = readFileSync(join(root, jsFile), 'utf8');
+    const buttons = new Set([...htmlText.matchAll(/<button[^>]*id="([\w-]+)"/g)].map((m) => m[1]));
+    const handled = [...jsText.matchAll(/\$\('([\w-]+)'\)\.addEventListener\('click'/g)].map((m) => m[1]);
+    const stray = handled.filter((id) => !buttons.has(id));
+    if (stray.length) {
+      console.log(`  FAIL ${jsFile} wires a click to ${stray.join(', ')}, which is not a <button>`);
+      bad++;
+    }
+    if (/<(?!button)\w+[^>]*onclick=/.test(htmlText)) {
+      console.log(`  FAIL ${htmlFile} has an inline onclick on an element that is not a button`);
+      bad++;
+    }
+  }
+  if (!bad) console.log('  every control that can be clicked is a real button, so the keyboard reaches it');
+  fail += bad;
+}
+  
 console.log(fail === 0 ? '\npages: ok' : `\npages: ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

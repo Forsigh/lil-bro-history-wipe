@@ -371,6 +371,18 @@ $('confirmPhraseBtn').addEventListener('click', () => {
   $('wipeBtn').textContent = MESSAGES.wipeAllStep2;
   setMsg(MESSAGES.wipeAllArmed, 'warn');
   armResetLater();
+  // The row just closed under the keyboard, and the next click is the wipe, so the
+  // focus goes there rather than landing on a hidden element and being dropped.
+  $('wipeBtn').focus();
+});
+
+// Escape leaves an open confirmation the way every other dialog does: the row goes,
+// nothing is armed, and the keyboard goes back to the button that opened it.
+$('confirmPhrase').addEventListener('keydown', (e) => {
+  if (e.key !== 'Escape') return;
+  e.preventDefault();
+  resetArm();
+  $('wipeBtn').focus();
 });
 
 function runAction(type) {

@@ -696,7 +696,41 @@ try {
   const afterGate = await historyUrls();
   record('armed wipe demands the typed phrase first', gate.row && /WIPE ALL/.test(gate.msg), gate.msg.slice(0, 40));
   record('and deletes nothing while it waits', afterGate.length >= 2, `${afterGate.length} entries intact`);
-
+  
+  // A confirmation you cannot leave without a mouse is not a confirmation. Escape
+  // closes the open row, arms nothing, and hands the keyboard back to the button.
+  const escaped = JSON.parse(
+    await pop2.evaluate(`(() => {
+      const input = document.getElementById('confirmPhrase');
+      input.focus();
+      const focusedBefore = document.activeElement.id;
+      input.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+      return JSON.stringify({
+        focusedBefore,
+        rowHidden: document.getElementById('phraseRow').classList.contains('hidden'),
+        focusedAfter: document.activeElement.id
+      });
+    })()`)
+  );
+  record(
+    'escape leaves the confirmation and hands the keyboard back',
+    escaped.focusedBefore === 'confirmPhrase' &&
+      escaped.rowHidden === true &&
+      escaped.focusedAfter === 'wipeBtn',
+    `${escaped.focusedBefore} -> ${escaped.focusedAfter}, row hidden: ${escaped.rowHidden}`
+  );
+  // Escape must leave nothing armed, so the next click starts at step one again
+  // instead of completing a confirmation the user walked away from.
+  await pop2.evaluate("document.getElementById('wipeBtn').click()");
+  await sleep(250);
+  const afterEscape = await historyUrls();
+  const rowBack = await pop2.evaluate("!document.getElementById('phraseRow').classList.contains('hidden')");
+  record(
+    'and escape arms nothing, so the next click starts over',
+    rowBack === true && afterEscape.length >= 2,
+    `row back: ${rowBack}, ${afterEscape.length} entries intact`
+  );
+  
   await pop2.evaluate(
     "document.getElementById('confirmPhrase').value='WIPE'; document.getElementById('confirmPhraseBtn').click()"
   );
