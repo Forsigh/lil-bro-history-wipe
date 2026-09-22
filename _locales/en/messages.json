@@ -1015,5 +1015,8 @@
   },
   "optInsightsAdded": {
     "message": "Added"
+  },
+  "ruleRemoved": {
+    "message": "$1 removed"
   }
 }

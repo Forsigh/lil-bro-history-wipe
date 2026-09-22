@@ -542,6 +542,7 @@ export async function getState() {
       lastRunAt: 0,
       lastRunCount: 0,
       lastRunPhase: '',
+      byRule: {},
       ...(raw.stats && typeof raw.stats === 'object' ? raw.stats : {}),
     },
   };

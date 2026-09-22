@@ -282,6 +282,13 @@ function renderRules() {
       tag.textContent = 'whole words';
       tdValue.appendChild(tag);
     }
+    const removed = (state.stats && state.stats.byRule && state.stats.byRule[rule.id]) || 0;
+    if (removed > 0) {
+      const count = document.createElement('span');
+      count.className = 'tag';
+      count.textContent = t('ruleRemoved', String(removed));
+      tdValue.appendChild(count);
+    }
     tr.appendChild(tdValue);
 
     const tdOn = document.createElement('td');

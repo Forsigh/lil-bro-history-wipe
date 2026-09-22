@@ -1399,5 +1399,46 @@ function check(label, fn) {
     assert.equal(g.listeners.onMessage[0]({ type: 'insights' }, {}, () => {}), true));
 }
 
+// ---------------------------------------------------------------------------
+// what each rule has removed
+// ---------------------------------------------------------------------------
+{
+  const h = makeFakeChrome([
+    { id: 'a', url: 'https://counted.example/one', title: 'one', lastVisitTime: NOW },
+    { id: 'b', url: 'https://counted.example/two', title: 'two', lastVisitTime: NOW - 10 },
+    { id: 'c', url: 'https://other.example/three', title: 'three', lastVisitTime: NOW - 20 },
+  ]);
+  const counted = { id: 'r-count', type: 'domain', value: 'counted.example', includeSubdomains: true, enabled: true };
+  const gone = { id: 'r-gone', type: 'domain', value: 'gone.example', includeSubdomains: true, enabled: true };
+  h.store.local.rules = [counted, gone];
+  h.store.local.settings = { mode: 'realtime', sweepExistingOnStartup: false, notifyOnWipe: false };
+  h.store.local.stats = { wipedTotal: 0, lastRunAt: 0, lastRunCount: 0, lastRunPhase: '', byRule: { 'r-gone': 9 } };
+  await boot(h.chrome, h.store);
+
+  const res = await new Promise((r) => h.listeners.onMessage[0]({ type: 'wipeNow' }, {}, r));
+  check('the wipe removed the two entries the rule covers', () => assert.equal(res.deleted, 2));
+  check('the rule that did the work is credited with both', () =>
+    assert.equal(h.store.local.stats.byRule['r-count'], 2));
+
+  await new Promise((r) => h.listeners.onMessage[0]({ type: 'wipeNow' }, {}, r));
+  check('a second run does not inflate the number', () =>
+    assert.equal(h.store.local.stats.byRule['r-count'], 2));
+
+  // Now the other rule is taken off the list, and one new visit arrives for the rule
+  // that stayed. A count left behind by a rule that no longer exists is the defect
+  // this guards, and it only shows up once something else is wiped.
+  // Take the other rule off the list the way the page does, through the store's own
+  // writer, so the chunk metadata and the mirror agree on what is left.
+  const storeMod = await import('../src/store.js');
+  await storeMod.writeRules([counted]);
+  h.db.items.push({ id: 'd', url: 'https://counted.example/four', title: 'four', lastVisitTime: NOW - 5 });
+  const after = await new Promise((r) => h.listeners.onMessage[0]({ type: 'wipeNow' }, {}, r));
+  check('the next run still wipes what the remaining rule covers', () => assert.equal(after.deleted, 1));
+  check('a rule that was taken off the list leaves no number behind', () =>
+    assert.equal(h.store.local.stats.byRule['r-gone'], undefined));
+  check('and the rule still on the list keeps counting', () =>
+    assert.equal(h.store.local.stats.byRule['r-count'], 3));
+}
+
 console.log(`\nworker: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

@@ -77,6 +77,25 @@ async function bumpStats(count, phase) {
   });
 }
 
+/** What each rule has removed, as a running total. Entries for rules that are gone are
+ *  dropped here rather than by a separate sweep, so deleting a rule cannot leave its
+ *  number behind on the page. */
+async function bumpRuleCounts(hits) {
+  if (!hits || !Object.keys(hits).length) return;
+  return withLock(async () => {
+    const { stats, rules } = await getState();
+    const live = new Set((rules || []).map((r) => r.id));
+    const byRule = {};
+    for (const [id, n] of Object.entries(stats.byRule || {})) {
+      if (live.has(id)) byRule[id] = n;
+    }
+    for (const [id, n] of Object.entries(hits)) {
+      if (live.has(id)) byRule[id] = (byRule[id] || 0) + n;
+    }
+    await saveState({ stats: { ...stats, byRule } });
+  });
+}
+
 /** The count as a word, in the plural form the language asks for: Polish has three, and
  *  "2 wpisów" reads as wrong to anyone who speaks it. English is the fallback, for the one
  *  case where the bundle has not loaded and the message still has to say something true. */
@@ -422,6 +441,7 @@ function describeWhy(url, title, hit) {
 async function wipeTargets(targets, phase) {
   let deleted = 0;
   const logEntries = [];
+  const byRule = {};
 
   for (let i = 0; i < targets.length; i += DELETE_CHUNK) {
     const chunk = targets.slice(i, i + DELETE_CHUNK);
@@ -430,6 +450,8 @@ async function wipeTargets(targets, phase) {
         // deleteUrl needs the URL exactly as history.search() returned it.
         await chrome.history.deleteUrl({ url: t.url });
         deleted++;
+        const ruleObj = t.hit ? t.hit.rule : t.rule;
+        if (ruleObj && ruleObj.id) byRule[ruleObj.id] = (byRule[ruleObj.id] || 0) + 1;
         const why = t.why
           ? { why: t.why, word: t.word || '', excerpt: t.excerpt || '' }
           : describeWhy(t.url, t.title || '', t.hit);
@@ -453,6 +475,7 @@ async function wipeTargets(targets, phase) {
   }
 
   await pushLog(logEntries);
+  await bumpRuleCounts(byRule);
   return deleted;
 }
 

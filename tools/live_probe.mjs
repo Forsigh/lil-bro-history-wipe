@@ -1047,6 +1047,37 @@ try {
   })()`);
   await closePage(optSug.id);
 
+  // The count a rule carries. The worker's own numbers are covered in its suite, so
+  // this is the render path: the number is put in storage and read back off the row.
+  const optSeedCount = await openPage(`chrome-extension://${id}/src/options.html`);
+  const counted = JSON.parse(
+    await optSeedCount.evaluate(`(async()=>{
+      const got = await new Promise(r=>chrome.storage.local.get(['rules','settings','stats'], r));
+      const rule = (got.rules || [])[0];
+      const settings = Object.assign({}, got.settings, { lockEnabled: false });
+      const byRule = Object.assign({}, (got.stats && got.stats.byRule) || {});
+      byRule[rule.id] = 7;
+      const stats = Object.assign({}, got.stats, { byRule });
+      await new Promise(r=>chrome.storage.local.set({ settings, stats }, r));
+      return JSON.stringify({ value: rule.value });
+    })()`)
+  );
+  await closePage(optSeedCount.id);
+
+  const optCounted = await openPage(`chrome-extension://${id}/src/options.html`);
+  const countedTag = await optCounted.evaluate(`(()=>{
+    const rows = [...document.querySelectorAll('#rulesBody tr')];
+    const row = rows.find((r)=>r.textContent.includes(${JSON.stringify(counted.value)}));
+    const tag = row && row.querySelector('td.value .tag:not(.on)');
+    return tag ? tag.textContent.trim() : '';
+  })()`);
+  record(
+    'a rule row shows how much that rule has removed',
+    /\b7\b/.test(countedTag || ''),
+    `the row for ${counted.value} shows: ${countedTag || 'nothing'}`
+  );
+  await closePage(optCounted.id);
+
   await closePage(optLocked.id);
 
   // --- 12. a profile that came from 1.3.5, opened by this build ---------------

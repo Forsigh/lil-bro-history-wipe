@@ -1015,5 +1015,8 @@
   },
   "optInsightsAdded": {
     "message": "Dodano"
+  },
+  "ruleRemoved": {
+    "message": "usunięto: $1"
   }
 }
