@@ -791,6 +791,22 @@ td.value {
   background: var(--accent-soft);
 }
 
+/* A never-delete pill sits inside a rule row, so it borrows the tag surface instead of
+   the button gradient it would otherwise inherit. Muted text on that gradient was the
+   one thing on the page nobody could read. */
+.tag.keep {
+  background: transparent;
+  color: var(--muted);
+  box-shadow: none;
+  cursor: pointer;
+}
+
+.tag.keep.on {
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-color: var(--accent-dim);
+}
+
 /* A log row is read, not scanned: the page title first, then why it went, then when
    and from where. An address is often two kilobytes of token with the matching
    letters in the middle, so it is shown as the neighbourhood around the match. */
@@ -1406,7 +1422,7 @@ body.popup #openOptions:hover {
   box-shadow: none;
 }
 
-:root[data-theme='contrast'] button:not(.ghost):not(.theme):not(.preset):not(.danger):not(.switch) {
+:root[data-theme='contrast'] button:not(.ghost):not(.theme):not(.preset):not(.danger):not(.switch):not(.keep) {
   background: var(--accent);
 }
 
