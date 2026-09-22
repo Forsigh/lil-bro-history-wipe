@@ -2,6 +2,14 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.7.8
+
+A rule can be told never to delete now. Mark a site that way and it stays in your history whatever else matches it, which is what you want for the bank you check every morning or the forum you keep going back to. The promise holds on the two paths that do not consult your rules: the full sweep walks the entries one address at a time instead of clearing everything, and the keyboard wipe on a site marked this way tells you it kept the site rather than pretending to have cleared it. Marking it is one button on the rule row.
+
+Both pages say more than they used to. The popup opens with how much it has kept out of your history altogether, and a card under that naming the rules which have caught the most. The settings page opens with the same total, every rule row says how many entries that rule has removed, and there is a screen listing the sites you visit that no rule covers yet, so you can see what is slipping past. There is also a box on the rules page for pasting a whole list of sites at once, instead of adding them one at a time.
+
+Two limits are written down rather than glossed over, in the README and in the privacy note: the browser's own allow list cannot be read by the extension, and deleting happens on this computer only, so a copy on another machine is out of reach.
+
 ## 1.7.7
 
 Escape closes the delete confirmation now instead of leaving you sitting in it, and the focus goes back to the button you came from. The stylesheet lost a set of rules that had been written twice and a button style nothing used, 46 lines gone in total. The test suite also learned to check that every control on the popup and the settings page is a real button, so a future edit cannot leave one of them keyboard-unreachable.
