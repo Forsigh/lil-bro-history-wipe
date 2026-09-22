@@ -238,3 +238,37 @@ export function findMatch(item, rules) {
   const hit = explainMatch(item, rules);
   return hit ? hit.rule : null;
 }
+
+/**
+ * What a person visits a lot and no rule covers: the suggestion side of the product.
+ * The same matcher decides what would be wiped, so a site that shows up here is one
+ * the current list really does not touch, and a site that would be wiped never shows
+ * up however busy it is.
+ *
+ * Rules that are switched off do not cover anything, so their sites stay visible.
+ * Entries are what the history read returns; the visit count comes from the entry when
+ * the browser reports one, otherwise every entry counts once.
+ */
+export function rankUncovered(entries, rules, limit = 10) {
+  const active = (rules || []).filter((rule) => rule && rule.enabled !== false);
+  const byHost = new Map();
+  for (const item of entries || []) {
+    const url = String((item && item.url) || '');
+    if (!isWipeableUrl(url)) continue;
+    const host = hostOf(url);
+    if (!host) continue;
+    if (findMatch(item, active)) continue;
+    const visits = Number(item.visitCount) > 0 ? Number(item.visitCount) : 1;
+    const last = Number(item.lastVisitTime) || 0;
+    const seen = byHost.get(host);
+    if (seen) {
+      seen.visits += visits;
+      seen.last = Math.max(seen.last, last);
+    } else {
+      byHost.set(host, { host, visits, last });
+    }
+  }
+  return [...byHost.values()]
+    .sort((a, b) => b.visits - a.visits || b.last - a.last)
+    .slice(0, limit);
+}

@@ -1,6 +1,7 @@
 // Unit tests for the matching engine: node tests/matcher.test.mjs
 import {
   findMatch,
+  rankUncovered,
   explainMatch,
   excerptAround,
   hostMatches,
@@ -203,6 +204,26 @@ const pasted = splitRuleValues('domain', 'https://www.a.com/some/page\nb.com\nc.
 ok('four values out of three lines', pasted.length, 4);
 ok('every pasted site builds a rule', pasted.map((v) => buildRule({ type: 'domain', value: v }).ok), [true, true, true, true]);
 ok('a pasted line of junk is refused', buildRule({ type: 'domain', value: 'not a domain!' }).ok, false);
+
+// The suggestion side: what a person visits a lot and no rule covers. The teeth are in
+// the first check, because a site that would be wiped must never be suggested back.
+console.log('\nwhat a person visits and no rule covers');
+const history = [
+  { url: 'https://covered.example/x', title: 'x', visitCount: 50, lastVisitTime: 5 },
+  { url: 'https://busy.example/a', title: 'a', visitCount: 40, lastVisitTime: 1 },
+  { url: 'https://www.busy.example/b', title: 'b', visitCount: 35, lastVisitTime: 9 },
+  { url: 'https://quiet.example/c', title: 'c', visitCount: 3, lastVisitTime: 30 },
+  { url: 'chrome://settings', title: 'browser page', visitCount: 99, lastVisitTime: 99 },
+];
+const ranked = rankUncovered(history, [domain('covered.example')], 10);
+ok('a site that would be wiped is never suggested', ranked.map((r) => r.host).includes('covered.example'), false);
+ok('www and the bare host are one site', ranked[0].host, 'busy.example');
+ok('its visits add up', ranked[0].visits, 75);
+ok('browser pages are not suggestions', ranked.map((r) => r.host).includes('settings'), false);
+ok('ranked by visits, most first', ranked.map((r) => r.host), ['busy.example', 'quiet.example']);
+ok('the list respects its cap', rankUncovered(history, [], 1).length, 1);
+ok('a switched-off rule covers nothing', rankUncovered(history, [{ ...domain('busy.example'), enabled: false }], 5).map((r) => r.host).includes('busy.example'), true);
+ok('entries without a count still count once', rankUncovered([{ url: 'https://one.example/a' }, { url: 'https://one.example/b' }], [], 5)[0].visits, 2);
 
 console.log(`\nmatcher: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);
