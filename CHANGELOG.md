@@ -2,6 +2,22 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.7.6
+
+Press Alt+Shift+W on any page to take that site out of your history right then, without opening
+the popup and without adding anything to the list. It takes the entries for the site you are on
+and nothing else, because it does the same work a rule for that site would do, so it cannot reach
+past the address you are looking at. The keys can be changed on the browser's own shortcuts page.
+
+A new check watches what the extension promises rather than what it does. Nothing in the package
+can make a request, the only real address in it is the support page, and the permissions it asks
+for are exactly the ones the README names. If any of that stops being true the tests fail, rather
+than the listing quietly going wrong.
+
+Wipes now say how many entries went, in your language, with the count written the way Polish
+wants it. The Export row says what the file is for: moving your list to another computer. Wording
+that no longer belonged to anything is gone from both language files.
+
 ## 1.7.5
 
 The popup and the settings page work again, and this is what was actually wrong. The file that turns a log entry into a readable line, src/logtext.js, was never added to the list of files the package is built from. It came into the project with the log rewrite in 1.6.0 and stayed out of the package from then on, so every build from 1.6.0 to 1.7.4 shipped a popup and a settings page that could not load at all. What you saw was the page's first paint, the word "Loading", with the settings button doing nothing, because the script that draws the page and wires that button up never ran.
