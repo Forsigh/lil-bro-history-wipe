@@ -3,7 +3,7 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 2.0.0.
+different builds called themselves 1.3.0. The current code is numbered 1.7.7.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
