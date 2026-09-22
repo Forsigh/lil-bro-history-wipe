@@ -73,7 +73,12 @@ async function bumpStats(count, phase) {
 }
 
 /** The count as a word, in the plural form the language asks for: Polish has three, and
- *  "2 wpisów" reads as wrong to anyone who speaks it. */
+ *  "2 wpisów" reads as wrong to anyone who speaks it. English is the fallback, for the one
+ *  case where the bundle has not loaded and the message still has to say something true. */
+function countText(count) {
+  return `${count} ${count === 1 ? 'entry' : 'entries'}`;
+}
+
 function countWord(count) {
   let form = 'entryMany';
   try {
@@ -81,9 +86,9 @@ function countWord(count) {
     if (picked === 'one') form = 'entryOne';
     else if (picked === 'few') form = 'entryFew';
   } catch (e) {
-    if (count === 1) form = 'entryOne';
+    return countText(count);
   }
-  return t(form, [String(count)]) || String(count);
+  return t(form, [String(count)]) || countText(count);
 }
 
 /** The one place a notification is raised, so the wording is decided by the caller. */
@@ -105,7 +110,7 @@ async function tell(message) {
 
 async function notify(count) {
   if (!count) return;
-  await tell(t('notifyWiped', [countWord(count)]) || `Wiped ${count} from history.`);
+  await tell(t('notifyWiped', [countWord(count)]) || `Wiped ${countWord(count)} from history.`);
 }
 
 /** A wipe aimed at one site can name it, unless the PIN is on: then the count is all it says. */
@@ -113,8 +118,8 @@ async function notifySite(site, count) {
   if (!count) return;
   const { settings } = await getState();
   const message = settings.lockEnabled
-    ? t('notifyWiped', [countWord(count)]) || `Wiped ${count} from history.`
-    : t('notifyWipedSite', [countWord(count), site]) || `Wiped ${count} for ${site}.`;
+    ? t('notifyWiped', [countWord(count)]) || `Wiped ${countWord(count)} from history.`
+    : t('notifyWipedSite', [countWord(count), site]) || `Wiped ${countWord(count)} for ${site}.`;
   await tell(message);
 }
 
