@@ -1078,6 +1078,32 @@ try {
   );
   await closePage(optCounted.id);
 
+  // The never-delete control on a rule row: it has to write the flag down, not just
+  // look pressed, because the engine reads the flag and not the button.
+  const optKeep = await openPage(`chrome-extension://${id}/src/options.html`);
+  const keepOut = JSON.parse(
+    await optKeep.evaluate(`(async()=>{
+      await new Promise(r=>setTimeout(r,600));
+      const btn = document.querySelector('#rulesBody .tag.keep');
+      if (!btn) return JSON.stringify({ found: false });
+      const before = btn.getAttribute('aria-pressed');
+      btn.click();
+      await new Promise(r=>setTimeout(r,500));
+      const got = await new Promise(r=>chrome.storage.local.get(['rules'], r));
+      const flag = (got.rules || []).some((rule) => rule.exempt === true);
+      const now = document.querySelector('#rulesBody .tag.keep');
+      return JSON.stringify({ found: true, before, after: now ? now.getAttribute('aria-pressed') : '', flag });
+    })()`)
+  );
+  record(
+    'a rule row can be told never to delete, and it writes that down',
+    keepOut.found === true && keepOut.after === 'true' && keepOut.flag === true,
+    keepOut.found
+      ? `pressed ${keepOut.before} then ${keepOut.after}, stored flag: ${keepOut.flag}`
+      : 'no never-delete button on the row'
+  );
+  await closePage(optKeep.id);
+
   // The popup surface. The numbers are put in storage first, so a fresh probe profile
   // cannot pass this by showing a zero that happens to be on screen.
   const optSeedPop = await openPage(`chrome-extension://${id}/src/options.html`);

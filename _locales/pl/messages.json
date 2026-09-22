@@ -1033,5 +1033,14 @@
   },
   "notifyKept": {
     "message": "Zostawione: $1 jest na liście „nie usuwaj”."
+  },
+  "ruleNeverDelete": {
+    "message": "Nie usuwaj"
+  },
+  "ruleNeverDeleteNote": {
+    "message": "Oznacz regułę jako „Nie usuwaj”, a będzie te strony zostawiać zamiast je czyścić, niezależnie od reszty listy."
+  },
+  "siteKeptByRule": {
+    "message": "Zostawione: reguła mówi, żeby nie usuwać tej strony."
   }
 }

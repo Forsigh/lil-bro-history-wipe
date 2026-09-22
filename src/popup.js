@@ -21,7 +21,7 @@ import {
   ARM_WINDOW_MS,
 } from './confirm-gate.js';
 import { isLockConfigured } from './lock.js';
-import { findMatch, isWipeableUrl } from './matcher.js';
+import { findMatch, explainExempt, isWipeableUrl } from './matcher.js';
 import { whyLine, headline, hostLabel } from './logtext.js';
 import { applyI18n, setLang, t, currentLang } from './i18n.js';
 
@@ -254,7 +254,9 @@ function updateVerdict() {
     el.className = 'row verdict';
     return;
   }
-  const hit = findMatch({ url: currentUrl, title: currentTitle }, state.rules);
+  const here = { url: currentUrl, title: currentTitle };
+  const keeps = explainExempt(here, state.rules);
+  const hit = findMatch(here, state.rules);
   const goes = keepMode ? !hit : !!hit;
 
   let key = keepMode ? 'siteKept' : 'siteNotListed';
@@ -262,6 +264,11 @@ function updateVerdict() {
   if (!s.enabled) {
     key = 'sitePaused';
     kind = 'warn';
+  } else if (keeps && !keepMode) {
+    // The one case on this screen that is good news, and it is the answer even with
+    // "wipe all history" on, because a never-delete rule really does hold there.
+    key = 'siteKeptByRule';
+    kind = 'ok';
   } else if (s.wipeAllHistory) {
     key = 'siteAll';
     kind = 'danger';

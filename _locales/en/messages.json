@@ -1033,5 +1033,14 @@
   },
   "notifyKept": {
     "message": "Kept: $1 is on your never-delete list."
+  },
+  "ruleNeverDelete": {
+    "message": "Never delete"
+  },
+  "ruleNeverDeleteNote": {
+    "message": "Mark a rule Never delete and it keeps those sites instead of clearing them, whatever else is on the list."
+  },
+  "siteKeptByRule": {
+    "message": "Kept: a rule says never delete this site."
   }
 }

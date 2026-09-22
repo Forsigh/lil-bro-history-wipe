@@ -293,6 +293,18 @@ function renderRules() {
     }
     tr.appendChild(tdValue);
 
+    const keep = document.createElement('button');
+    keep.className = 'tag keep' + (rule.exempt ? ' on' : '');
+    keep.setAttribute('aria-pressed', rule.exempt ? 'true' : 'false');
+    keep.textContent = t('ruleNeverDelete');
+    keep.addEventListener('click', async () => {
+      rule.exempt = rule.exempt !== true;
+      await saveState({ rules: state.rules });
+      renderRules();
+      runTest();
+    });
+    tdValue.appendChild(keep);
+
     const tdOn = document.createElement('td');
     const toggle = document.createElement('input');
     toggle.type = 'checkbox';
