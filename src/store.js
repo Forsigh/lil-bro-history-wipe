@@ -247,6 +247,7 @@ export function buildRule({ type, value, includeSubdomains = false, wholeWord = 
     value: raw,
     includeSubdomains: false,
     wholeWord: false,
+    exempt: false,
     enabled: true,
     createdAt: Date.now(),
   };

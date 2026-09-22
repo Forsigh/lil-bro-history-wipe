@@ -219,10 +219,38 @@ export function excerptAround(text, at, word, span = 26) {
 }
 
 /**
- * First matching rule wins, with the detail the log needs to explain itself.
+ * Exempt first, always. A rule marked "never delete" wins over every wipe rule, no
+ * matter what order the list is in and no matter how many wipe rules also match on
+ * the same page. An exemption is a promise, and a promise that depends on the order
+ * of a list is not one.
+ *
+ * Returns { rule, field, word, at } for the rule that keeps the page, or null.
+ */
+export function explainExempt(item, rules) {
+  if (!isWipeableUrl(item && item.url)) return null;
+  const url = String((item && item.url) || '');
+  const title = String((item && item.title) || '');
+  for (const rule of rules || []) {
+    if (!rule || rule.exempt !== true || rule.enabled === false) continue;
+    if (!itemMatchesRule(item, rule)) continue;
+    return { rule, ...whereIn(url, title, rule) };
+  }
+  return null;
+}
+
+/** The rule that keeps the page off the wipe list, or null. */
+export function findExempt(item, rules) {
+  const hit = explainExempt(item, rules);
+  return hit ? hit.rule : null;
+}
+
+/**
+ * The first wipe rule that matches, with the detail the log needs to explain itself.
+ * A page an exemption covers never gets here at all.
  * Returns { rule, field, word, at } or null.
  */
 export function explainMatch(item, rules) {
+  if (explainExempt(item, rules)) return null;
   if (!isWipeableUrl(item && item.url)) return null;
   const url = String((item && item.url) || '');
   const title = String((item && item.title) || '');
@@ -257,7 +285,7 @@ export function rankUncovered(entries, rules, limit = 10) {
     if (!isWipeableUrl(url)) continue;
     const host = hostOf(url);
     if (!host) continue;
-    if (findMatch(item, active)) continue;
+    if (findExempt(item, active) || findMatch(item, active)) continue;
     const visits = Number(item.visitCount) > 0 ? Number(item.visitCount) : 1;
     const last = Number(item.lastVisitTime) || 0;
     const seen = byHost.get(host);

@@ -1,6 +1,8 @@
 // Unit tests for the matching engine: node tests/matcher.test.mjs
 import {
   findMatch,
+  findExempt,
+  explainExempt,
   rankUncovered,
   explainMatch,
   excerptAround,
@@ -224,6 +226,26 @@ ok('ranked by visits, most first', ranked.map((r) => r.host), ['busy.example', '
 ok('the list respects its cap', rankUncovered(history, [], 1).length, 1);
 ok('a switched-off rule covers nothing', rankUncovered(history, [{ ...domain('busy.example'), enabled: false }], 5).map((r) => r.host).includes('busy.example'), true);
 ok('entries without a count still count once', rankUncovered([{ url: 'https://one.example/a' }, { url: 'https://one.example/b' }], [], 5)[0].visits, 2);
+
+// An exemption is a promise, so it holds whatever order the list is in.
+{
+  const wipe = { id: 'w1', type: 'domain', value: 'shop.example', includeSubdomains: false, enabled: true };
+  const keepRule = { id: 'k1', type: 'domain', value: 'shop.example', includeSubdomains: false, enabled: true, exempt: true };
+  const item = { url: 'https://shop.example/cart', title: 'Cart' };
+
+  ok('an exemption keeps a page the wipe list also matches', findMatch(item, [wipe, keepRule]), null);
+  ok('the same answer with the exemption written first', findMatch(item, [keepRule, wipe]), null);
+  const why = explainExempt(item, [wipe, keepRule]);
+  ok('and the log can name the rule that kept it', why && why.rule.id, 'k1');
+  ok('a switched-off exemption keeps nothing', findMatch(item, [wipe, { ...keepRule, enabled: false }]).id, 'w1');
+  ok('an exemption of another type still wins', findMatch(item, [wipe, { ...keyword('cart'), id: 'k2', exempt: true }]), null);
+  ok('a rule that is not an exemption still wipes', findMatch(item, [wipe]).id, 'w1');
+  ok('a plain rule is not read as an exemption', findExempt(item, [wipe]), null);
+
+  const busy = [{ url: 'https://busy.example/a', visitCount: 9 }, { url: 'https://busy.example/b', visitCount: 9 }];
+  ok('an exempted site is never suggested back', rankUncovered(busy, [{ ...domain('busy.example'), id: 'k3', exempt: true }], 5).length, 0);
+  ok('while a site nobody covers still is', rankUncovered(busy, [], 5)[0].host, 'busy.example');
+}
 
 console.log(`\nmatcher: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

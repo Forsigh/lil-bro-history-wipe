@@ -72,6 +72,7 @@ const SETTINGS_135 = [
 const RULE_FIELDS = [
   'createdAt',
   'enabled',
+  'exempt',
   'id',
   'includeSubdomains',
   'type',
