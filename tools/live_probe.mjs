@@ -1078,6 +1078,43 @@ try {
   );
   await closePage(optCounted.id);
 
+  // The popup surface. The numbers are put in storage first, so a fresh probe profile
+  // cannot pass this by showing a zero that happens to be on screen.
+  const optSeedPop = await openPage(`chrome-extension://${id}/src/options.html`);
+  await optSeedPop.evaluate(`(async()=>{
+    const got = await new Promise(r=>chrome.storage.local.get(['rules','settings','stats'], r));
+    const rule = (got.rules || [])[0];
+    const byRule = Object.assign({}, (got.stats && got.stats.byRule) || {});
+    byRule[rule.id] = 42;
+    const stats = Object.assign({}, got.stats, { byRule, wipedTotal: 1234 });
+    const settings = Object.assign({}, got.settings, { lockEnabled: false });
+    await new Promise(r=>chrome.storage.local.set({ settings, stats }, r));
+    return 'ok';
+  })()`);
+  await closePage(optSeedPop.id);
+
+  const pop = await openPage(`chrome-extension://${id}/src/popup.html`);
+  const popStat = JSON.parse(
+    await pop.evaluate(`(async()=>{
+      await new Promise(r=>setTimeout(r,700));
+      const total = (document.getElementById('keptOut') || {}).textContent || '';
+      const title = document.querySelector('#caughtCard [data-i18n]');
+      const rows = [...document.querySelectorAll('#topRules .row')].map((r)=>r.textContent.trim());
+      return JSON.stringify({ total: total.trim(), rows, title: title ? title.textContent.trim() : '' });
+    })()`)
+  );
+  record(
+    'the popup says how much it has kept out',
+    /1[.,\s]?234/.test(popStat.total),
+    `${popStat.title || 'the popup'}: ${popStat.total || 'empty'}`
+  );
+  record(
+    'the popup names the busiest rule and its count',
+    popStat.rows.some((row) => /\b42\b/.test(row)),
+    popStat.rows.join(' | ') || 'no rows were drawn'
+  );
+  await closePage(pop.id);
+
   await closePage(optLocked.id);
 
   // --- 12. a profile that came from 1.3.5, opened by this build ---------------

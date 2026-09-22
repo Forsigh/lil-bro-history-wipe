@@ -23,7 +23,7 @@ import {
 import { isLockConfigured } from './lock.js';
 import { findMatch, isWipeableUrl } from './matcher.js';
 import { whyLine, headline, hostLabel } from './logtext.js';
-import { applyI18n, setLang, t } from './i18n.js';
+import { applyI18n, setLang, t, currentLang } from './i18n.js';
 
 const $ = (id) => document.getElementById(id);
 
@@ -77,6 +77,60 @@ function applyLock() {
   $('siteVerdict').textContent = '';
 }
 
+/** Numbers the way the page's language writes them: Polish groups with a space. */
+function formatCount(n) {
+  try {
+    return new Intl.NumberFormat(currentLang()).format(n);
+  } catch {
+    return String(n);
+  }
+}
+
+/** The count with the word the language wants, since Polish has three forms. */
+function countWords(count) {
+  let key = 'entryMany';
+  try {
+    const picked = new Intl.PluralRules(currentLang()).select(count);
+    if (picked === 'one') key = 'entryOne';
+    else if (picked === 'few') key = 'entryFew';
+  } catch {
+    // A browser without the locale data still has to say something true.
+  }
+  return t(key, [String(count)]);
+}
+
+/** What each rule has caught, busiest first. Nothing is counted until a wipe happens,
+ *  so an empty list is the honest state for a fresh install, not a broken one. */
+function renderTopRules() {
+  const box = $('topRules');
+  if (!box) return;
+  box.textContent = '';
+  const byRule = (state.stats && state.stats.byRule) || {};
+  const rows = (state.rules || [])
+    .map((rule) => ({ rule, count: byRule[rule.id] || 0 }))
+    .filter((row) => row.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 3);
+  if (!rows.length) {
+    const line = document.createElement('div');
+    line.className = 'row mini';
+    line.textContent = t('caughtNone');
+    box.appendChild(line);
+    return;
+  }
+  for (const row of rows) {
+    const line = document.createElement('div');
+    line.className = 'row mini';
+    const name = document.createElement('span');
+    name.className = 'grow';
+    name.textContent = describeRule(row.rule);
+    const count = document.createElement('span');
+    count.textContent = countWords(row.count);
+    line.append(name, count);
+    box.appendChild(line);
+  }
+}
+
 function render() {
   const s = state.settings;
   const armed = !!s.wipeAllHistory;
@@ -123,6 +177,8 @@ function render() {
     startup: t('keepStart') || 'Everything else goes at your next start.',
   };
   $('modeText').textContent = (keep ? keepModes[s.mode] : modes[s.mode]) || '';
+  $('keptOut').textContent = formatCount(state.stats.wipedTotal || 0);
+  renderTopRules();
   $('statTotal').textContent = state.stats.wipedTotal || 0;
   $('statLast').textContent = state.stats.lastRunCount || 0;
   $('subdomains').checked = !!state.settings.includeSubdomainsDefault;

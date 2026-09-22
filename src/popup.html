@@ -24,6 +24,7 @@
           </button>
         </div>
         <p class="hero-line" id="modeText"></p>
+        <p class="hero-stat"><b id="keptOut">0</b><span data-i18n="keptOutLabel">kept out of your history</span></p>
       </section>
 
       <div class="card">
@@ -53,6 +54,11 @@
 
       <div class="card hidden lockbox" id="lockCard">
         <div class="row mini" id="lockNote"></div>
+      </div>
+
+      <div class="card lockable" id="caughtCard">
+        <div class="row mini" data-i18n="caughtTitle">What it has caught so far</div>
+        <div id="topRules"></div>
       </div>
 
       <footer class="pfoot">

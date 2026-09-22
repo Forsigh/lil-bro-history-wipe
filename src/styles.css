@@ -1001,6 +1001,22 @@ body.popup {
   color: var(--muted);
 }
 
+.hero-stat {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin: 10px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+
+.hero-stat b {
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
 .hero-line.muted {
   color: var(--muted);
 }

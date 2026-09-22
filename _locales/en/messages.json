@@ -1018,5 +1018,17 @@
   },
   "ruleRemoved": {
     "message": "$1 removed"
+  },
+  "keptOutLabel": {
+    "message": "kept out of your history"
+  },
+  "caughtTitle": {
+    "message": "What it has caught so far"
+  },
+  "caughtNone": {
+    "message": "Nothing counted yet. It starts as soon as a rule catches something."
+  },
+  "glanceTotal": {
+    "message": "$1 kept out"
   }
 }

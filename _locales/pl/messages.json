@@ -1018,5 +1018,17 @@
   },
   "ruleRemoved": {
     "message": "usunięto: $1"
+  },
+  "keptOutLabel": {
+    "message": "poza historią"
+  },
+  "caughtTitle": {
+    "message": "Co już złapało"
+  },
+  "caughtNone": {
+    "message": "Jeszcze nic. Liczy od pierwszego trafienia."
+  },
+  "glanceTotal": {
+    "message": "$1 poza historią"
   }
 }

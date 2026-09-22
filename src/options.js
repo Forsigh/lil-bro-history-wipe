@@ -186,6 +186,8 @@ function renderSettings() {
   $('glanceState').textContent = stateLine;
   $('glanceRules').textContent =
     (t('glanceOnYourList') || 'On your list') + ': ' + (state.rules || []).length;
+  const totalKept = (state.stats && state.stats.wipedTotal) || 0;
+  $('glanceTotal').textContent = t('glanceTotal', [totalKept.toLocaleString(currentLang())]);
 }
 
 /** The extra clear: what is on, how far back it reaches, and when it runs. */
