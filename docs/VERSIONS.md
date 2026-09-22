@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 1.7.6.
+different builds called themselves 1.3.0. The current code is numbered 1.7.7.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 1.7.7 | 22 Sep | `0e0fe41` | `66f4f0c3b015cc13` | Escape closes the delete confirmation now instead of leaving you sitting in it, and the focus goes back to the button you came from. The stylesheet lost a set of rules that had bee |
 | 1.7.6 | 22 Sep | `4a40459` | `dd2fe3d43e6ef198` | Press Alt+Shift+W on any page to take that site out of your history right then, without opening |
 | 1.7.5 | 21 Sep | `9937210` | `3db5165cd9cd5c19` | The popup and the settings page work again, and this is what was actually wrong. The file that turns a log entry into a readable line, src/logtext.js, was never added to the list o |
 | 1.7.4 | 21 Sep | `1a7310b` | `0888d922bf846956` | If something goes wrong while the popup or the settings page is starting, the extension says so now. Both of them used to sit on the word "Loading" for good, with every control dea |
