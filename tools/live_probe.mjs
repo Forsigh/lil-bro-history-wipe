@@ -1025,6 +1025,43 @@ try {
     `${sv.rows} rule row(s), named=${sv.named}`
   );
 
+  // The row switch has to draw a knob, and it has to keep drawing one when it is on.
+  // Both switches live in the same sheet, and the checkbox draws its tick with a
+  // clip-path on the checked ::after; that clip once landed on this knob, so the list
+  // showed a tick on a pill. Measured in both positions, after the slide settles.
+  const rowsw = JSON.parse(
+    await optLocked.evaluate(`(async()=>{
+      const el = document.querySelector('.rowsw');
+      if (!el) return JSON.stringify({ none: true });
+      const knob = () => {
+        const c = getComputedStyle(el, '::after');
+        return {
+          left: c.left, top: c.top, w: c.width, h: c.height, radius: c.borderRadius,
+          clip: c.clipPath, bg: c.backgroundColor, pos: c.position, content: c.content,
+        };
+      };
+      const settle = () => new Promise(r=>setTimeout(r,320));
+      const was = el.checked;
+      el.checked = false; await settle();
+      const off = knob();
+      el.checked = true; await settle();
+      const on = knob();
+      el.checked = was;
+      const b = el.getBoundingClientRect();
+      return JSON.stringify({ box: Math.round(b.width)+'x'+Math.round(b.height), cls: el.className, off, on });
+    })()`)
+  );
+  record(
+    'a row switch draws a round knob in both positions, not a tick on a pill',
+    !rowsw.none && rowsw.box === '32x18' &&
+      rowsw.off.clip === 'none' && rowsw.on.clip === 'none' &&
+      rowsw.off.w === '12px' && rowsw.off.radius === '50%' &&
+      rowsw.off.left === '2px' && rowsw.on.left === '16px' &&
+      rowsw.off.bg !== rowsw.on.bg,
+    rowsw.none ? 'no row switch on the page'
+      : JSON.stringify(rowsw)
+  );
+
   // A pasted list becomes one rule per line, or one per comma. The second half of
   // this pair is where the teeth are: without the duplicate check, pasting a list
   // twice would double it, and the first check alone would still pass.

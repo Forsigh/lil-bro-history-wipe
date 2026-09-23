@@ -1032,7 +1032,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "The settings page is three tabs now: Cleaning for the day-to-day, Logs for what it saw, and Advanced for everything that needs explaining first. The log stays out of reach while the PIN is on. This note shows up once per update, then stays away."
+    "message": "The switches on your list look like switches now: a round knob on a track, and it moves when you flip one. Everything else about how it cleans is unchanged. This note shows up once per update, then stays away."
   },
   "whatsNewOk": {
     "message": "Got it"

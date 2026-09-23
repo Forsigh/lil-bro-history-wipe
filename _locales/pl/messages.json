@@ -1032,7 +1032,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Ustawienia mają teraz trzy zakładki: Czyszczenie na co dzień, Log na to, co zobaczył, i Zaawansowane na wszystko, co trzeba najpierw wyjaśnić. Log jest zamknięty, dopóki PIN jest włączony. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
+    "message": "Przełączniki na liście wyglądają teraz jak przełączniki: okrągła gałka na torze, która przesuwa się po kliknięciu. Poza tym czyści tak samo. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
   },
   "whatsNewOk": {
     "message": "Rozumiem"

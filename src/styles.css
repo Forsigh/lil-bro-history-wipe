@@ -479,8 +479,8 @@ input[type='radio']:checked::after {
 input.rowsw {
   appearance: none;
   position: relative;
-  width: 30px;
-  height: 17px;
+  width: 32px;
+  height: 18px;
   margin: 0;
   border: 1px solid var(--line);
   border-radius: 999px;
@@ -490,16 +490,26 @@ input.rowsw {
   transition: background 0.18s var(--ease), border-color 0.18s var(--ease);
 }
 
+input.rowsw:hover {
+  border-color: var(--accent-dim);
+}
+
+/* The row switch is one knob in one of two places, and it has to look like a knob doing
+   that in both of them. The base checkbox rule above draws its tick with a clip-path on
+   the checked ::after, and nothing here used to take that back: the switch rendered as a
+   tick floating on a pill instead of a knob on a track. Size and clip are reset in both
+   states below, so the knob stays round whichever way the switch is thrown. */
 input.rowsw::after {
   content: '';
   position: absolute;
   top: 50%;
   left: 2px;
-  width: 11px;
-  height: 11px;
-  margin-top: -5.5px;
+  width: 12px;
+  height: 12px;
+  margin-top: -6px;
   border-radius: 50%;
-  background: var(--text);
+  clip-path: none;
+  background: var(--muted);
   transition: left 0.18s var(--ease), background 0.18s var(--ease);
 }
 
@@ -509,7 +519,11 @@ input.rowsw:checked {
 }
 
 input.rowsw:checked::after {
-  left: 15px;
+  left: 16px;
+  width: 12px;
+  height: 12px;
+  clip-path: none;
+  border-radius: 50%;
   background: var(--on-accent);
 }
 
