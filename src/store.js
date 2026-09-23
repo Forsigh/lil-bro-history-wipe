@@ -363,7 +363,9 @@ export function parseExport(text) {
     data && !Array.isArray(data) && data.settings && typeof data.settings === 'object'
       ? data.settings
       : null;
-  return { rules, skipped, settings };
+  const stats =
+    data && !Array.isArray(data) && data.stats && typeof data.stats === 'object' ? data.stats : null;
+  return { rules, skipped, settings, stats };
 }
 
 export const RULES_MIRROR_KEY = 'rulesMirror';

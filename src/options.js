@@ -123,11 +123,12 @@ function applyLock() {
   $('previewList').classList.toggle('hidden', locked);
   $('testUrl').disabled = locked;
   $('testTitle').disabled = locked;
-  // The log names the sites it cleaned, so while the PIN is on it is not just hidden but
-  // out of reach: the tab greys out and stops answering until the page is unlocked. The
-  // way out lives in Advanced, so a locked page opens there.
-  $('tabLogs').disabled = locked;
+  // The log names the sites it cleaned, so while the PIN is on it stays out of reach. The
+  // tab greys out but keeps answering: clicking it asks for the PIN right there. The
+  // card in Advanced stays as the second way in, and a locked page opens there.
+  $('tabLogs').classList.toggle('off', locked);
   $('tabLogs').setAttribute('aria-disabled', String(locked));
+  $('tabLogs').title = locked ? t('tabLogsLocked') || 'Enter your PIN to see the log' : '';
   if (locked) showTab($('tabAdvanced'));
 }
 
@@ -509,6 +510,11 @@ function showTab(tab) {
 
 for (const tab of document.querySelectorAll('.tab')) {
   tab.addEventListener('click', () => {
+    // A locked Logs tab is a door, not a wall: it asks for the PIN where it stands.
+    if (tab.id === 'tabLogs' && isLocked()) {
+      openLogPin();
+      return;
+    }
     if (!tab.disabled) showTab(tab);
   });
 }
@@ -738,6 +744,48 @@ $('lockRecoverBtn').addEventListener('click', async () => {
   showTab($('tabCleaning'));
   setMsg($('lockMsg'), LOCK_MESSAGES.recoveryDone, 'ok');
 });
+
+// The PIN box that opens from the locked Logs tab. Same gate and same lockout counter as
+// the card in Advanced, so a wrong guess costs the same wherever it is typed.
+function openLogPin() {
+  $('logPinInput').value = '';
+  setMsg($('logPinMsg'), '');
+  $('logPinDialog').showModal();
+  $('logPinInput').focus();
+}
+
+async function logPinTry() {
+  const { fails, lastFailAt } = await readAttempts();
+  const gate = attemptState(fails, lastFailAt, Date.now());
+  if (gate.blocked) {
+    setMsg($('logPinMsg'), LOCK_MESSAGES.lockedOut(Math.ceil(gate.waitMs / 1000)), 'err');
+    return;
+  }
+  const ok = await verifyPin($('logPinInput').value, state.settings);
+  $('logPinInput').value = '';
+  if (!ok) {
+    const next = fails + 1;
+    await writeAttempts(next, Date.now());
+    const left = MAX_ATTEMPTS - next;
+    setMsg(
+      $('logPinMsg'),
+      left > 0 ? LOCK_MESSAGES.wrongLeft(left) : LOCK_MESSAGES.lockedOut(Math.ceil(LOCKOUT_MS / 1000)),
+      'err'
+    );
+    return;
+  }
+  await writeAttempts(0, 0);
+  unlocked = true;
+  await load();
+  $('logPinDialog').close();
+  showTab($('tabLogs'));
+}
+
+$('logPinGo').addEventListener('click', logPinTry);
+$('logPinInput').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') logPinTry();
+});
+$('logPinCancel').addEventListener('click', () => $('logPinDialog').close());
 
 // The suggestions. Read on request, ranked on screen, and added through the same path
 // as anything else, so there is no second way to write a rule.
@@ -1011,15 +1059,23 @@ $('clearLog').addEventListener('click', async () => {
 });
 
 $('exportBtn').addEventListener('click', () => {
+  // Everything a fresh install needs to look like this one: the list, the settings the
+  // switches and themes are read from, and the counters on the dashboard.
   const payload = JSON.stringify(
-    { app: 'lil-bro-history-wipe', version: 1, settings: state.settings, rules: state.rules },
+    {
+      app: 'lil-bro-history-wipe',
+      version: 1,
+      settings: state.settings,
+      rules: state.rules,
+      stats: state.stats,
+    },
     null,
     2
   );
   const url = URL.createObjectURL(new Blob([payload], { type: 'application/json' }));
   const a = document.createElement('a');
   a.href = url;
-  a.download = 'lil-bro-rules.json';
+  a.download = 'lil-bro-backup.json';
   a.click();
   URL.revokeObjectURL(url);
 });
@@ -1038,6 +1094,10 @@ $('importFile').addEventListener('change', async (e) => {
     if (incoming.settings) {
       state.settings = mergeSettings({ ...state.settings, ...incoming.settings });
       await saveState({ settings: state.settings });
+    }
+    if (incoming.stats) {
+      state.stats = { ...state.stats, ...incoming.stats };
+      await saveState({ stats: state.stats });
     }
     await saveState({ rules: state.rules });
     setMsg(

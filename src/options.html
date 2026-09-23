@@ -35,7 +35,7 @@
            before you touch it lives in the third. -->
       <div class="tabs" role="tablist" aria-label="Settings sections">
         <button class="tab" id="tabCleaning" role="tab" aria-controls="panelCleaning" aria-selected="true" data-i18n="tabCleaning">Cleaning</button>
-        <button class="tab" id="tabLogs" role="tab" aria-controls="panelLogs" aria-selected="false" data-i18n="tabLogs" data-i18n-title="tabLogsLocked" title="Unlock it in Advanced first">Logs</button>
+        <button class="tab" id="tabLogs" role="tab" aria-controls="panelLogs" aria-selected="false" data-i18n="tabLogs" data-i18n-title="tabLogsLocked" title="Enter your PIN to see the log">Logs</button>
         <button class="tab" id="tabAdvanced" role="tab" aria-controls="panelAdvanced" aria-selected="false" data-i18n="tabAdvanced">Advanced</button>
       </div>
 
@@ -346,6 +346,21 @@
 
       <div class="row mini" id="version"></div>
     </div>
+
+    <!-- The PIN box for the log. It opens from the greyed Logs tab, so the one thing a
+         locked page asks you for is the thing you clicked for. -->
+    <dialog id="logPinDialog" class="pinbox" aria-labelledby="logPinTitle">
+      <h2 id="logPinTitle" data-i18n="logPinTitle">Enter your PIN</h2>
+      <p class="mini" data-i18n="logPinBody">The log names the sites it cleaned, so it stays hidden while the lock is on.</p>
+      <div class="row">
+        <input id="logPinInput" class="grow" type="password" autocomplete="off" data-i18n-placeholder="pinPlaceholder" placeholder="PIN" />
+      </div>
+      <div class="row mini" id="logPinMsg"></div>
+      <div class="row pin-actions">
+        <button id="logPinCancel" class="ghost" data-i18n="logPinCancel">Not now</button>
+        <button id="logPinGo" data-i18n="optLockUnlock">Unlock</button>
+      </div>
+    </dialog>
 
     <script type="module" src="options.js"></script>
   </body>

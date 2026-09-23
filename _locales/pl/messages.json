@@ -108,7 +108,7 @@
     "message": "Zablokowane."
   },
   "optLockedBody": {
-    "message": "Lista jest ukryta, dopóki jej nie odblokujesz w Zaawansowanych. Czyszczenie działa dalej."
+    "message": "Lista jest ukryta, dopóki jej nie odblokujesz. Czyszczenie działa dalej."
   },
   "optWhenToWipe": {
     "message": "Kiedy ma czyścić?"
@@ -126,7 +126,7 @@
     "message": "Jedno czyszczenie przy każdym otwarciu."
   },
   "optSweep": {
-    "message": "Czyść też historię, która już jest, przy starcie przeglądarki"
+    "message": "Przy starcie czyść też historię, która już jest"
   },
   "optNotify": {
     "message": "Powiedz mi, kiedy skończy czyścić"
@@ -234,7 +234,7 @@
     "message": "Zapisane pliki stron"
   },
   "optExtraCookies": {
-    "message": "Cookies (to, że jesteś zalogowany)"
+    "message": "Cookies (trzymają cię zalogowanego)"
   },
   "optExtraDownloads": {
     "message": "Lista pobranych plików"
@@ -420,7 +420,7 @@
     "message": "ciasteczka tej strony, przy zamknięciu karty"
   },
   "lockPopupNote": {
-    "message": "Lista zostaje ukryta, dopóki PIN jest włączony. Odblokujesz ją w ustawieniach."
+    "message": "Lista i log są schowane, dopóki PIN jest włączony. Odblokujesz je w ustawieniach."
   },
   "optStatusLine": {
     "message": ": wszystko, co dodasz, zostaje na tym komputerze."
@@ -618,7 +618,7 @@
     "message": "Lil Bro: usuń dokładnie ten adres"
   },
   "notifyLocked": {
-    "message": "Blokada PIN jest włączona, więc lista została nietknięta. Odblokuj ją w oknie wtyczki, żeby dodać stronę."
+    "message": "PIN jest włączony, więc nic nie dodano. Najpierw odblokuj listę w ustawieniach."
   },
   "notifyPaused": {
     "message": "Lil Bro jest wstrzymany."
@@ -630,7 +630,7 @@
     "message": "Ta wersja przeglądarki nie daje wtyczce dostępu do danych przeglądania."
   },
   "errClearRefused": {
-    "message": "Chrome odmówił czyszczenia: $1"
+    "message": "Przeglądarka odmówiła czyszczenia: $1"
   },
   "errNoCookies": {
     "message": "Brak dostępu do cookies."
@@ -678,10 +678,10 @@
     "message": "To nie ta fraza, więc nic nie zostało uzbrojone. Musi brzmieć dokładnie: $1"
   },
   "resClearedNoCount": {
-    "message": "Wyczyszczono: $1 ($2). Chrome nie podaje liczby."
+    "message": "Wyczyszczono: $1 ($2). Przeglądarka nie podaje liczby."
   },
   "resClearedNoCountOpt": {
-    "message": "Wyczyszczono: $1 ($2). Chrome nie podaje liczby, więc nie ma jej tu."
+    "message": "Wyczyszczono: $1 ($2). Przeglądarka nie podaje liczby, więc nie ma jej tu."
   },
   "resArmedAll": {
     "message": "Pełne czyszczenie uzbrojone: skasowane byłyby wszystkie wpisy ($1)."
@@ -705,7 +705,7 @@
     "message": " Dodatkowe dane też wyczyszczone ($1)."
   },
   "resAlsoCleared": {
-    "message": "Wyczyszczono też: $1 ($2). Chrome nie podaje liczby."
+    "message": "Wyczyszczono też: $1 ($2). Przeglądarka nie podaje liczby."
   },
   "resExtraSkipped": {
     "message": "Dodatkowe czyszczenie pominięte: $1"
@@ -840,13 +840,13 @@
     "message": "Nie ma czego czyścić."
   },
   "optRulesFile": {
-    "message": "Twoja lista w pliku"
+    "message": "Twój zestaw w jednym pliku"
   },
   "optExport": {
     "message": "Eksportuj"
   },
   "optExportNote": {
-    "message": "Plik zawiera twoją listę, więc w ten sposób przeniesiesz ją na inny komputer."
+    "message": "Plik zawiera twoją listę, ustawienia i liczniki, więc po wgraniu do świeżej instalacji wszystko wygląda jak tutaj."
   },
   "optImport": {
     "message": "Importuj"
@@ -876,7 +876,7 @@
     "message": "Usuń PIN i wyczyść moją listę"
   },
   "optLockNote": {
-    "message": "PIN-u potrzebujesz też, żeby to wyłączyć. Przy włączonej blokadzie menu po prawej, które dodaje stronę, tylko pokazuje powiadomienie."
+    "message": "Wyłączenie też wymaga PIN-u. Przy włączonej blokadzie menu po prawej nie doda strony, tylko pokaże powiadomienie."
   },
   "optAdvanced": {
     "message": "Pokaż opcje zaawansowane"
@@ -966,7 +966,7 @@
     "message": "Ostatnie czyszczenie: $1 ($2)"
   },
   "queueLine": {
-    "message": "czeka: $1, wyczyszczone $2"
+    "message": "w kolejce: $1, wyczyszczone: $2"
   },
   "queueWhenClose": {
     "message": "przy zamknięciu przeglądarki"
@@ -990,7 +990,7 @@
     "message": "Lista to łapie: $1, $2"
   },
   "optInsights": {
-    "message": "Co odwiedzasz, a nie ma tego na liście"
+    "message": "Strony poza listą, które odwiedzasz"
   },
   "optInsightsCheck": {
     "message": "Przejrzyj moją historię"
@@ -1002,7 +1002,7 @@
     "message": "Nie udało się. Spróbuj za chwilę."
   },
   "optInsightsEmpty": {
-    "message": "Nic spoza listy nie jest odwiedzane dość często, żeby to proponować."
+    "message": "Za mało wizyt, żeby coś spoza listy zaproponować."
   },
   "optInsightsEmptyAction": {
     "message": "Dodaj stronę ręcznie"
@@ -1032,7 +1032,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Przełączniki na liście wyglądają teraz jak przełączniki: okrągła gałka na torze, która przesuwa się po kliknięciu. Poza tym czyści tak samo. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
+    "message": "Log poprosi teraz o PIN tam, gdzie klikniesz. Plik eksportu przenosi też ustawienia i liczniki, więc świeża instalacja może wyglądać jak ta. Teksty też dostały przegląd, żeby oba języki czytały się po ludzku. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
   },
   "whatsNewOk": {
     "message": "Rozumiem"
@@ -1056,7 +1056,7 @@
     "message": "Zaawansowane"
   },
   "tabLogsLocked": {
-    "message": "Najpierw odblokuj w Zaawansowanych"
+    "message": "Wpisz PIN, żeby zobaczyć log"
   },
   "glanceTotal": {
     "message": "$1 poza historią"
@@ -1072,5 +1072,14 @@
   },
   "siteKeptByRule": {
     "message": "Zostawione: reguła mówi, żeby nie usuwać tej strony."
+  },
+  "logPinTitle": {
+    "message": "Wpisz PIN"
+  },
+  "logPinBody": {
+    "message": "Log wymienia wyczyszczone strony, więc zostaje schowany, dopóki blokada jest włączona."
+  },
+  "logPinCancel": {
+    "message": "Nie teraz"
   }
 }

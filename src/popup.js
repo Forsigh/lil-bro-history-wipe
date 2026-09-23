@@ -83,7 +83,7 @@ function applyLock() {
   $('lockCard').classList.toggle('hidden', !locked);
   if (!locked) return;
   $('lockNote').textContent =
-    t('lockPopupNote') || 'The list stays hidden while the PIN is on. Unlock it in the settings.';
+    t('lockPopupNote') || 'The list and the log stay out of sight while the PIN is on. Unlock them in the settings.';
   $('previewList').innerHTML = '';
   // A scan here only ever produced that list, so it would do nothing visible.
   $('previewBtn').disabled = true;

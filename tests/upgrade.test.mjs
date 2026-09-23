@@ -288,6 +288,12 @@ await checkAsync('the legacy close trigger is still a value this build understan
     if (parsed.settings.theme !== 'slate') throw new Error('theme changed');
     if (parsed.settings.lockHash !== SETTINGS_135.lockHash) throw new Error('PIN changed');
   });
+  check('an export carries the counters, and a file without them still imports', () => {
+    const withStats = store.parseExport(JSON.stringify({ rules: RULES_135, stats: { wipedTotal: 42 } }));
+    if (!withStats.stats || withStats.stats.wipedTotal !== 42) throw new Error('counters were lost');
+    const without = store.parseExport(JSON.stringify({ rules: RULES_135 }));
+    if (without.stats !== null) throw new Error('invented counters out of nothing');
+  });
   check('a bare array still imports, since that is what the first build wrote', () => {
     const bare = store.parseExport(JSON.stringify(RULES_135));
     if (bare.rules.length !== 2) throw new Error(`${bare.rules.length} rules`);

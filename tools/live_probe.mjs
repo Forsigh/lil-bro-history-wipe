@@ -153,13 +153,30 @@ try {
   if (!w) throw new Error('the extension service worker never appeared');
   id = w.url.split('/')[2];
 
-  worker = connect(w.webSocketDebuggerUrl);
-  await worker.ready;
-  await worker.send('Runtime.enable');
-  const ev = worker.evaluate;
+  const attach = async () => {
+    worker = connect(w.webSocketDebuggerUrl);
+    await worker.ready;
+    await worker.send('Runtime.enable');
+  };
+  await attach();
+  let ev = worker.evaluate;
 
   // --- 1. the manifest the browser actually loaded -------------------------
-  const manifestRaw = await ev('JSON.stringify(chrome.runtime.getManifest())');
+  let manifestRaw = await ev('JSON.stringify(chrome.runtime.getManifest())');
+  if (typeof manifestRaw !== 'string') {
+    // A cold headless start can hand back a worker whose context is already broken,
+    // which shows up as an Uncaught on the very first read. Relaunch headed and read
+    // it again rather than calling the extension unloadable.
+    child.kill();
+    await sleep(1500);
+    await launch(false);
+    w = await findWorker();
+    if (!w) throw new Error('the extension service worker never appeared');
+    id = w.url.split('/')[2];
+    await attach();
+    ev = worker.evaluate;
+    manifestRaw = await ev('JSON.stringify(chrome.runtime.getManifest())');
+  }
   if (typeof manifestRaw !== 'string') {
     throw new Error(`could not read the manifest: ${JSON.stringify(manifestRaw).slice(0, 300)}`);
   }
@@ -1905,17 +1922,39 @@ try {
     await sleep(800);
     const lockedTabs = JSON.parse(
       await shotLocked.evaluate(`JSON.stringify({
-        logsDisabled: document.getElementById('tabLogs').disabled,
+        greyed: document.getElementById('tabLogs').classList.contains('off'),
         ariaDisabled: document.getElementById('tabLogs').getAttribute('aria-disabled'),
         selected: document.querySelector('.tab[aria-selected="true"]').id,
-        stillHidden: (document.getElementById('tabLogs').click(), document.getElementById('panelLogs').classList.contains('hidden')),
       })`)
     );
     await shoot(shotLocked, 'options-locked.png', 640, 400, false, 2);
-    record('while the PIN holds, the Logs tab is greyed out and does not open',
-      lockedTabs.logsDisabled === true && lockedTabs.ariaDisabled === 'true' &&
-        lockedTabs.selected === 'tabAdvanced' && lockedTabs.stillHidden === true,
-      `disabled: ${lockedTabs.logsDisabled}, aria: ${lockedTabs.ariaDisabled}, opens on ${lockedTabs.selected}, Logs panel still hidden after a click: ${lockedTabs.stillHidden}`);
+    const pinBox = JSON.parse(
+      await shotLocked.evaluate(`JSON.stringify({
+        stillHidden: (document.getElementById('tabLogs').click(), document.getElementById('panelLogs').classList.contains('hidden')),
+        dialogOpen: document.getElementById('logPinDialog').open === true,
+      })`)
+    );
+    await shoot(shotLocked, 'options-pin.png', 640, 400, false, 2);
+    record('while the PIN holds, the Logs tab greys out and asks for the PIN instead of opening',
+      lockedTabs.greyed === true && lockedTabs.ariaDisabled === 'true' &&
+        lockedTabs.selected === 'tabAdvanced' && pinBox.stillHidden === true && pinBox.dialogOpen === true,
+      `greyed: ${lockedTabs.greyed}, aria: ${lockedTabs.ariaDisabled}, opens on ${lockedTabs.selected}, panel hidden after the click: ${pinBox.stillHidden}, PIN box up: ${pinBox.dialogOpen}`);
+    // And the box has to work: the right PIN opens the log itself, right there.
+    const logUnlock = JSON.parse(
+      await shotLocked.evaluate(`(async()=>{
+        document.getElementById('logPinInput').value = '2468';
+        document.getElementById('logPinGo').click();
+        await new Promise(r=>setTimeout(r,1400));
+        return JSON.stringify({
+          dialogGone: document.getElementById('logPinDialog').open !== true,
+          onLogs: document.querySelector('.tab[aria-selected="true"]').id === 'tabLogs',
+          logVisible: !document.getElementById('panelLogs').classList.contains('hidden'),
+        });
+      })()`)
+    );
+    record('typing the PIN in that box opens the log right there',
+      logUnlock.dialogGone === true && logUnlock.onLogs === true && logUnlock.logVisible === true,
+      JSON.stringify(logUnlock));
     await closePage(shotLocked.id);
   }
   // The keyboard shortcut's job, driven through the same message it uses. A browser

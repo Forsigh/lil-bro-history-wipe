@@ -155,7 +155,7 @@ body {
     border-color 0.16s var(--ease);
 }
 
-.tabs .tab:hover:not(:disabled) {
+.tabs .tab:hover:not(:disabled):not(.off) {
   color: var(--text);
   background: var(--state-hover);
 }
@@ -167,8 +167,16 @@ body {
   box-shadow: var(--shadow-1);
 }
 
+.tabs .tab.off,
 .tabs .tab:disabled {
   opacity: 0.5;
+}
+
+.tabs .tab.off {
+  cursor: pointer;
+}
+
+.tabs .tab:disabled {
   cursor: not-allowed;
 }
 
@@ -1649,4 +1657,47 @@ body.popup #openOptions:hover {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* The PIN box the locked Logs tab opens. A real dialog, so the page behind it dims, a
+   keyboard stays inside it, and Escape closes it without anything else being reachable. */
+dialog.pinbox {
+  width: min(360px, calc(100vw - 48px));
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--card);
+  color: var(--text);
+  /* The dim rides on the box as a spread shadow rather than a painted ::backdrop: the
+     page behind dims the same way in every engine and in every screenshot of the page,
+     and a scrim is not a palette colour on any theme, it is just a dimmer. */
+  box-shadow: 0 0 0 100vmax rgb(0 0 0 / 45%);
+}
+
+dialog.pinbox::backdrop {
+  /* Left transparent on purpose: the shadow above is the one scrim, two would go black. */
+  background: transparent;
+}
+
+dialog.pinbox h2 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 660;
+}
+
+dialog.pinbox .row {
+  margin-top: 10px;
+}
+
+dialog.pinbox p.mini {
+  margin: 2px 0 0;
+}
+
+dialog.pinbox h2::after {
+  content: none;
+}
+
+dialog.pinbox .pin-actions {
+  justify-content: flex-end;
+  margin-top: 14px;
 }

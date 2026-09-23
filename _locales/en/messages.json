@@ -108,7 +108,7 @@
     "message": "Locked."
   },
   "optLockedBody": {
-    "message": "Your list is hidden until you unlock it in Advanced. Cleaning carries on."
+    "message": "Your list stays hidden until you unlock it. Cleaning carries on."
   },
   "optWhenToWipe": {
     "message": "When should it clean?"
@@ -117,7 +117,7 @@
     "message": "While I browse"
   },
   "optModeRealtimeHint": {
-    "message": "It cleans each visit as it happens."
+    "message": "It cleans as you go, so nothing piles up."
   },
   "optModeStartup": {
     "message": "When I open the browser"
@@ -126,7 +126,7 @@
     "message": "One pass each time you open the browser."
   },
   "optSweep": {
-    "message": "Also clean the history that is already saved, at browser start"
+    "message": "At start, also clean the history that is already there"
   },
   "optNotify": {
     "message": "Tell me when it has cleaned"
@@ -234,7 +234,7 @@
     "message": "Saved page files"
   },
   "optExtraCookies": {
-    "message": "Cookies (what keeps me logged in)"
+    "message": "Cookies (they keep you logged in)"
   },
   "optExtraDownloads": {
     "message": "The list of downloads"
@@ -420,7 +420,7 @@
     "message": "cookies for this site, on tab close"
   },
   "lockPopupNote": {
-    "message": "The list stays hidden while the PIN is on. Unlock it in the settings."
+    "message": "The list and the log stay out of sight while the PIN is on. Unlock them in the settings."
   },
   "optStatusLine": {
     "message": ": everything you add stays on this computer."
@@ -618,7 +618,7 @@
     "message": "Lil Bro: wipe this exact page"
   },
   "notifyLocked": {
-    "message": "The PIN lock is on, so the list was left alone. Unlock it in the popup to add a site."
+    "message": "The PIN is on, so nothing was added. Unlock the list in the settings first."
   },
   "notifyPaused": {
     "message": "Lil Bro is paused."
@@ -630,7 +630,7 @@
     "message": "This browser build gives the extension no access to browsing data."
   },
   "errClearRefused": {
-    "message": "Chrome refused the clear: $1"
+    "message": "The browser refused to clear: $1"
   },
   "errNoCookies": {
     "message": "No cookie access."
@@ -678,10 +678,10 @@
     "message": "That is not the phrase, so nothing was armed. It must read exactly: $1"
   },
   "resClearedNoCount": {
-    "message": "Cleared $1 ($2). Chrome gives no count."
+    "message": "Cleared $1 ($2). The browser gives no count."
   },
   "resClearedNoCountOpt": {
-    "message": "Cleared $1 ($2). Chrome reports no count, so there is none to show."
+    "message": "Cleared $1 ($2). The browser reports no count, so there is none to show."
   },
   "resArmedAll": {
     "message": "Wipe-all is armed: all $1 entries would be erased."
@@ -705,7 +705,7 @@
     "message": " Extra data cleared too ($1)."
   },
   "resAlsoCleared": {
-    "message": "Also cleared $1 ($2). Chrome reports no count."
+    "message": "Also cleared $1 ($2). The browser reports no count."
   },
   "resExtraSkipped": {
     "message": "Extra clear skipped: $1"
@@ -840,13 +840,13 @@
     "message": "Nothing to clear."
   },
   "optRulesFile": {
-    "message": "Your list as a file"
+    "message": "Your setup as a file"
   },
   "optExport": {
     "message": "Export"
   },
   "optExportNote": {
-    "message": "The file holds your list, so it is the way to move it to another computer."
+    "message": "The file carries your list, your settings and your counted numbers, so loading it into a fresh install makes it look like this one."
   },
   "optImport": {
     "message": "Import"
@@ -876,7 +876,7 @@
     "message": "Remove the PIN and wipe my list"
   },
   "optLockNote": {
-    "message": "You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site only shows a notification."
+    "message": "Turning this off needs the PIN too. While it is on, the right-click menu cannot add sites: it only shows a notification."
   },
   "optAdvanced": {
     "message": "Show the advanced controls"
@@ -966,7 +966,7 @@
     "message": "Last clean: $1 ($2)"
   },
   "queueLine": {
-    "message": "waiting: $1, cleaned $2"
+    "message": "in the queue: $1, cleaned $2"
   },
   "queueWhenClose": {
     "message": "when you close the browser"
@@ -990,7 +990,7 @@
     "message": "Your list catches this: $1 to $2"
   },
   "optInsights": {
-    "message": "What you visit and no rule covers"
+    "message": "Sites you visit that no rule covers"
   },
   "optInsightsCheck": {
     "message": "Look through my history"
@@ -1002,7 +1002,7 @@
     "message": "That did not work. Try again."
   },
   "optInsightsEmpty": {
-    "message": "Nothing outside your list is visited often enough to suggest yet."
+    "message": "Not enough visits yet to suggest anything outside your list."
   },
   "optInsightsEmptyAction": {
     "message": "Add a site by hand"
@@ -1032,7 +1032,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "The switches on your list look like switches now: a round knob on a track, and it moves when you flip one. Everything else about how it cleans is unchanged. This note shows up once per update, then stays away."
+    "message": "The log asks for your PIN right where you click it now. The export file carries your settings and counts too, so a fresh install can look like this one. The wording got a pass as well, so both languages read like people. This note shows up once per update, then stays away."
   },
   "whatsNewOk": {
     "message": "Got it"
@@ -1056,7 +1056,7 @@
     "message": "Advanced"
   },
   "tabLogsLocked": {
-    "message": "Unlock it in Advanced first"
+    "message": "Enter your PIN to see the log"
   },
   "glanceTotal": {
     "message": "$1 kept out"
@@ -1072,5 +1072,14 @@
   },
   "siteKeptByRule": {
     "message": "Kept: a rule says never delete this site."
+  },
+  "logPinTitle": {
+    "message": "Enter your PIN"
+  },
+  "logPinBody": {
+    "message": "The log names the sites it cleaned, so it stays hidden while the lock is on."
+  },
+  "logPinCancel": {
+    "message": "Not now"
   }
 }
