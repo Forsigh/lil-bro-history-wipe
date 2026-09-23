@@ -119,6 +119,13 @@ body {
   gap: 11px;
 }
 
+/* The line under the title starts where the title starts, not where the little icon
+   starts. The stepped edge was the first thing the eye hit on the page. 41 is the mark
+   (30) plus the gap (11) above, so the two left edges line up exactly. */
+.sub {
+  padding-left: 41px;
+}
+
 .brand-mark {
   display: grid;
   place-items: center;
@@ -383,6 +390,103 @@ input[type='radio'] {
   flex: none;
 }
 
+/* --- the way into the advanced half -------------------------------------- */
+
+/* One switch, one line of plain words under it. This used to be a full-width bordered
+   strip with a bare checkbox floating in the middle of dead space, which read as a
+   leftover panel rather than the door to the rest of the page. The switch is drawn from
+   the theme's own colours and matches the one in the popup. */
+.switchline {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  font-size: 13.5px;
+  color: var(--text);
+}
+
+.switchline input {
+  appearance: none;
+  position: relative;
+  flex: none;
+  width: 36px;
+  height: 20px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  cursor: pointer;
+  transition: background 0.18s var(--ease), border-color 0.18s var(--ease);
+}
+
+.switchline input::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: left 0.18s var(--ease), background 0.18s var(--ease);
+}
+
+.switchline input:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.switchline input:checked::after {
+  left: 18px;
+  background: var(--on-accent);
+}
+
+.advrow small {
+  display: block;
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* The same switch, one size down, for the on/off box that sits on every rule row: the
+   bare checkbox it used to be looked like something the browser had left behind. */
+input.rowsw {
+  appearance: none;
+  position: relative;
+  width: 30px;
+  height: 17px;
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--card);
+  cursor: pointer;
+  vertical-align: middle;
+  transition: background 0.18s var(--ease), border-color 0.18s var(--ease);
+}
+
+input.rowsw::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  width: 11px;
+  height: 11px;
+  margin-top: -5.5px;
+  border-radius: 50%;
+  background: var(--muted);
+  transition: left 0.18s var(--ease), background 0.18s var(--ease);
+}
+
+input.rowsw:checked {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+input.rowsw:checked::after {
+  left: 15px;
+  background: var(--on-accent);
+}
+
 /* --- fields -------------------------------------------------------------- */
 
 input[type='text'],
@@ -447,6 +551,12 @@ textarea {
   width: 100%;
   font: 13px/1.55 ui-monospace, "Cascadia Mono", Consolas, monospace;
   resize: vertical;
+}
+
+/* The rule box holds one address or one word, so it is not a note pad: no corner drag,
+   so nobody leaves it stretched out of line with the button beside it. */
+#ruleValue {
+  resize: none;
 }
 
 /* --- buttons ------------------------------------------------------------- */
@@ -639,12 +749,29 @@ a.bmc:hover img {
   color: var(--danger);
 }
 
+/* --- the two big choices -------------------------------------------------- */
+
+/* Title over its line of small print, with room to breathe: inside the option cards the
+   two lines sat right on top of each other. */
+label.radio b,
+label.radio small {
+  display: block;
+}
+
+label.radio small {
+  margin-top: 3px;
+  line-height: 1.45;
+}
+
 /* --- the theme picker ---------------------------------------------------- */
 
+/* Four even tiles a line, two lines of four. The old wrap left the last theme stranded
+   alone on a line of its own, which reads as a mistake rather than a choice, and the
+   store shots are taken at a width where four is what fits without shrinking the names. */
 .themes {
-  display: flex;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 8px;
-  flex-wrap: wrap;
 }
 
 .theme {

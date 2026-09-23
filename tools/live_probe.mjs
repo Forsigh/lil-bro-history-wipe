@@ -1734,12 +1734,17 @@ try {
         h: window.innerHeight,
         theme: r(document.getElementById('themeRow')),
         lang: r(document.getElementById('langPick')),
+        // The language menu moved behind the advanced switch, so where it lives is now
+        // part of what has to hold: the frame can no longer show it, and the page should
+        // only ever offer it from inside that box.
+        langInAdv: !!document.getElementById('langPick')?.closest('#advBox'),
         tiles: document.querySelectorAll('.theme').length,
       };
     })()`);
-    record('the theme row and the language picker are both inside the fifth shot',
-      inFrame.theme.top >= 0 && inFrame.lang.top > inFrame.theme.bottom && inFrame.lang.bottom <= inFrame.h,
-      `frame ${inFrame.w}x${inFrame.h}, theme row ${inFrame.theme.top}..${inFrame.theme.bottom}, language picker ${inFrame.lang.top}..${inFrame.lang.bottom}, ${inFrame.tiles} tiles`);
+    record('the fifth shot holds the theme row, and the language menu stays behind the switch',
+      inFrame.theme.top >= 0 && inFrame.theme.bottom <= inFrame.h && inFrame.langInAdv,
+      `frame ${inFrame.w}x${inFrame.h}, theme row ${inFrame.theme.top}..${inFrame.theme.bottom}, ` +
+        `language menu ${inFrame.langInAdv ? 'inside the advanced box' : `OUT at ${inFrame.lang.top}..${inFrame.lang.bottom}`}, ${inFrame.tiles} tiles`);
     await shoot(shotOptions, 'options-look.png', 640, 400, false, 2);
 
     // The store shows every screenshot at 640 wide, so a row that wraps at that width
@@ -1770,6 +1775,29 @@ try {
     record('the theme tiles form an even block at the width the store shots use',
       rowFit.lines.every((n) => n >= 4),
       `${rowFit.tiles} tiles as ${rowFit.lines.join('+')} per line, container ${rowFit.clientWidth}px, display:${rowFit.display}, cols:${rowFit.columns}, widths:${rowFit.widths}, tops:${rowFit.tops}`);
+
+    // The way into the advanced half is the last thing on the page, and it used to be a
+    // full-width bordered strip with a bare checkbox floating in the middle of dead space.
+    // What has to hold now: the box is drawn by the sheet as a switch with a knob, the
+    // label sits beside it on one line, and the whole row is a row rather than a panel.
+    await shotOptions.evaluate("document.querySelector('.advrow').scrollIntoView({ block: 'center' })");
+    await sleep(400);
+    const sw = await shotOptions.evaluate(`(() => {
+      const input = document.getElementById('advOn');
+      const knob = getComputedStyle(input, '::after');
+      const b = input.getBoundingClientRect();
+      return {
+        drawn: getComputedStyle(input).appearance === 'none' && knob.content !== 'none' && knob.borderRadius === '50%',
+        box: Math.round(b.width) + 'x' + Math.round(b.height),
+        knob: knob.width + ' left ' + knob.left,
+        lineH: Math.round(document.querySelector('.advrow .switchline').getBoundingClientRect().height),
+        rowH: Math.round(document.querySelector('.advrow').getBoundingClientRect().height),
+      };
+    })()`);
+    await shoot(shotOptions, 'options-advanced.png', 640, 400, false, 2);
+    record('the advanced switch is drawn as a switch, not a bare checkbox in a strip',
+      sw.drawn && sw.lineH > 0 && sw.rowH > 0 && sw.rowH < 90,
+      `switch ${sw.box} (${sw.knob}), label line ${sw.lineH}px, row ${sw.rowH}px`);
     await closePage(shotOptions.id);
 
     // A log row is read by a person, so what one says is checked in the real page: the

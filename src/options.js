@@ -314,6 +314,7 @@ function renderRules() {
     const tdOn = document.createElement('td');
     const toggle = document.createElement('input');
     toggle.type = 'checkbox';
+    toggle.className = 'rowsw';
     toggle.checked = rule.enabled !== false;
     toggle.addEventListener('change', async () => {
       rule.enabled = toggle.checked;
