@@ -149,7 +149,11 @@ function renderSettings() {
   $('keepOnly').checked = s.listMode === 'allow';
   $('lockEnabled').checked = !!s.lockEnabled;
   $('advOn').checked = !!s.advanced;
-  $('advBox').classList.toggle('hidden', !s.advanced);
+  // Locked, the way out sits in here, so the box opens rather than hiding itself. And the
+  // switch says how many controls it is holding back.
+  $('advBox').classList.toggle('hidden', !(s.advanced || isLocked()));
+  const held = $('advBox').querySelectorAll('button, input, select, textarea').length;
+  $('advLabel').textContent = t('optAdvanced') + ' ' + t('advCount', [held]);
   $('langPick').value = s.lang || 'auto';
   $('keepWarn').textContent = s.listMode === 'allow'
     ? t('optKeepWarn') || 'On: everything not on your list is being wiped. Cookies and cache are separate.'
@@ -483,7 +487,7 @@ $('logEnabled').addEventListener('change', async () => {
 });
 $('advOn').addEventListener('change', async () => {
   state.settings.advanced = $('advOn').checked;
-  $('advBox').classList.toggle('hidden', !state.settings.advanced);
+  $('advBox').classList.toggle('hidden', !(state.settings.advanced || isLocked()));
   await saveState({ settings: state.settings });
 });
 // Switching the language reloads the page: every string, including the ones the

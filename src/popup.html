@@ -15,6 +15,14 @@
         <span class="pill"><span class="dot" id="dot"></span><span id="status">Loading…</span></span>
       </header>
 
+      <div class="card hidden" id="newInThisVersion">
+        <div class="row mini" data-i18n="whatsNewTitle">What changed in this version</div>
+        <p class="row" data-i18n="whatsNewBody">The settings page is shorter now. Your list and the main controls are what you see first, and the rest of the fine-tuning waits behind one switch. This note shows up once per update, then stays away.</p>
+        <div class="row">
+          <button id="whatsNewOk" class="ghost" data-i18n="whatsNewOk">Got it</button>
+        </div>
+      </div>
+
       <section class="hero">
         <div class="hero-top">
           <span class="hero-title" data-i18n="cleaningTitle">Cleaning</span>
@@ -63,7 +71,6 @@
 
       <footer class="pfoot">
         <button id="openOptions" class="ghost grow" data-i18n="openOptions">All rules &amp; settings</button>
-        <div class="mini" id="version"></div>
       </footer>
 
       <!-- Still wired, still off screen: the script writes to these, and the two

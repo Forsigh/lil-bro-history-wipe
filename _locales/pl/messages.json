@@ -1028,6 +1028,21 @@
   "caughtNone": {
     "message": "Jeszcze nic. Liczy od pierwszego trafienia."
   },
+  "whatsNewTitle": {
+    "message": "Co się zmieniło w tej wersji"
+  },
+  "whatsNewBody": {
+    "message": "Ustawienia są teraz krótsze. Najpierw widzisz swoją listę i najważniejsze przełączniki, a reszta drobnych opcji czeka pod jednym przyciskiem. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
+  },
+  "whatsNewOk": {
+    "message": "Rozumiem"
+  },
+  "advCount": {
+    "message": "($1 więcej)"
+  },
+  "optLockSection": {
+    "message": "Lista pod PIN-em"
+  },
   "glanceTotal": {
     "message": "$1 poza historią"
   },

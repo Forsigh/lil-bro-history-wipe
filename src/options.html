@@ -54,35 +54,6 @@
           <label class="pill"><input type="checkbox" id="sweep" /> <span data-i18n="optSweep">Also clean the history that is already saved, at browser start</span></label>
           <label class="pill"><input type="checkbox" id="notify" /> <span data-i18n="optNotify">Tell me when it has cleaned</span></label>
         </div>
-        <div class="row" style="margin-top: 14px">
-          <label class="pill">
-            <input type="checkbox" id="lockEnabled" />
-            <span data-i18n="optLockEnable">Hide the list behind a PIN</span>
-          </label>
-        </div>
-        <div class="row mini" id="lockHonest"></div>
-        <div class="row hidden" id="lockSetupRow">
-          <input id="lockPin1" type="password" data-i18n-placeholder="optLockPinNew" placeholder="new PIN" />
-          <input id="lockPin2" type="password" data-i18n-placeholder="optLockPinRepeat" placeholder="repeat it" />
-          <button id="lockSave" data-i18n="optSavePin">Save PIN</button>
-        </div>
-        <div class="row hidden" id="lockUnlockRow">
-          <input id="lockPin" type="password" data-i18n-placeholder="pinPlaceholder" placeholder="PIN" />
-          <button id="lockUnlock" data-i18n="optLockUnlock">Unlock</button>
-        </div>
-        <div class="row mini" id="lockMsg"></div>
-        <div class="row hidden" id="lockNowRow">
-          <button id="lockNowBtn" class="ghost" data-i18n="optLockHideNow">Hide the list now</button>
-        </div>
-        <div class="row hidden" id="lockForgotRow">
-          <button id="lockForgot" class="ghost" data-i18n="optLockForgot">Forgot the PIN?</button>
-        </div>
-        <div class="row hidden" id="lockRecoverRow">
-          <input id="lockRecovery" class="grow" type="text" placeholder="type lilbro" />
-          <button id="lockRecoverBtn" class="danger" data-i18n="optLockRecoverBtn">Remove the PIN and wipe my list</button>
-        </div>
-        <div class="row mini" id="lockRecoveryNote"></div>
-        <div class="row mini" data-i18n="optLockNote">You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site only shows a notification.</div>
       </div>
 
       <h2 data-i18n="optClearing">What gets cleaned</h2>
@@ -132,18 +103,6 @@
         </table>
         <p class="mini" data-i18n="ruleNeverDeleteNote">Mark a rule Never delete and it keeps those sites instead of clearing them, whatever else is on the list.</p>
         <div id="rulesEmpty" class="empty" data-i18n="optRulesEmpty">Nothing on the list yet. Add a site or a word above.</div>
-      </div>
-
-      <h2 class="lockable" data-i18n="optWipedSoFar">What it has cleaned</h2>
-      <div class="card lockable">
-        <div class="row">
-          <label class="pill"><input type="checkbox" id="logEnabled" /> <span data-i18n="optKeepLog">Keep a list of what was cleaned</span></label>
-        </div>
-        <div id="logList"></div>
-        <div id="logEmpty" class="empty" data-i18n="optLogEmpty">Nothing cleaned yet.</div>
-        <div class="row" style="margin-top: 10px">
-          <button id="clearLog" class="ghost" data-i18n="optClearLog">Clear this list</button>
-        </div>
       </div>
 
       <h2 data-i18n="optLook">Look</h2>
@@ -199,11 +158,56 @@
       <div class="row" style="margin-top: 20px">
         <label class="pill">
           <input type="checkbox" id="advOn" />
-          <span data-i18n="optAdvanced">Show the advanced controls</span>
+          <span id="advLabel" data-i18n="optAdvanced">Show the advanced controls</span>
         </label>
         <small class="grow" data-i18n="optAdvancedHint">Cookies, the address tester, import and export, the switch that ignores your list.</small>
       </div>
       <div id="advBox" class="hidden">
+
+      <h2 data-i18n="optLockSection">Your list behind a PIN</h2>
+      <div class="card">
+        <div class="row">
+          <label class="pill">
+            <input type="checkbox" id="lockEnabled" />
+            <span data-i18n="optLockEnable">Hide the list behind a PIN</span>
+          </label>
+        </div>
+        <div class="row mini" id="lockHonest"></div>
+        <div class="row hidden" id="lockSetupRow">
+          <input id="lockPin1" type="password" data-i18n-placeholder="optLockPinNew" placeholder="new PIN" />
+          <input id="lockPin2" type="password" data-i18n-placeholder="optLockPinRepeat" placeholder="repeat it" />
+          <button id="lockSave" data-i18n="optSavePin">Save PIN</button>
+        </div>
+        <div class="row hidden" id="lockUnlockRow">
+          <input id="lockPin" type="password" data-i18n-placeholder="pinPlaceholder" placeholder="PIN" />
+          <button id="lockUnlock" data-i18n="optLockUnlock">Unlock</button>
+        </div>
+        <div class="row mini" id="lockMsg"></div>
+        <div class="row hidden" id="lockNowRow">
+          <button id="lockNowBtn" class="ghost" data-i18n="optLockHideNow">Hide the list now</button>
+        </div>
+        <div class="row hidden" id="lockForgotRow">
+          <button id="lockForgot" class="ghost" data-i18n="optLockForgot">Forgot the PIN?</button>
+        </div>
+        <div class="row hidden" id="lockRecoverRow">
+          <input id="lockRecovery" class="grow" type="text" placeholder="type lilbro" />
+          <button id="lockRecoverBtn" class="danger" data-i18n="optLockRecoverBtn">Remove the PIN and wipe my list</button>
+        </div>
+        <div class="row mini" id="lockRecoveryNote"></div>
+        <div class="row mini" data-i18n="optLockNote">You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site only shows a notification.</div>
+      </div>
+
+      <h2 class="lockable" data-i18n="optWipedSoFar">What it has cleaned</h2>
+      <div class="card lockable">
+        <div class="row">
+          <label class="pill"><input type="checkbox" id="logEnabled" /> <span data-i18n="optKeepLog">Keep a list of what was cleaned</span></label>
+        </div>
+        <div id="logList"></div>
+        <div id="logEmpty" class="empty" data-i18n="optLogEmpty">Nothing cleaned yet.</div>
+        <div class="row" style="margin-top: 10px">
+          <button id="clearLog" class="ghost" data-i18n="optClearLog">Clear this list</button>
+        </div>
+      </div>
 
       <h2 class="lockable" data-i18n="optInsights">What you visit and no rule covers</h2>
       <div class="card lockable">

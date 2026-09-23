@@ -48,7 +48,21 @@ async function load() {
   render();
   applyLock();
   await loadCurrentTab();
-  $('version').textContent = 'Lil Bro v' + chrome.runtime.getManifest().version;
+  await showWhatsNew();
+}
+
+/**
+ * One card, once per version. The first popup after an update says what changed, then it
+ * stays away until the number moves again. A fresh install sees nothing: for somebody who
+ * was not here for the old build, nothing changed.
+ */
+async function showWhatsNew() {
+  const here = chrome.runtime.getManifest().version;
+  const { whatsNewSeen } = await chrome.storage.local.get('whatsNewSeen');
+  await chrome.storage.local.set({ whatsNewSeen: here });
+  if (!whatsNewSeen || whatsNewSeen === here) return;
+  const card = $('newInThisVersion');
+  if (card) card.classList.remove('hidden');
 }
 
 /**
@@ -515,11 +529,16 @@ $('openOptions').addEventListener('click', () => {
   chrome.runtime.openOptionsPage();
 });
 
+// The note about what changed goes away once it has been read, and stays away until the
+// version moves again.
+$('whatsNewOk').addEventListener('click', () => {
+  $('newInThisVersion').classList.add('hidden');
+});
+
 /**
  * Anything that throws on the way up leaves this popup sitting on "Loading…" for good,
  * which tells the person nothing and looks like the extension is dead. Say what happened
- * instead, keep the version on screen so a report of it means something, and put the
- * detail where it can be read.
+ * instead, and put the detail where it can be read.
  */
 function fail(err) {
   const status = $('status');
@@ -527,11 +546,6 @@ function fail(err) {
   const dot = $('dot');
   if (dot) dot.className = 'dot danger';
   setMsg(t('startFailedHint') || 'Reload the extension on the extensions page.', 'err');
-  try {
-    $('version').textContent = 'Lil Bro v' + chrome.runtime.getManifest().version;
-  } catch {
-    // there is nothing to write the version into, and the message above is the point
-  }
   console.error('[Lil Bro] the popup could not start:', err);
 }
 

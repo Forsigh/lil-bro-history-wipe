@@ -1028,6 +1028,21 @@
   "caughtNone": {
     "message": "Nothing counted yet. It starts as soon as a rule catches something."
   },
+  "whatsNewTitle": {
+    "message": "What changed in this version"
+  },
+  "whatsNewBody": {
+    "message": "The settings page is shorter now. Your list and the main controls are what you see first, and the rest of the fine-tuning waits behind one switch. This note shows up once per update, then stays away."
+  },
+  "whatsNewOk": {
+    "message": "Got it"
+  },
+  "advCount": {
+    "message": "($1 more)"
+  },
+  "optLockSection": {
+    "message": "Your list behind a PIN"
+  },
   "glanceTotal": {
     "message": "$1 kept out"
   },
