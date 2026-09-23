@@ -369,9 +369,9 @@ body:not(.popup) label.pill:has(input:checked) {
 
 body:not(.popup) .card > .row.mini {
   /* The label column, to the pixel: the row's border (1) + padding (14) + the control
-     (15) + the gap (11). A note under a row lines up with the labels above it instead
+     (16) + the gap (11). A note under a row lines up with the labels above it instead
      of floating somewhere to their left. The probe measures this on the live page. */
-  padding-left: 41px;
+  padding-left: 42px;
 }
 
 body:not(.popup) label.pill small {
@@ -381,13 +381,53 @@ body:not(.popup) label.pill small {
 input[type='checkbox'],
 input[type='radio'] {
   /* Chromium gives these a 5px left and 3px right margin of its own, which is 8px of
-     the text column that nothing in this sheet mentions, so every row was out by it. */
-  margin: 0;
-  accent-color: var(--accent);
-  width: 15px;
-  height: 15px;
-  cursor: pointer;
+     the text column that nothing in this sheet mentions, so every row was out by it.
+     Drawn here rather than by the browser: the native box is a different size and a
+     different grey on every theme, and next to the styled controls it read as a leftover
+     rather than a choice. Colours are the theme's own. */
+  appearance: none;
+  display: inline-grid;
+  place-content: center;
   flex: none;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  border: 1.5px solid var(--line);
+  border-radius: 5px;
+  background: var(--card);
+  cursor: pointer;
+  transition: background 0.15s var(--ease), border-color 0.15s var(--ease);
+}
+
+input[type='checkbox']:hover,
+input[type='radio']:hover {
+  border-color: var(--accent-dim);
+}
+
+input[type='radio'] {
+  border-radius: 50%;
+}
+
+input[type='checkbox']:checked,
+input[type='radio']:checked {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+
+input[type='checkbox']:checked::after {
+  content: '';
+  width: 9px;
+  height: 9px;
+  background: var(--on-accent);
+  clip-path: polygon(14% 46%, 0 62%, 38% 100%, 100% 22%, 84% 8%, 36% 70%);
+}
+
+input[type='radio']:checked::after {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--on-accent);
 }
 
 /* --- the way into the advanced half -------------------------------------- */
@@ -427,7 +467,7 @@ input[type='radio'] {
   height: 14px;
   margin-top: -7px;
   border-radius: 50%;
-  background: var(--muted);
+  background: var(--text);
   transition: left 0.18s var(--ease), background 0.18s var(--ease);
 }
 
@@ -473,7 +513,7 @@ input.rowsw::after {
   height: 11px;
   margin-top: -5.5px;
   border-radius: 50%;
-  background: var(--muted);
+  background: var(--text);
   transition: left 0.18s var(--ease), background 0.18s var(--ease);
 }
 
@@ -485,6 +525,41 @@ input.rowsw:checked {
 input.rowsw:checked::after {
   left: 15px;
   background: var(--on-accent);
+}
+
+/* The same object again for the popup's on/off switch, which is a button rather than a
+   checkbox and had no styling of its own at all: it sat on the button gradient with an
+   invisible knob. Its state rides on aria-checked, which the popup already keeps up to
+   date, so the sheet needs no second flag. */
+.switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 14px 5px 7px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--surface-3);
+  color: var(--text);
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.switch .knob {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--text);
+  transition: background 0.18s var(--ease), transform 0.18s var(--ease);
+}
+
+.switch[aria-checked='true'] {
+  border-color: var(--accent);
+  background: linear-gradient(180deg, var(--accent-soft), var(--surface-3));
+}
+
+.switch[aria-checked='true'] .knob {
+  background: var(--accent);
+  transform: scale(1.12);
 }
 
 /* --- fields -------------------------------------------------------------- */
