@@ -2,6 +2,12 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.9.1
+
+The switches on your list are switches now. They used to draw as a tick on a pill, which reads as a broken checkbox rather than something you can flip. Each one is a round knob on a track: grey and to the left when the rule is off, teal and to the right when it is on, and it slides across when you click it.
+
+Nothing else about how it cleans changed. Same rules, same counts, same storage, no new permissions.
+
 ## 1.9.0
 
 The settings page is three tabs now. Cleaning is what it always was: when it cleans, what gets cleaned, your list, and the two run buttons. Logs holds what it has cleaned and the sites no rule covers yet. Advanced holds everything that needs a sentence of explaining first: the look and the language, the PIN, the cookies, the address tester, the import and export, and the switch that ignores your list.
