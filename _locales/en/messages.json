@@ -1043,6 +1043,9 @@
   "optLockSection": {
     "message": "Your list behind a PIN"
   },
+  "rulesEmptyAdd": {
+    "message": "Add the first one"
+  },
   "glanceTotal": {
     "message": "$1 kept out"
   },

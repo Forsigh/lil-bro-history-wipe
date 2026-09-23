@@ -86,6 +86,7 @@ async function load() {
     $('logList').innerHTML = '';
     $('previewList').innerHTML = '';
     $('rulesEmpty').classList.add('hidden');
+    $('rulesEmptyAction').classList.add('hidden');
     $('logEmpty').classList.add('hidden');
   } else {
     renderRules();
@@ -264,6 +265,7 @@ function renderRules() {
   body.innerHTML = '';
   const rules = state.rules;
   $('rulesEmpty').classList.toggle('hidden', rules.length > 0);
+  $('rulesEmptyAction').classList.toggle('hidden', rules.length > 0);
 
   for (const rule of rules) {
     const tr = document.createElement('tr');
@@ -485,6 +487,13 @@ $('logEnabled').addEventListener('change', async () => {
   state.settings.logEnabled = $('logEnabled').checked;
   await saveState({ settings: state.settings });
 });
+// An empty state with a way out of it: the button puts the cursor in the box above, so
+// nobody has to work out which field the sentence was talking about.
+$('rulesEmptyAdd').addEventListener('click', () => {
+  $('ruleValue').focus();
+  $('ruleValue').scrollIntoView({ block: 'center', behavior: 'smooth' });
+});
+
 $('advOn').addEventListener('change', async () => {
   state.settings.advanced = $('advOn').checked;
   $('advBox').classList.toggle('hidden', !(state.settings.advanced || isLocked()));

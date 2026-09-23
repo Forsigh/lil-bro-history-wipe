@@ -1043,6 +1043,9 @@
   "optLockSection": {
     "message": "Lista pod PIN-em"
   },
+  "rulesEmptyAdd": {
+    "message": "Dodaj pierwszą"
+  },
   "glanceTotal": {
     "message": "$1 poza historią"
   },
