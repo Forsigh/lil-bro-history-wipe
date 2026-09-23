@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 1.8.0.
+different builds called themselves 1.3.0. The current code is numbered 1.9.0.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 1.9.0 | 23 Sep | `7c7bf2c` | `3dbd181d9f4483cc` | The settings page is three tabs now. Cleaning is what it always was: when it cleans, what gets cleaned, your list, and the two run buttons. Logs holds what it has cleaned and the s |
 | 1.8.0 | 23 Sep | `201ba82` | `eee630531cfa8981` | Every switch in this thing is the same object now, and it is drawn from the theme's own colours. That goes for the on/off boxes on your rule rows, the button in the popup, and the  |
 | 1.7.9 | 23 Sep | `44f3bb8` | `37594d8c479bd67c` | The settings page is a lot shorter to look at. What you change day to day is what you see when it opens: when it cleans, what gets cleaned, your list, the two run buttons, the look |
 | 1.7.8 | 22 Sep | `4d873a3` | `1d5ef9227f2f7be9` | A rule can be told never to delete now. Mark a site that way and it stays in your history whatever else matches it, which is what you want for the bank you check every morning or t |
