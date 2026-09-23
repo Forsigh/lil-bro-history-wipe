@@ -464,7 +464,8 @@ try {
       await fresh.evaluate(`JSON.stringify({
         status: document.getElementById('status').textContent.trim(),
         dot: document.getElementById('dot').className,
-        version: document.getElementById('version').textContent.trim(),
+        versionLine: !!document.getElementById('version'),
+        noteShown: !document.getElementById('newInThisVersion').classList.contains('hidden'),
         message: document.getElementById('wipeMsg').textContent.trim()
       })`)
     );
@@ -484,7 +485,12 @@ try {
     record(
       'both pages start on a profile with nothing in it',
       pop.status === 'Active' && page.state.startsWith('Active'),
-      `popup "${pop.status}" ${pop.version} + "${pop.message}", settings "${page.state}"`
+      `popup "${pop.status}" + "${pop.message}", settings "${page.state}"`
+    );
+    record(
+      'a fresh install gets no note about what changed, and no version line',
+      pop.noteShown === false && pop.versionLine === false,
+      `note visible: ${pop.noteShown}, version line present: ${pop.versionLine}`
     );
   }
 
@@ -511,7 +517,7 @@ try {
   const view = JSON.parse(
     await pop.evaluate(`JSON.stringify({
       title: document.title,
-      version: document.getElementById('version').textContent.trim(),
+      versionLine: !!document.getElementById('version'),
       status: document.getElementById('status').textContent.trim(),
       dot: document.getElementById('dot').className,
       scopeList: document.getElementById('scopeList').checked,
@@ -527,7 +533,53 @@ try {
       extraRowHidden: document.getElementById('extraRow').classList.contains('hidden')
     })`)
   );
-  record('popup renders with its version', view.version.includes(m.version), `${view.title} / ${view.version}`);
+  record('popup renders, and prints no version number on it', view.title === 'Lil Bro' && view.versionLine === false, `${view.title}, version line present: ${view.versionLine}`);
+
+  // The note about what changed appears once per version: with an older value stored it
+  // is there, and its button puts it away. A fresh install was checked above and sees
+  // nothing, because nothing changed for somebody who was not here for the old build.
+  await ev(`chrome.storage.local.set({ whatsNewSeen: '1.0.0' })`);
+  const popNew = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
+  await sleep(700);
+  const changeNote = JSON.parse(
+    await popNew.evaluate(`JSON.stringify({
+      shown: !document.getElementById('newInThisVersion').classList.contains('hidden'),
+      text: document.getElementById('newInThisVersion').textContent.trim().slice(0, 34)
+    })`)
+  );
+  await popNew.evaluate(`document.getElementById('whatsNewOk').click()`);
+  await sleep(250);
+  const afterOk = await popNew.evaluate(`document.getElementById('newInThisVersion').classList.contains('hidden')`);
+  record(
+    'the note about what changed shows once per version, and its button puts it away',
+    changeNote.shown === true && afterOk === true,
+    `visible: ${changeNote.shown}, hidden after the button: ${afterOk}, text: "${changeNote.text}…"`
+  );
+  await closePage(popNew.id);
+
+  // The shorter settings page: what is left in the open, and how much waits behind the
+  // one switch. The switch is supposed to say the second number itself.
+  const optsAdv = await openPage(`chrome-extension://${id}/src/options.html`);
+  await sleep(800);
+  const adv = JSON.parse(
+    await optsAdv.evaluate(`JSON.stringify({
+      label: document.getElementById('advLabel').textContent.trim(),
+      boxHidden: document.getElementById('advBox').classList.contains('hidden'),
+      inBox: document.getElementById('advBox').querySelectorAll('button, input, select, textarea').length,
+      total: document.querySelectorAll('button, input, select, textarea').length
+    })`)
+  );
+  record(
+    'the advanced switch says how many controls it is holding back',
+    /\(\d+ more\)/.test(adv.label) && adv.boxHidden === true && adv.inBox > 20,
+    `${adv.label} | ${adv.inBox} controls inside, hidden: ${adv.boxHidden}`
+  );
+  record(
+    'the settings page opens with far fewer controls than it holds',
+    adv.total - adv.inBox <= 30,
+    `${adv.total - adv.inBox} controls in the open, ${adv.inBox} behind the switch`
+  );
+  await closePage(optsAdv.id);
   record('popup shows the active state', view.status === 'Active' && view.dot === 'dot', `${view.status} (${view.dot})`);
   record('popup starts on "only my list"', view.scopeList === true && view.scopeAll === false, view.wipeBtn);
   record('popup shows a lock card only when a PIN exists', view.lockCardHidden === true);

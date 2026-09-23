@@ -35,7 +35,7 @@ const FILES = [
 
 // Not language.
 const ALLOWED = [
-  /^Lil Bro/,            // the name, and the version line made from it
+  /^Lil Bro/,            // the name
   /^PIN/,
   /^Chrome/,
   /^lilbro$/,
