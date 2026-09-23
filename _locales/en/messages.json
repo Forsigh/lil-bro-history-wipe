@@ -1032,7 +1032,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "The log asks for your PIN right where you click it now. The export file carries your settings and counts too, so a fresh install can look like this one. The wording got a pass as well, so both languages read like people. This note shows up once per update, then stays away."
+    "message": "The add row on the list is back to one line: dropdown, box and Add button together again, and the box is now the same height as the dropdown. This note shows up once per update, then stays away."
   },
   "whatsNewOk": {
     "message": "Got it"

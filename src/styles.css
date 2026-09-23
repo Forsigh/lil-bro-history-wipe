@@ -637,9 +637,17 @@ textarea {
 }
 
 /* The rule box holds one address or one word, so it is not a note pad: no corner drag,
-   so nobody leaves it stretched out of line with the button beside it. */
+   so nobody leaves it stretched out of line with the button beside it. The zero basis is
+   the same story: at the textarea's own width:100% the flex row counts it as a full line,
+   so the box wraps under the dropdown and the Add button wraps under the box. Sharing the
+   line is the whole point of the row, so the basis is reset here and it grows into the
+   space between the two. */
 #ruleValue {
   resize: none;
+  flex: 1 1 0;
+  /* 11px, so the box is the same 44px tall as the dropdown beside it. At the shared
+     10px it sat 2px short and the row's top edge stepped. */
+  padding: 11px 12px;
 }
 
 /* --- buttons ------------------------------------------------------------- */

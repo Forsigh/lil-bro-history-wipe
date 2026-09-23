@@ -1843,6 +1843,33 @@ try {
       rowFit.lines.every((n) => n >= 4),
       `${rowFit.tiles} tiles as ${rowFit.lines.join('+')} per line, container ${rowFit.clientWidth}px, display:${rowFit.display}, cols:${rowFit.columns}, widths:${rowFit.widths}, tops:${rowFit.tops}`);
 
+    // The list's add row is the page's one composite control: dropdown, box and button on
+    // one line, the subdomains bar under it. The box is a textarea, and the sheet gives
+    // textareas width:100% - a full-line flex basis, which wrapped the three onto separate
+    // lines and read as broken. It only shows as stacked under the dropdown, so it is
+    // measured here, at the width the store shots use.
+    await shotOptions.evaluate("document.getElementById('tabCleaning').click()");
+    await sleep(300);
+    const addRow = await shotOptions.evaluate(`(() => {
+      const r = (id) => {
+        const el = document.getElementById(id);
+        if (!el) return null;
+        const b = el.getBoundingClientRect();
+        return { top: Math.round(b.top), left: Math.round(b.left), right: Math.round(b.right),
+          width: Math.round(b.width), height: Math.round(b.height) };
+      };
+      return { type: r('ruleType'), value: r('ruleValue'), add: r('addBtn'), sub: r('subWrap') };
+    })()`);
+    const oneLine = addRow.value &&
+      Math.abs(addRow.type.top - addRow.value.top) <= 3 &&
+      Math.abs(addRow.value.top - addRow.add.top) <= 3 &&
+      addRow.value.width >= 240;
+    record('the add row keeps the box between the dropdown and the button on one line',
+      oneLine,
+      `tops ${addRow.type.top}/${addRow.value.top}/${addRow.add.top}, ` +
+        `box ${addRow.value.width}px wide at ${addRow.value.left}..${addRow.value.right}, ` +
+        (addRow.sub.width > 0 ? `subdomains bar below at ${addRow.sub.top}` : 'subdomains bar hidden'));
+
     // The tab strip is the page's navigation now. What has to hold: clicking a tab brings
     // its panel and only its panel, and the selected tab says so on the element.
     const walk = await shotOptions.evaluate(`(() => {

@@ -1032,7 +1032,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Log poprosi teraz o PIN tam, gdzie klikniesz. Plik eksportu przenosi też ustawienia i liczniki, więc świeża instalacja może wyglądać jak ta. Teksty też dostały przegląd, żeby oba języki czytały się po ludzku. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
+    "message": "Wiersz dodawania wrócił na jedną linię: lista rozwijana, pole i przycisk Dodaj znów stoją razem, a pole ma teraz tę samą wysokość co lista rozwijana obok. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
   },
   "whatsNewOk": {
     "message": "Rozumiem"
