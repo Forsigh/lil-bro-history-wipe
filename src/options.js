@@ -123,6 +123,12 @@ function applyLock() {
   $('previewList').classList.toggle('hidden', locked);
   $('testUrl').disabled = locked;
   $('testTitle').disabled = locked;
+  // The log names the sites it cleaned, so while the PIN is on it is not just hidden but
+  // out of reach: the tab greys out and stops answering until the page is unlocked. The
+  // way out lives in Advanced, so a locked page opens there.
+  $('tabLogs').disabled = locked;
+  $('tabLogs').setAttribute('aria-disabled', String(locked));
+  if (locked) showTab($('tabAdvanced'));
 }
 
 function showUnlock(intent, message) {
@@ -149,12 +155,6 @@ function renderSettings() {
   $('wipeAll').checked = !!s.wipeAllHistory;
   $('keepOnly').checked = s.listMode === 'allow';
   $('lockEnabled').checked = !!s.lockEnabled;
-  $('advOn').checked = !!s.advanced;
-  // Locked, the way out sits in here, so the box opens rather than hiding itself. And the
-  // switch says how many controls it is holding back.
-  $('advBox').classList.toggle('hidden', !(s.advanced || isLocked()));
-  const held = $('advBox').querySelectorAll('button, input, select, textarea').length;
-  $('advLabel').textContent = t('optAdvanced') + ' ' + t('advCount', [held]);
   $('langPick').value = s.lang || 'auto';
   $('keepWarn').textContent = s.listMode === 'allow'
     ? t('optKeepWarn') || 'On: everything not on your list is being wiped. Cookies and cache are separate.'
@@ -495,11 +495,23 @@ $('rulesEmptyAdd').addEventListener('click', () => {
   $('ruleValue').scrollIntoView({ block: 'center', behavior: 'smooth' });
 });
 
-$('advOn').addEventListener('change', async () => {
-  state.settings.advanced = $('advOn').checked;
-  $('advBox').classList.toggle('hidden', !(state.settings.advanced || isLocked()));
-  await saveState({ settings: state.settings });
-});
+// Three rooms with one door open at a time: the tab you pick decides which panel is on
+// screen. Plain buttons carrying aria-selected, so the keyboard reaches them like any
+// other button and the state sits on the element rather than in a class name.
+function showTab(tab) {
+  for (const t of document.querySelectorAll('.tab')) {
+    const on = t === tab;
+    t.setAttribute('aria-selected', String(on));
+    const panel = document.getElementById(t.getAttribute('aria-controls'));
+    if (panel) panel.classList.toggle('hidden', !on);
+  }
+}
+
+for (const tab of document.querySelectorAll('.tab')) {
+  tab.addEventListener('click', () => {
+    if (!tab.disabled) showTab(tab);
+  });
+}
 // Switching the language reloads the page: every string, including the ones the
 // script writes, has to come out in the new one.
 $('langPick').addEventListener('change', async () => {
@@ -702,6 +714,8 @@ $('lockUnlock').addEventListener('click', async () => {
   unlocked = true;
   pinIntent = 'unlock';
   await load();
+  // Unlocking is somebody asking for the list, so the page goes back to where the list is.
+  showTab($('tabCleaning'));
   setMsg($('lockMsg'), wasRemove ? LOCK_MESSAGES.removed : LOCK_MESSAGES.open, 'ok');
 });
 
@@ -721,6 +735,7 @@ $('lockRecoverBtn').addEventListener('click', async () => {
   unlocked = true;
   pinIntent = 'unlock';
   await load();
+  showTab($('tabCleaning'));
   setMsg($('lockMsg'), LOCK_MESSAGES.recoveryDone, 'ok');
 });
 

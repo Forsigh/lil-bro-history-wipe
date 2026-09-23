@@ -126,6 +126,52 @@ body {
   padding-left: 41px;
 }
 
+/* Three tabs, one panel each. A row of buttons with the selected one lifted onto the card
+   surface: the same object as the theme tiles, so the page keeps one vocabulary. The
+   greyed-out tab is a real disabled button, not a picture of one. Every rule below is
+   written as .tabs .tab on purpose: the sheet paints a gradient on every button, and a
+   plain .tab would lose that fight and come out as a coloured stripe. */
+.tabs {
+  display: flex;
+  gap: 6px;
+  margin: 22px 0 4px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-2);
+}
+
+.tabs .tab {
+  flex: 1 1 0;
+  padding: 9px 12px;
+  border: 1px solid transparent;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s var(--ease), color 0.16s var(--ease),
+    border-color 0.16s var(--ease);
+}
+
+.tabs .tab:hover:not(:disabled) {
+  color: var(--text);
+  background: var(--state-hover);
+}
+
+.tabs .tab[aria-selected='true'] {
+  background: var(--card);
+  border-color: var(--line);
+  color: var(--text);
+  box-shadow: var(--shadow-1);
+}
+
+.tabs .tab:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .brand-mark {
   display: grid;
   place-items: center;
@@ -430,66 +476,6 @@ input[type='radio']:checked::after {
   background: var(--on-accent);
 }
 
-/* --- the way into the advanced half -------------------------------------- */
-
-/* One switch, one line of plain words under it. This used to be a full-width bordered
-   strip with a bare checkbox floating in the middle of dead space, which read as a
-   leftover panel rather than the door to the rest of the page. The switch is drawn from
-   the theme's own colours and matches the one in the popup. */
-.switchline {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  font-size: 13.5px;
-  color: var(--text);
-}
-
-.switchline input {
-  appearance: none;
-  position: relative;
-  flex: none;
-  width: 36px;
-  height: 20px;
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  background: var(--card);
-  cursor: pointer;
-  transition: background 0.18s var(--ease), border-color 0.18s var(--ease);
-}
-
-.switchline input::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 2px;
-  width: 14px;
-  height: 14px;
-  margin-top: -7px;
-  border-radius: 50%;
-  background: var(--text);
-  transition: left 0.18s var(--ease), background 0.18s var(--ease);
-}
-
-.switchline input:checked {
-  background: var(--accent);
-  border-color: var(--accent);
-}
-
-.switchline input:checked::after {
-  left: 18px;
-  background: var(--on-accent);
-}
-
-.advrow small {
-  display: block;
-  margin-top: 8px;
-  font-size: 12px;
-  color: var(--muted);
-}
-
-/* The same switch, one size down, for the on/off box that sits on every rule row: the
-   bare checkbox it used to be looked like something the browser had left behind. */
 input.rowsw {
   appearance: none;
   position: relative;
@@ -1626,7 +1612,7 @@ body.popup #openOptions:hover {
   box-shadow: none;
 }
 
-:root[data-theme='contrast'] button:not(.ghost):not(.theme):not(.preset):not(.danger):not(.switch):not(.keep) {
+:root[data-theme='contrast'] button:not(.ghost):not(.theme):not(.preset):not(.danger):not(.switch):not(.keep):not(.tab) {
   background: var(--accent);
 }
 

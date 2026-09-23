@@ -108,7 +108,7 @@
     "message": "Locked."
   },
   "optLockedBody": {
-    "message": "Your list is hidden until you unlock it below. Cleaning carries on."
+    "message": "Your list is hidden until you unlock it in Advanced. Cleaning carries on."
   },
   "optWhenToWipe": {
     "message": "When should it clean?"
@@ -1032,7 +1032,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "The settings page is shorter now. Your list and the main controls are what you see first, and the rest of the fine-tuning waits behind one switch. This note shows up once per update, then stays away."
+    "message": "The settings page is three tabs now: Cleaning for the day-to-day, Logs for what it saw, and Advanced for everything that needs explaining first. The log stays out of reach while the PIN is on. This note shows up once per update, then stays away."
   },
   "whatsNewOk": {
     "message": "Got it"
@@ -1045,6 +1045,18 @@
   },
   "rulesEmptyAdd": {
     "message": "Add the first one"
+  },
+  "tabCleaning": {
+    "message": "Cleaning"
+  },
+  "tabLogs": {
+    "message": "Logs"
+  },
+  "tabAdvanced": {
+    "message": "Advanced"
+  },
+  "tabLogsLocked": {
+    "message": "Unlock it in Advanced first"
   },
   "glanceTotal": {
     "message": "$1 kept out"

@@ -557,27 +557,33 @@ try {
   );
   await closePage(popNew.id);
 
-  // The shorter settings page: what is left in the open, and how much waits behind the
-  // one switch. The switch is supposed to say the second number itself.
+  // Three tabs, one door open at a time. What has to hold: the page opens on the
+  // day-to-day tab, that tab holds a small fraction of the controls the page owns, and
+  // the tab in front is the only panel on screen.
   const optsAdv = await openPage(`chrome-extension://${id}/src/options.html`);
   await sleep(800);
-  const adv = JSON.parse(
+  const tabs = JSON.parse(
     await optsAdv.evaluate(`JSON.stringify({
-      label: document.getElementById('advLabel').textContent.trim(),
-      boxHidden: document.getElementById('advBox').classList.contains('hidden'),
-      inBox: document.getElementById('advBox').querySelectorAll('button, input, select, textarea').length,
-      total: document.querySelectorAll('button, input, select, textarea').length
+      names: [...document.querySelectorAll('.tab')].map((t) => t.textContent.trim()),
+      selected: [...document.querySelectorAll('.tab')].filter((t) => t.getAttribute('aria-selected') === 'true').map((t) => t.id),
+      shown: [...document.querySelectorAll('.panel')].filter((p) => getComputedStyle(p).display !== 'none').map((p) => p.id),
+      open: document.querySelectorAll('.panel:not(.hidden) button, .panel:not(.hidden) input, .panel:not(.hidden) select, .panel:not(.hidden) textarea').length,
+      total: document.querySelectorAll('button, input, select, textarea').length,
+      paint: [...document.querySelectorAll('.tab')].map((t) => {
+        const cs = getComputedStyle(t);
+        return t.id.replace('tab', '') + ' bg:' + cs.backgroundColor + ' img:' + (cs.backgroundImage === 'none' ? '-' : cs.backgroundImage.slice(0, 40)) + ' fg:' + cs.color;
+      }).join(' || ') + ' strip:' + getComputedStyle(document.querySelector('.tabs')).backgroundColor,
     })`)
   );
   record(
-    'the advanced switch says how many controls it is holding back',
-    /\(\d+ more\)/.test(adv.label) && adv.boxHidden === true && adv.inBox > 20,
-    `${adv.label} | ${adv.inBox} controls inside, hidden: ${adv.boxHidden}`
+    'the settings page opens on the day-to-day tab and nowhere else',
+    tabs.selected.length === 1 && tabs.selected[0] === 'tabCleaning' && tabs.shown.length === 1 && tabs.shown[0] === 'panelCleaning',
+    `tabs ${tabs.names.join(' | ')}, selected ${tabs.selected.join(',')}, on screen ${tabs.shown.join(',')} | ${tabs.paint}`
   );
   record(
-    'the settings page opens with far fewer controls than it holds',
-    adv.total - adv.inBox <= 30,
-    `${adv.total - adv.inBox} controls in the open, ${adv.inBox} behind the switch`
+    'the tab in front holds a fraction of the controls the page owns',
+    tabs.open >= 8 && tabs.open <= 30 && tabs.total - tabs.open > 20,
+    `${tabs.open} controls on this tab, ${tabs.total} on the page`
   );
   await closePage(optsAdv.id);
   record('popup shows the active state', view.status === 'Active' && view.dot === 'dot', `${view.status} (${view.dot})`);
@@ -1053,7 +1059,7 @@ try {
   const beforeSug = await openPage(`chrome-extension://${id}/src/options.html`);
   await beforeSug.evaluate(`(async()=>{
     const got = await new Promise(r=>chrome.storage.local.get('settings', r));
-    const s = Object.assign({}, got.settings, { lockEnabled: false, advanced: true });
+    const s = Object.assign({}, got.settings, { lockEnabled: false });
     await new Promise(r=>chrome.storage.local.set({ settings: s }, r));
     return 'ok';
   })()`);
@@ -1064,8 +1070,9 @@ try {
     await optSug.evaluate(`(async()=>{
       const btn = document.getElementById('insightsBtn');
       const isButton = !!btn && btn.tagName === 'BUTTON';
-      const box = document.getElementById('advBox');
-      const visible = !!box && getComputedStyle(box).display !== 'none';
+      document.getElementById('tabLogs').click();
+      const panel = document.getElementById('panelLogs');
+      const visible = !!panel && getComputedStyle(panel).display !== 'none' && !!btn.closest('#panelLogs');
       btn.click();
       await new Promise(r=>setTimeout(r,2500));
       const list = document.getElementById('insightsList');
@@ -1076,9 +1083,9 @@ try {
     })()`)
   );
   record(
-    'the suggestions sit with the advanced controls, behind a real button',
+    'the suggestions sit on the Logs tab, behind a real button',
     suggested.isButton === true && suggested.visible === true,
-    `button=${suggested.isButton}, advanced block visible=${suggested.visible}`
+    `button=${suggested.isButton}, Logs panel visible=${suggested.visible}`
   );
   record(
     'asking for suggestions answers on screen instead of leaving a blank box',
@@ -1339,6 +1346,8 @@ try {
   // description of a small tile is not evidence.
   {
     const look = await openPage(`chrome-extension://${id}/src/options.html`);
+    // The theme row lives on the Advanced tab now, and a hidden panel measures as zero.
+    await look.evaluate("document.getElementById('tabAdvanced').click()");
     const swatches = await look.evaluate(`(() => [...document.querySelectorAll('.theme')].map((b) => {
       const i = b.querySelector('i');
       const bar = i && i.querySelector('b');
@@ -1370,6 +1379,9 @@ try {
     // The page has to say what it is doing before anyone scrolls, and every row's text
     // has to start at the same x. Both are geometry, so both are measured here.
     const hasDigit = (s) => /[0-9]/.test(s || '');
+    // The rows this block measures live on the day-to-day tab, and the swatch check above
+    // left the page on Advanced: a hidden panel measures as zero.
+    await look.evaluate("document.getElementById('tabCleaning').click()");
     const facts = await look.evaluate(`(() => {
       const textLeft = (el) => el
         ? Math.round(el.getBoundingClientRect().left + parseFloat(getComputedStyle(el).paddingLeft))
@@ -1714,6 +1726,7 @@ try {
     // on the frame's bottom, which framed the rule table instead, and nothing failed because
     // the page still scrolled somewhere. The metrics are set first, because the offset is
     // only meaningful at the size the shot is taken at and a later reflow would move it.
+    await shotOptions.evaluate("document.getElementById('tabAdvanced').click()");
     await shoot(shotOptions, 'options-look.png', 640, 400, false, 2);
     await shotOptions.evaluate(`(() => {
       const row = document.getElementById('themeRow');
@@ -1734,17 +1747,17 @@ try {
         h: window.innerHeight,
         theme: r(document.getElementById('themeRow')),
         lang: r(document.getElementById('langPick')),
-        // The language menu moved behind the advanced switch, so where it lives is now
-        // part of what has to hold: the frame can no longer show it, and the page should
-        // only ever offer it from inside that box.
-        langInAdv: !!document.getElementById('langPick')?.closest('#advBox'),
+        // The language menu lives on the Advanced tab, so where it sits is part of what
+        // has to hold: the frame can no longer show it, and the page should only ever
+        // offer it from inside that panel.
+        langInAdv: !!document.getElementById('langPick')?.closest('#panelAdvanced'),
         tiles: document.querySelectorAll('.theme').length,
       };
     })()`);
-    record('the fifth shot holds the theme row, and the language menu stays behind the switch',
+    record('the fifth shot holds the theme row, and the language menu sits on the Advanced tab',
       inFrame.theme.top >= 0 && inFrame.theme.bottom <= inFrame.h && inFrame.langInAdv,
       `frame ${inFrame.w}x${inFrame.h}, theme row ${inFrame.theme.top}..${inFrame.theme.bottom}, ` +
-        `language menu ${inFrame.langInAdv ? 'inside the advanced box' : `OUT at ${inFrame.lang.top}..${inFrame.lang.bottom}`}, ${inFrame.tiles} tiles`);
+        `language menu ${inFrame.langInAdv ? 'on the Advanced tab' : `OUT at ${inFrame.lang.top}..${inFrame.lang.bottom}`}, ${inFrame.tiles} tiles`);
     await shoot(shotOptions, 'options-look.png', 640, 400, false, 2);
 
     // The store shows every screenshot at 640 wide, so a row that wraps at that width
@@ -1776,28 +1789,29 @@ try {
       rowFit.lines.every((n) => n >= 4),
       `${rowFit.tiles} tiles as ${rowFit.lines.join('+')} per line, container ${rowFit.clientWidth}px, display:${rowFit.display}, cols:${rowFit.columns}, widths:${rowFit.widths}, tops:${rowFit.tops}`);
 
-    // The way into the advanced half is the last thing on the page, and it used to be a
-    // full-width bordered strip with a bare checkbox floating in the middle of dead space.
-    // What has to hold now: the box is drawn by the sheet as a switch with a knob, the
-    // label sits beside it on one line, and the whole row is a row rather than a panel.
-    await shotOptions.evaluate("document.querySelector('.advrow').scrollIntoView({ block: 'center' })");
-    await sleep(400);
-    const sw = await shotOptions.evaluate(`(() => {
-      const input = document.getElementById('advOn');
-      const knob = getComputedStyle(input, '::after');
-      const b = input.getBoundingClientRect();
-      return {
-        drawn: getComputedStyle(input).appearance === 'none' && knob.content !== 'none' && knob.borderRadius === '50%',
-        box: Math.round(b.width) + 'x' + Math.round(b.height),
-        knob: knob.width + ' left ' + knob.left,
-        lineH: Math.round(document.querySelector('.advrow .switchline').getBoundingClientRect().height),
-        rowH: Math.round(document.querySelector('.advrow').getBoundingClientRect().height),
-      };
+    // The tab strip is the page's navigation now. What has to hold: clicking a tab brings
+    // its panel and only its panel, and the selected tab says so on the element.
+    const walk = await shotOptions.evaluate(`(() => {
+      const out = [];
+      for (const id of ['tabCleaning', 'tabLogs', 'tabAdvanced']) {
+        const tab = document.getElementById(id);
+        tab.click();
+        const panel = document.getElementById(tab.getAttribute('aria-controls'));
+        out.push({
+          id,
+          selected: tab.getAttribute('aria-selected'),
+          shown: !!panel && getComputedStyle(panel).display !== 'none',
+          others: [...document.querySelectorAll('.panel')].filter((p) => p !== panel && getComputedStyle(p).display !== 'none').length,
+        });
+      }
+      window.scrollTo(0, 0);
+      return out;
     })()`);
-    await shoot(shotOptions, 'options-advanced.png', 640, 400, false, 2);
-    record('the advanced switch is drawn as a switch, not a bare checkbox in a strip',
-      sw.drawn && sw.lineH > 0 && sw.rowH > 0 && sw.rowH < 90,
-      `switch ${sw.box} (${sw.knob}), label line ${sw.lineH}px, row ${sw.rowH}px`);
+    await sleep(400);
+    await shoot(shotOptions, 'options-tabs.png', 640, 400, false, 2);
+    record('every tab brings its own panel, and only its own',
+      walk.every((w) => w.selected === 'true' && w.shown && w.others === 0),
+      walk.map((w) => `${w.id} ${w.selected}/${w.shown ? 'shown' : 'HIDDEN'}/${w.others} others`).join(' | '));
     await closePage(shotOptions.id);
 
     // A log row is read by a person, so what one says is checked in the real page: the
@@ -1847,11 +1861,24 @@ try {
       const key=await crypto.subtle.importKey('raw',new TextEncoder().encode('2468'),'PBKDF2',false,['deriveBits']);
       const bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt,iterations:1000,hash:'SHA-256'},key,256);
       const cur=(await chrome.storage.local.get('settings')).settings||{};
-      await chrome.storage.local.set({settings:{...cur,advanced:true,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
+      await chrome.storage.local.set({settings:{...cur,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
       return 'ok';
     })()`);
     const shotLocked = await openPage(`chrome-extension://${id}/src/options.html`);
+    await sleep(800);
+    const lockedTabs = JSON.parse(
+      await shotLocked.evaluate(`JSON.stringify({
+        logsDisabled: document.getElementById('tabLogs').disabled,
+        ariaDisabled: document.getElementById('tabLogs').getAttribute('aria-disabled'),
+        selected: document.querySelector('.tab[aria-selected="true"]').id,
+        stillHidden: (document.getElementById('tabLogs').click(), document.getElementById('panelLogs').classList.contains('hidden')),
+      })`)
+    );
     await shoot(shotLocked, 'options-locked.png', 640, 400, false, 2);
+    record('while the PIN holds, the Logs tab is greyed out and does not open',
+      lockedTabs.logsDisabled === true && lockedTabs.ariaDisabled === 'true' &&
+        lockedTabs.selected === 'tabAdvanced' && lockedTabs.stillHidden === true,
+      `disabled: ${lockedTabs.logsDisabled}, aria: ${lockedTabs.ariaDisabled}, opens on ${lockedTabs.selected}, Logs panel still hidden after a click: ${lockedTabs.stillHidden}`);
     await closePage(shotLocked.id);
   }
   // The keyboard shortcut's job, driven through the same message it uses. A browser

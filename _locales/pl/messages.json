@@ -108,7 +108,7 @@
     "message": "Zablokowane."
   },
   "optLockedBody": {
-    "message": "Lista jest ukryta, dopóki jej nie odblokujesz poniżej. Czyszczenie działa dalej."
+    "message": "Lista jest ukryta, dopóki jej nie odblokujesz w Zaawansowanych. Czyszczenie działa dalej."
   },
   "optWhenToWipe": {
     "message": "Kiedy ma czyścić?"
@@ -1032,7 +1032,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Ustawienia są teraz krótsze. Najpierw widzisz swoją listę i najważniejsze przełączniki, a reszta drobnych opcji czeka pod jednym przyciskiem. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
+    "message": "Ustawienia mają teraz trzy zakładki: Czyszczenie na co dzień, Log na to, co zobaczył, i Zaawansowane na wszystko, co trzeba najpierw wyjaśnić. Log jest zamknięty, dopóki PIN jest włączony. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
   },
   "whatsNewOk": {
     "message": "Rozumiem"
@@ -1045,6 +1045,18 @@
   },
   "rulesEmptyAdd": {
     "message": "Dodaj pierwszą"
+  },
+  "tabCleaning": {
+    "message": "Czyszczenie"
+  },
+  "tabLogs": {
+    "message": "Log"
+  },
+  "tabAdvanced": {
+    "message": "Zaawansowane"
+  },
+  "tabLogsLocked": {
+    "message": "Najpierw odblokuj w Zaawansowanych"
   },
   "glanceTotal": {
     "message": "$1 poza historią"
