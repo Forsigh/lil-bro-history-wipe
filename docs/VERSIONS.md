@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 1.7.8.
+different builds called themselves 1.3.0. The current code is numbered 1.7.9.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 1.7.9 | 23 Sep | `44f3bb8` | `37594d8c479bd67c` | The settings page is a lot shorter to look at. What you change day to day is what you see when it opens: when it cleans, what gets cleaned, your list, the two run buttons, the look |
 | 1.7.8 | 22 Sep | `4d873a3` | `1d5ef9227f2f7be9` | A rule can be told never to delete now. Mark a site that way and it stays in your history whatever else matches it, which is what you want for the bank you check every morning or t |
 | 1.7.7 | 22 Sep | `0e0fe41` | `66f4f0c3b015cc13` | Escape closes the delete confirmation now instead of leaving you sitting in it, and the focus goes back to the button you came from. The stylesheet lost a set of rules that had bee |
 | 1.7.6 | 22 Sep | `4a40459` | `dd2fe3d43e6ef198` | Press Alt+Shift+W on any page to take that site out of your history right then, without opening |
