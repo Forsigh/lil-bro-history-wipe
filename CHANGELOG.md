@@ -2,6 +2,14 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 1.8.0
+
+Every switch in this thing is the same object now, and it is drawn from the theme's own colours. That goes for the on/off boxes on your rule rows, the button in the popup, and the way into the advanced half at the bottom of the settings page. That last one deserved the complaint: it was a full-width strip with a bare checkbox floating in the middle of it. It is a switch with its label beside it and a line of plain words under it now.
+
+The language menu moved in with the rest of the fine-tuning, behind that same switch. The coffee link at the bottom is the banner from the README, and the button under it says the same thing it always did.
+
+The rest of the pass: the theme tiles sit four to a line instead of leaving the last one alone on a line, the small text under a row lines up with the label above it, the rule box is one line tall with no corner left to drag out of shape, the option cards got room between their title and their description, and an empty list now offers a button that puts the cursor in the box above instead of just telling you to go find it.
+
 ## 1.7.9
 
 The settings page is a lot shorter to look at. What you change day to day is what you see when it opens: when it cleans, what gets cleaned, your list, the two run buttons, the look and the language. The PIN lock, the log, the cookies, the address tester, the import and export and the everything-switch moved under one toggle at the bottom, and that toggle says how many controls are waiting there, so nothing is hidden by surprise. Opening the page used to put fifty-seven controls in front of you. It is twenty-nine now.
