@@ -38,6 +38,7 @@ FILES = [
     "src/icons/icon32.png",
     "src/icons/icon48.png",
     "src/icons/icon128.png",
+    "src/bmc.png",
 ]
 
 TEXT_SUFFIXES = {".json", ".js", ".html", ".css", ".md"}

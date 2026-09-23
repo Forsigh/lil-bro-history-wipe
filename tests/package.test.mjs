@@ -115,6 +115,24 @@ check('the exempted builds are still exactly the ones that shipped without the m
   }
 });
 
+// A file that joined the package after the newest zip was built. The build that introduces
+// it is the next one, so the zip already shipped is not held to it, and the version that
+// carries it is named here so this cannot grow into a general "missing files are fine".
+const ADDED_IN = { 'src/bmc.png': '1.8.0' };
+
+const cmpVersion = (a, b) => {
+  const [x, y, z] = a.split('.').map(Number);
+  const [p, q, r] = b.split('.').map(Number);
+  return x - p || y - q || z - r;
+};
+
+check('the files added after a build shipped are named one at a time', () => {
+  const entries = Object.entries(ADDED_IN).map(([name, v]) => `${name}@${v}`);
+  if (entries.join(',') !== 'src/bmc.png@1.8.0') {
+    throw new Error(`the added-file list changed: ${entries.join(', ')}`);
+  }
+});
+
 if (!zips.length) {
   skipped++;
   console.log('  skip  every zip carries what its pages import (no zips on this checkout)');
@@ -147,7 +165,9 @@ if (!zips.length) {
       // from the list as it stood then, and holding it to a later list reports a change as
       // a defect: every build before 1.6.0 is "missing" a file that did not exist yet.
       if (zip === newestZip) {
-        const unlisted = list.filter((name) => !have.has(name));
+        const unlisted = list.filter(
+          (name) => !have.has(name) && !(ADDED_IN[name] && cmpVersion(ADDED_IN[name], version) > 0)
+        );
         if (unlisted.length) problems.push(`missing from the zip: ${unlisted.join(', ')}`);
       }
       if (problems.length) throw new Error(problems.join('; '));
