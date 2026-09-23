@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 1.10.0.
+different builds called themselves 1.3.0. The current code is numbered 2.0.0.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 2.0.0 | 23 Sep | `a835da1` | `53cf87c162ae553b` | Export is a full setup file now. It always carried your list and your settings; it also |
 | 1.10.0 | 23 Sep | `4748907` | `15ad255ab7ed96eb` | Export is a full setup file now. It always carried your list and your settings; it also |
 | 1.9.1 | 23 Sep | `4be63cf` | `e4cdd9cac8ef9508` | The switches on your list are switches now. They used to draw as a tick on a pill, which reads as a broken checkbox rather than something you can flip. Each one is a round knob on  |
 | 1.9.0 | 23 Sep | `7c7bf2c` | `3dbd181d9f4483cc` | The settings page is three tabs now. Cleaning is what it always was: when it cleans, what gets cleaned, your list, and the two run buttons. Logs holds what it has cleaned and the s |
