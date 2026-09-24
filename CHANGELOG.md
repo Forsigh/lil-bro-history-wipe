@@ -2,6 +2,12 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 2.1.0
+
+Adding something to the list can now take out the visits that are already in your history, in the same step. There is a new switch under the add row, on by default: when it is on, the rule you add is run against the history straight away, through the same pass "Wipe now" uses, and the row tells you how many older visits went.
+
+The keep list still wins. The pass runs with your keep rules beside the new one, so a page they cover is never touched whatever the new rule says. With the switch off, an add behaves exactly as it did before.
+
 ## 2.0.1
 
 Your list's add row is back on one line. The dropdown, the box and the Add button sit together again, the way they did before the paste-a-list update turned the box into a multi-line textarea and it started wrapping below the dropdown, with the button wrapping below the box in turn. The box now also matches the dropdown's height, so the row reads as one piece instead of a stack of three controls.
