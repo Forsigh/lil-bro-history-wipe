@@ -27,7 +27,10 @@ you typed once. Add it from the popup with one click, or right-click a page and 
 the menu.
 
 Then you pick when it runs. While you browse, so the entry is gone as the page loads. Or at
-the start of your next session, so the visit is still there until you close the laptop.
+the start of your next session, so the visit is still there until you close the laptop. Or
+right when you add something: the switch under the add row is on by default, so the site or
+word you add takes the older visits it matches out of your history in the same step. The row
+tells you how many went.
 
 Beyond history it can also clear cache, cookies, the download list and text you typed into
 forms. That part is off until you turn it on, and the list above applies to it too, with one

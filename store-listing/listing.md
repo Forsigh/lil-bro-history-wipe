@@ -7,10 +7,10 @@ Ready to paste into the developer dashboard.
 ## 1. Short description (max 132 characters)
 
 ```
-Remove chosen sites and words from your browsing history. Works while you browse, at browser close, or at the next start.
+Wipes the sites and words you pick out of your history: as you browse, or the next time you open the browser.
 ```
 
-(123 characters.) This exact string lives in `_locales/en/messages.json` as `description`, which is
+(109 characters.) This exact string lives in `_locales/en/messages.json` as `description`, which is
 what `manifest.json` pulls through `__MSG_description__`. The `pl` locale carries the translated
 version. The dashboard will not let you edit manifest metadata after upload, so a change means a
 version bump and a fresh zip.
@@ -19,47 +19,9 @@ version bump and a fresh zip.
 
 ## 2. Detailed description
 
-Keeps the sites and words you choose out of your browsing history.
-
-Give it a list:
-
-- a site, with or without its subdomains
-- one page, or a folder on a site
-- a word, like shoes. Titles count too, so "shoes - Google Search" goes as well
-- a pattern, if you prefer regular expressions
-
-Then pick when it runs: as you browse, when you close the browser, or at your next start. Preview
-first if you want. Preview reads your history, reports what it would remove and which rule caught it,
-and deletes nothing.
-
-Prefer it the other way round? One checkbox turns the list into a keep list: the bank, your webmail
-and the work wiki stay, everything else goes. Off by default, and it will not switch on while the
-list is empty.
-
-There is more than history here, all of it off until you pick it:
-
-- Off: history only
-- Light: cache
-- Standard: cache, cookies and site data, saved form text
-- Nuclear: all of that, plus download history and all of your history
-- Custom: the four switches, your own mix
-
-You choose how far back a clear reaches (an hour, a day, a week, a month, everything) and when it
-runs (on the button, or also at browser close and start). Cookies have a keep list of their own plus
-two triggers, at browser start and when you close a tab. Passwords are not offered at all, because
-the browser removed password deletion from extensions.
-
-The popup stays small: state, one switch, wipe now, preview, and a line saying what else is being
-cleared. Everything else is one click behind "More controls", and a header button brings back the
-denser older layout. Eight themes, light to neon, and an optional PIN lock that keeps the rule list off
-the screen when someone else opens your settings.
-
-No account, no server, and no network requests of its own. Your history never leaves the machine.
-
-Two things to know before installing. Chrome shows a warning about reading and changing your browsing
-history, and the wording cannot be narrowed. And Chrome gives extensions no way to notice the browser
-shutting down, so close-mode does its work when the last window closes and, if that is missed, at the
-next launch.
+The description to paste is in `dashboard-paste-en.txt` (`dashboard-paste-pl.txt` for the
+Polish slot), with `dashboard-fields.md` carrying the same text plus the reasoning. It is kept
+in one place so there is only one copy to keep honest.
 
 ---
 

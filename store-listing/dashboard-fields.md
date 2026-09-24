@@ -24,7 +24,10 @@ you typed once. Add it from the popup with one click, or right-click a page and 
 the menu.
 
 Then you pick when it runs. While you browse, so the entry is gone as the page loads. Or at
-the start of your next session, so the visit is still there until you close the laptop.
+the start of your next session, so the visit is still there until you close the laptop. Or
+right when you add something: the switch under the add row is on by default, so the site or
+word you add takes the older visits it matches out of your history in the same step. The row
+tells you how many went.
 
 Beyond history it can also clear cache, cookies, the download list and text you typed into
 forms. That part is off until you turn it on, and the list above applies to it too, with one
@@ -41,8 +44,9 @@ What it cannot do:
   notice.
 
 Everything happens on your computer. No account, no server, no analytics, nothing sent
-anywhere. The log of what was cleaned stays local and can be wiped any time. There is a PIN you can put on
-the list so nobody using the same computer can read it.
+anywhere. The log of what was cleaned stays local and can be wiped any time.
+
+There is a PIN you can put on the list so nobody using the same computer can read it.
 ```
 
 ## Category
@@ -167,19 +171,13 @@ keys, has no location code, no accounts, no messages, no payment or health data.
 Check all three declarations: no selling or transferring data to third parties, no use beyond
 the single purpose, nothing used for creditworthiness or lending.
 
-One thing to fix before you submit: the published privacy policy does not mention the PIN the
-user can set on their list, and this page will be public next to the policy. Either leave the
-PIN out of the extension's description, or add this line to the policy first, under "What it
-accesses":
-
-```
-A PIN you set yourself, if you switch the list lock on. It is stored on your device as a hash,
-never sent anywhere, and is used only to hide your rule list from other people using the same
-computer. A recovery code you write down can remove it.
-```
+The policy covers the PIN as of the 19 September 2026 update ("A PIN you set yourself, if you
+switch the list lock on..."), so the description and the policy agree. Nothing left to add.
 
 ## Where the numbers stand
 
-- Field limits respected: description 1710/16000, single purpose 414/1000, longest permission
+- The description passes the English style gate (`style_check.py --register docs`): 0 fails,
+  two advisory warnings.
+- Field limits respected: description 1844/16000, single purpose 414/1000, longest permission
   justification 320/1000.
 - The three statements in the privacy tab must all be checked or the form will not submit.

@@ -1772,7 +1772,7 @@ try {
         extraCache: true,
         extraCookies: false,
       },
-      stats: { wipedTotal: 4821, lastRunAt: Date.now() - 3600000, lastRunCount: 37, lastRunPhase: 'manual' },
+      stats: { wipedTotal: 4821, lastRunAt: Date.now() - 3600000, lastRunCount: 37, lastRunPhase: 'manual', byRule: { s1: 3384, s2: 1437 } },
     });
 
     // The override is applied once per page and size. Re-applying it before every capture
@@ -1815,7 +1815,7 @@ try {
     // The popup is a 360px panel, so it is shot at 2x and composed onto that canvas
     // afterwards, which is what tools/make_shot_sheets.py does.
     const shotPopup = await openPage(`chrome-extension://${id}/src/popup.html`, dialogs);
-    await shoot(shotPopup, 'popup-compact.png', 360, 520, false);
+    await shoot(shotPopup, 'popup-compact.png', 360, 700, false);
 
     // A Polish screen must not carry an English sentence. Every bundle value that differs
     // between the two locales is looked for in what the pages actually render, because a

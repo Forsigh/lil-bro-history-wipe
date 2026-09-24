@@ -15,18 +15,21 @@ już nie ma.
 ```
 Lil Bro czyści z komputera to, czego wolałbyś tam nie mieć – i nie musisz przy tym nic robić.
 
-Dajesz mu listę: stronę, słowo, początek adresu. Wszystko, co na niej wpiszesz, znika z historii:
-zakładka do sklepu, do którego nie chcesz się przyznawać, wątek na forum, nazwisko wpisane raz w
+Dajesz mu listę: stronę, słowo, początek adresu. Wszystko z niej znika z historii: zakładka do
+sklepu, do którego nie chcesz się przyznawać, wątek na forum, nazwisko wpisane raz w
 wyszukiwarkę. Dopiszesz to jednym kliknięciem w okienku rozszerzenia albo z menu pod prawym
 przyciskiem, bez wchodzenia w ustawienia.
 
-Potem wybierasz, kiedy ma działać. W trakcie przeglądania, żeby wpis zniknął zaraz po otwarciu
-strony – albo przy następnym otwarciu przeglądarki, żeby wizyta została jeszcze tego dnia.
+Potem wybierasz, kiedy ma działać. W trakcie przeglądania: wpis znika zaraz po otwarciu strony.
+Albo przy następnym otwarciu przeglądarki: wizyta zostaje jeszcze tego dnia. Albo od razu przy
+dodawaniu: przełącznik pod polem dodawania jest domyślnie włączony, więc dodana strona lub
+słowo usuwa z historii pasujące starsze wizyty za jednym razem. Wiersz powie ci, ile ich
+wyczyszczono.
 
 Poza historią może czyścić cache, cookies, listę pobranych plików i tekst wpisany w formularze.
-Ta część jest wyłączona, dopóki jej nie włączysz, i działa na tej samej liście, z jedną różnicą:
-cookies znikają dla całej strony, więc na tej stronie będziesz potem wylogowany. Wyjątkiem jest
-lista zachowanych – tych stron nie tyka, więc zostajesz na nich zalogowany.
+Ta część jest wyłączona, dopóki jej nie włączysz. Działa na tej samej liście, z jedną
+różnicą: cookies znikają dla całej strony, więc na tej stronie będziesz potem wylogowany.
+Wyjątkiem jest lista zachowanych: tych stron nie tyka i zostajesz na nich zalogowany.
 
 Czego nie zrobi:
 
@@ -34,15 +37,15 @@ Czego nie zrobi:
   przełącznika,
 - nie ograniczy historii, listy pobranych plików ani tekstu z formularzy do jednej strony – te
   dane czyści się za wybrany okres, nie dla jednego adresu,
-- nie uruchomi się dokładnie w chwili zamknięcia przeglądarki, bo przeglądarka na to nie pozwala, więc
-  czyszczenie ustawione na zamknięcie wypada przy następnym otwarciu. Prawie zawsze tego nie
-  zauważysz.
+- nie uruchomi się dokładnie w chwili zamknięcia przeglądarki, bo przeglądarka na to nie pozwala.
+  Czyszczenie ustawione na zamknięcie wypada więc przy następnym otwarciu. Prawie zawsze tego
+  nie zauważysz.
 
 Wszystko dzieje się na twoim komputerze. Bez konta, bez serwera, bez statystyk i bez wysyłania
-czegokolwiek na zewnątrz. Zapis tego, co zostało wyczyszczone, zostaje u ciebie i możesz go
-usunąć, kiedy chcesz.
+czegokolwiek na zewnątrz. Zapis wyczyszczonych wpisów zostaje u ciebie i możesz go usunąć,
+kiedy chcesz.
 
-Na listę możesz założyć PIN, żeby nikt inny przy tym komputerze nie zobaczył, co na niej masz.
+Na listę możesz założyć PIN. Nikt inny przy tym komputerze nie zobaczy, co na niej masz.
 ```
 
 ## Kategoria
@@ -171,24 +174,16 @@ Zaznacz wszystkie trzy oświadczenia: nie sprzedaję i nie przekazuję danych u�
 trzecim, nie używam ich do celów innych niż jedyne przeznaczenie, nie używam ich do ustalania
 zdolności kredytowej ani udzielania pożyczek.
 
-Jedna rzecz do poprawienia przed wysłaniem: opublikowana polityka prywatności nie wspomina o
-PIN-ie, który użytkownik może założyć na listę, a ten panel będzie widoczny obok polityki.
-Albo nie opisuj PIN-u w opisie rozszerzenia, albo dopisz najpierw do polityki, w sekcji „What it
-accesses":
-
-```
-A PIN you set yourself, if you switch the list lock on. It is stored on your device as a hash,
-never sent anywhere, and is used only to hide your rule list from other people using the same
-computer. A recovery code you write down can remove it.
-```
+Polityka prywatności wspomina PIN od aktualizacji z 19 września 2026 („A PIN you set yourself,
+if you switch the list lock on..."), więc opis i polityka się zgadzają. Nie ma tu nic do
+dopisania.
 
 ## Gdzie stoją liczby
 
-- Limity pól zachowane: opis 1852/16000, jedno przeznaczenie 433/1000, najdłuższe uzasadnienie
+- Limity pól zachowane: opis 1941/16000, jedno przeznaczenie 433/1000, najdłuższe uzasadnienie
   uprawnienia 321/1000.
-- Opis sprawdzony polską bramką stylu (`pl_check.py --register pl-ui`): 0 błędów, 1 ostrzeżenie,
-  to o cudzysłowie, którego w tym tekście nie ma gdzie postawić. Zdania mają średnio 16,4 słowa
-  przy 18,0 w czystej polskiej prasie, najdłuższe 58 przy 55, a pauzy en 14,3 na 1000 słów przy
-  15,3.
+- Opis przechodzi polską bramkę stylu (`pl_check.py --register pl-ui`): 0 błędów, 0 ostrzeżeń.
+  Zdania mają średnio 13,6 słowa (czysta polska prasa: 18,0), najdłuższe 49 (tam 55), pauzy en
+  6,5 na 1000 słów (tam 15,3), a łańcuchy przecinków 0,81 przy progu 1,2.
 - Wszystkie trzy oświadczenia w zakładce prywatności muszą być zaznaczone, inaczej formularz się
   nie wyśle.
