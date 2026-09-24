@@ -1046,6 +1046,9 @@ try {
   // Both switches live in the same sheet, and the checkbox draws its tick with a
   // clip-path on the checked ::after; that clip once landed on this knob, so the list
   // showed a tick on a pill. Measured in both positions, after the slide settles.
+  // Sizes are read within half a pixel rather than by string equality: a computed px
+  // value can come back fractional (browser zoom, a fractional layout), and what this
+  // catches is a clip-path on the knob, not a rounding error.
   const rowsw = JSON.parse(
     await optLocked.evaluate(`(async()=>{
       const el = document.querySelector('.rowsw');
@@ -1065,15 +1068,23 @@ try {
       const on = knob();
       el.checked = was;
       const b = el.getBoundingClientRect();
-      return JSON.stringify({ box: Math.round(b.width)+'x'+Math.round(b.height), cls: el.className, off, on });
+      return JSON.stringify({
+        box: Math.round(b.width)+'x'+Math.round(b.height),
+        rect: b.width.toFixed(2)+'x'+b.height.toFixed(2),
+        dpr: window.devicePixelRatio, cls: el.className, off, on,
+      });
     })()`)
   );
+  const near = (text, value, tol = 0.5) => {
+    const n = parseFloat(text);
+    return Number.isFinite(n) && Math.abs(n - value) <= tol;
+  };
   record(
     'a row switch draws a round knob in both positions, not a tick on a pill',
     !rowsw.none && rowsw.box === '32x18' &&
       rowsw.off.clip === 'none' && rowsw.on.clip === 'none' &&
-      rowsw.off.w === '12px' && rowsw.off.radius === '50%' &&
-      rowsw.off.left === '2px' && rowsw.on.left === '16px' &&
+      near(rowsw.off.w, 12) && near(rowsw.off.h, 12) && rowsw.off.radius === '50%' &&
+      near(rowsw.off.left, 2, 0.35) && near(rowsw.on.left, 16, 0.35) &&
       rowsw.off.bg !== rowsw.on.bg,
     rowsw.none ? 'no row switch on the page'
       : JSON.stringify(rowsw)
