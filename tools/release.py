@@ -433,7 +433,11 @@ def main():
         text = readme.read_text(encoding="utf-8")
         text = re.sub(r"lil-bro-wipe-\d+\.\d+\.\d+\.zip", zip_name, text)
         text = re.sub(r"load-unpacked-\d+\.\d+\.\d+", f"load-unpacked-{version}", text)
-        text = re.sub(r"UPLOAD-\d+\.\d+\.\d+", f"UPLOAD-{version}", text)
+        # The upload folder is only remade when the pictures are asked for. Naming the
+        # current version here while that folder keeps an older set (or does not exist)
+        # would point the upload at nothing.
+        if args.shots:
+            text = re.sub(r"UPLOAD-\d+\.\d+\.\d+", f"UPLOAD-{version}", text)
         readme.write_bytes(text.encode("utf-8"))
     # The table and the README's numbers are re-derived from the artifact just built
     # rather than assumed to be current: that is the pair that went stale here.
