@@ -1527,6 +1527,57 @@ try {
         (addRow.sub.width > 0 ? `subdomains bar below at ${addRow.sub.top}` : 'subdomains bar hidden'));
 
     await closePage(look.id);
+
+    // The older-visits pill: adding a rule can take out what it already matches, in one
+    // pass, through the same sweep "wipe now" uses. Checked against the real history
+    // database, and against the same pill switched off.
+    await resetStore();
+    await clearHistory();
+    await setStore({
+      rules: [],
+      settings: {
+        enabled: true, mode: 'startup', sweepExistingOnStartup: false,
+        notifyOnWipe: false, listMode: 'block', wipeAllHistory: false,
+      },
+    });
+    await seed(['https://older.example/one', 'https://older.example/two', 'https://other.example/one']);
+    const look2 = await openPage(`chrome-extension://${id}/src/options.html`);
+    await sleep(600);
+    const pill = await look2.evaluate(`(() => {
+      const box = document.getElementById('clearPast');
+      const wrap = document.getElementById('pastWrap');
+      return box ? { on: box.checked, visible: wrap ? !wrap.classList.contains('hidden') : false } : null;
+    })()`);
+    record('the older-visits pill sits under the box, on by default',
+      !!pill && pill.on === true && pill.visible === true,
+      pill ? `on=${pill.on}, visible=${pill.visible}` : 'no pill on the page');
+    await look2.evaluate(`(() => {
+      document.getElementById('ruleType').value = 'domain';
+      document.getElementById('ruleValue').value = 'older.example';
+      document.getElementById('addBtn').click();
+      return true;
+    })()`);
+    await sleep(1500);
+    const olderLeft = (await historyUrls()).filter((u) => u.includes('older.example'));
+    const otherLeft = (await historyUrls()).filter((u) => u.includes('other.example'));
+    record('a rule added with the pill on clears the older visits right away',
+      olderLeft.length === 0 && otherLeft.length === 1,
+      `${olderLeft.length} older left, ${otherLeft.length} other left`);
+    const addMsg = await look2.evaluate(`document.getElementById('addMsg').textContent`);
+    record('the add row says how many older visits went',
+      /\d/.test(String(addMsg)), JSON.stringify(addMsg));
+    await look2.evaluate(`(() => {
+      document.getElementById('clearPast').checked = false;
+      document.getElementById('ruleType').value = 'domain';
+      document.getElementById('ruleValue').value = 'other.example';
+      document.getElementById('addBtn').click();
+      return true;
+    })()`);
+    await sleep(1500);
+    const otherLeft2 = (await historyUrls()).filter((u) => u.includes('other.example'));
+    record('with the pill off the older visits are left alone',
+      otherLeft2.length === 1, `${otherLeft2.length} left with the pill off`);
+    await closePage(look2.id);
   }
 
   // --- 12c. every word in every theme can be read ---------------------------

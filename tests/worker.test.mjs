@@ -515,6 +515,59 @@ function check(label, fn) {
 }
 
 // ---------------------------------------------------------------------------
+// 9b. clearPast: the older-visits pill clears what the new rule matches
+// ---------------------------------------------------------------------------
+{
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://older.example/one', title: 'one', lastVisitTime: NOW },
+    { id: 'b', url: 'https://older.example/two', title: 'two', lastVisitTime: NOW - 1000 },
+    { id: 'c', url: 'https://other.example/one', title: 'three', lastVisitTime: NOW - 2000 },
+  ]);
+  f.store.local.rules = [
+    { id: 'r1', type: 'domain', value: 'other.example', enabled: true },
+    { id: 'r2', type: 'domain', value: 'older.example', enabled: true },
+  ];
+  f.store.local.settings = { mode: 'startup', sweepExistingOnStartup: false, notifyOnWipe: false };
+
+  await boot(f.chrome, f.store);
+
+  const res = await new Promise((r) =>
+    f.listeners.onMessage[0]({ type: 'clearPast', ids: ['r2'] }, {}, r));
+  check('clearPast: deletes what the new rule matches', () => assert.equal(res.deleted, 2));
+  check('clearPast: leaves the other rule’s entries alone', () => assert.equal(f.db.items.length, 1));
+  check('clearPast: scans the whole database', () => assert.equal(res.scanned, 3));
+  check('clearPast: counts into the stats', () => assert.equal(f.store.local.stats.wipedTotal, 2));
+
+  const none = await new Promise((r) =>
+    f.listeners.onMessage[0]({ type: 'clearPast', ids: ['r9'] }, {}, r));
+  check('clearPast: an id nothing carries changes nothing', () =>
+    assert.deepEqual([none.deleted, none.matched], [0, 0]));
+}
+
+// ---------------------------------------------------------------------------
+// 9c. clearPast never reaches past a keep rule
+// ---------------------------------------------------------------------------
+{
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://both.example/keep', title: 'k', lastVisitTime: NOW },
+    { id: 'b', url: 'https://both.example/wipe', title: 'w', lastVisitTime: NOW - 500 },
+  ]);
+  f.store.local.rules = [
+    { id: 'k1', type: 'url', value: 'https://both.example/keep', enabled: true, exempt: true },
+    { id: 'k2', type: 'keyword', value: 'both.example', enabled: true },
+  ];
+  f.store.local.settings = { mode: 'startup', sweepExistingOnStartup: false, notifyOnWipe: false };
+
+  await boot(f.chrome, f.store);
+
+  const res = await new Promise((r) =>
+    f.listeners.onMessage[0]({ type: 'clearPast', ids: ['k2'] }, {}, r));
+  check('clearPast: the kept page is not touched', () => assert.equal(res.deleted, 1));
+  check('clearPast: exactly the kept page is left', () =>
+    assert.deepEqual(f.db.items.map((i) => i.url), ['https://both.example/keep']));
+}
+
+// ---------------------------------------------------------------------------
 // 10. only "on close" mode reacts to the window closing
 // ---------------------------------------------------------------------------
 {

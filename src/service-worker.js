@@ -1055,6 +1055,28 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     return true;
   }
 
+  // The pill on the add row. The page sends the ids of the rules it just wrote, and only
+  // those run, beside the keep list, so an older visit to a page a keep rule covers is
+  // left alone whatever the new rule says.
+  if (msg.type === 'clearPast') {
+    (async () => {
+      const { settings, rules } = await getState();
+      const wanted = new Set(Array.isArray(msg.ids) ? msg.ids : []);
+      const live = activeRules(rules);
+      const fresh = live.filter((rule) => wanted.has(rule.id) && !rule.exempt);
+      if (!fresh.length || isKeepMode(settings)) {
+        return { ok: true, scanned: 0, deleted: 0, matched: 0 };
+      }
+      const keeps = live.filter((rule) => rule.exempt);
+      const res = await sweepHistory(keeps.concat(fresh), 'manual', { allow: false });
+      if (res.deleted) await bumpStats(res.deleted, 'manual');
+      return { ok: true, ...res };
+    })()
+      .then(reply)
+      .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
+    return true;
+  }
+
   // The separate button for the extra clear, so cookies and cache can go without
   // touching the history at all.
   if (msg.type === 'clearExtra') {

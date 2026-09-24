@@ -273,8 +273,10 @@ console.log('  extra clear: four kinds off by default, manual trigger, one funne
 
 // Every destructive surface must go through the confirmation gates. Each page has a
 // fixed number of sendMessage call sites. In options: the wipe funnel, the extra clear
-// with its own confirmation, the manual cookie clear, and the suggestions read, which
-// only reads and deletes nothing. A new destructive path still trips this count.
+// with its own confirmation, the manual cookie clear, the suggestions read, which only
+// reads and deletes nothing, and the older-visits sweep from the add row, which runs
+// only the rules just added, never reaches past the keep list, and is switched by the
+// pill sitting on the row it belongs to. A new destructive path still trips this count.
 const optionsSrc = readFileSync(join(root, 'src/options.js'), 'utf8');
 const popupSrc = readFileSync(join(root, 'src/popup.js'), 'utf8');
 
@@ -297,7 +299,7 @@ for (const [file, src, needed] of [
     }
   }
   const sends = (src.match(/chrome\.runtime\.sendMessage\(/g) || []).length;
-  const expected = file === 'src/options.js' ? 4 : 2;
+  const expected = file === 'src/options.js' ? 5 : 2;
   if (sends !== expected) {
     console.log(`  FAIL ${file} has ${sends} sendMessage call sites, expected ${expected}`);
     fail++;

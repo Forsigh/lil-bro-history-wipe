@@ -155,6 +155,10 @@ function renderSettings() {
   $('logEnabled').checked = !!s.logEnabled;
   $('wipeAll').checked = !!s.wipeAllHistory;
   $('keepOnly').checked = s.listMode === 'allow';
+  // The older-visits pill is a wipe-list control: on the keep list "also remove what it
+  // matches" would mean the opposite, so it goes away with the switch that turns the
+  // list into a keep list.
+  $('pastWrap').classList.toggle('hidden', s.listMode === 'allow');
   $('lockEnabled').checked = !!s.lockEnabled;
   $('langPick').value = s.lang || 'auto';
   $('keepWarn').textContent = s.listMode === 'allow'
@@ -881,6 +885,20 @@ $('addBtn').addEventListener('click', async () => {
   if (made.length) {
     state.rules.push(...made);
     await saveState({ rules: state.rules });
+  }
+  // The pill under the box: adding a rule can also take out what it already matches, in
+  // one pass, so the older visits do not sit in the history until the next browser
+  // start. The worker runs the sweep with the new rules beside the keep list, so a page
+  // a keep rule covers can never be touched. It is the one part of an add that can take
+  // a moment on a large history, so it reports itself when it is done instead of
+  // holding the new row back.
+  if (made.length && $('clearPast').checked && state.settings.listMode !== 'allow') {
+    chrome.runtime.sendMessage({ type: 'clearPast', ids: made.map((r) => r.id) }, (res) => {
+      if (chrome.runtime.lastError || !res || !res.ok) return;
+      const line = res.deleted ? t('addedCleared', [res.deleted]) : t('addedNone');
+      const shown = $('addMsg').textContent;
+      setMsg($('addMsg'), shown ? `${shown} ${line}` : line, 'ok');
+    });
   }
   $('ruleValue').value = '';
   // One value behaves as it always did: the new row appearing in the list is the

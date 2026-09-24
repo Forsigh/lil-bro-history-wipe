@@ -77,6 +77,12 @@
   "addedMany": {
     "message": "Added $1 to the list, skipped $2."
   },
+  "addedCleared": {
+    "message": "Cleared $1 older visits."
+  },
+  "addedNone": {
+    "message": "Nothing older matched."
+  },
   "keptOnly": {
     "message": "Kept."
   },
@@ -163,6 +169,9 @@
   },
   "optWholeWords": {
     "message": "whole words"
+  },
+  "optClearPast": {
+    "message": "older visits too"
   },
   "optColType": {
     "message": "Type"
@@ -1032,7 +1041,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "The add row on the list is back to one line: dropdown, box and Add button together again, and the box is now the same height as the dropdown. This note shows up once per update, then stays away."
+    "message": "There is a new switch under the add row, and it is on by default: a site or word you add now takes the visits it matches out of your history right away, instead of leaving them for the next browser start. This note shows up once per update, then stays away."
   },
   "whatsNewOk": {
     "message": "Got it"

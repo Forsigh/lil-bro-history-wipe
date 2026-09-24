@@ -77,6 +77,12 @@
   "addedMany": {
     "message": "Dodane do listy: $1, pominięte: $2."
   },
+  "addedCleared": {
+    "message": "Wyczyszczono starsze wizyty: $1."
+  },
+  "addedNone": {
+    "message": "Nie znaleziono starszych wizyt."
+  },
   "keptOnly": {
     "message": "Zachowane."
   },
@@ -163,6 +169,9 @@
   },
   "optWholeWords": {
     "message": "całe słowa"
+  },
+  "optClearPast": {
+    "message": "starsze wizyty też"
   },
   "optColType": {
     "message": "Rodzaj"
@@ -1032,7 +1041,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Wiersz dodawania wrócił na jedną linię: lista rozwijana, pole i przycisk Dodaj znów stoją razem, a pole ma teraz tę samą wysokość co lista rozwijana obok. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
+    "message": "Pod polem dodawania jest nowy przełącznik, domyślnie włączony: dodane strony i słowa od razu usuwają pasujące wizyty z historii, zamiast czekać na kolejny start przeglądarki. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
   },
   "whatsNewOk": {
     "message": "Rozumiem"
