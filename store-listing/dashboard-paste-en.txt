@@ -18,38 +18,17 @@ Wipes the sites and words you pick out of your history: as you browse, or the ne
 
 DESCRIPTION (16000)
 ---------------------------------------------------------------------
-Lil Bro cleans the things you would rather not have on your machine, and it does it without
-you thinking about it.
+Lil Bro clears the parts of your browsing history you would rather not keep. You give it a list, and anything on that list is what it goes after: a site, a word, the start of an address. The shop you keep coming back to, a forum thread, a name you typed once.
 
-You give it a list: a site, a word, the beginning of an address. Anything on that list is
-what it goes after. A bookmark to a shop you are embarrassed about, a forum thread, a name
-you typed once. Add it from the popup with one click, or right-click a page and pick it from
-the menu.
+Adding something takes two clicks. Click the toolbar icon and add the page you are on, or right-click any page and pick it from the menu. There is nothing to set up first.
 
-Then you pick when it runs. While you browse, so the entry is gone as the page loads. Or at
-the start of your next session, so the visit is still there until you close the laptop. Or
-right when you add something: the switch under the add row is on by default, so the site or
-word you add takes the older visits it matches out of your history in the same step. The row
-tells you how many went.
+Then you decide when it works. It can clear as you browse, so an entry is gone the moment the page loads. Or it can wait until your next start, so the visit stays until you close the laptop. And when you add something new, a small switch under the add row (on by default) also takes out the older visits you already have for it, then tells you how many went.
 
-Beyond history it can also clear cache, cookies, the download list and text you typed into
-forms. That part is off until you turn it on, and the list above applies to it too, with one
-difference: cookies are cleared for the whole site, so you will be signed out of that site
-afterwards. Keep list included, for the sites you want to stay logged in on.
+History is the main thing, but if you want more, it can also clear cache, cookies, downloads and text you typed into forms. All of that is off until you turn it on. One thing to know: cookies go for the whole site, so you will be signed out of it. Anything on your keep list is never touched.
 
-What it cannot do:
+Everything happens on your computer. No account, no server, no analytics, nothing sent anywhere. The log of what was cleaned stays local and can be wiped any time, and you can put a PIN on the list so nobody else using this computer can read it.
 
-- Passwords are not touched. The browser removed that for extensions, so there is no switch for it.
-- The browser cannot narrow history, download records or form text to one site, so those go for
-  the span you choose, not per site.
-- The browser will not let anything run at the exact moment it closes, so a clean set for
-  close happens at your next start instead. Ninety-nine times out of a hundred you will not
-  notice.
-
-Everything happens on your computer. No account, no server, no analytics, nothing sent
-anywhere. The log of what was cleaned stays local and can be wiped any time.
-
-There is a PIN you can put on the list so nobody using the same computer can read it.
+A couple of things it can't do, so nothing surprises you later: passwords are off the table, the browser doesn't let any extension touch them. A clean set for browser close can't run at the exact second you close it, so it runs when you next open the browser. And downloads or form text clear for a time span, not per site, because the browser gives no finer way.
 
 
 CATEGORY

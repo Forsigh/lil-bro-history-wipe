@@ -13,40 +13,20 @@ już nie ma.
 ## Opis (16000)
 
 ```
-Lil Bro czyści z komputera to, czego wolałbyś tam nie mieć – i nie musisz przy tym nic robić.
+Lil Bro usuwa z historii przeglądania to, czego nie chcesz tam trzymać. Dajesz mu listę i on zajmuje się wszystkim: stroną, słowem, początkiem adresu. Sklep, wątek na forum, nazwisko wpisane raz.
 
-Dajesz mu listę: stronę, słowo, początek adresu. Wszystko z niej znika z historii: zakładka do
-sklepu, do którego nie chcesz się przyznawać, wątek na forum, nazwisko wpisane raz w
-wyszukiwarkę. Dopiszesz to jednym kliknięciem w okienku rozszerzenia albo z menu pod prawym
-przyciskiem, bez wchodzenia w ustawienia.
+Dodanie zajmuje chwilę: kliknij ikonę na pasku i dodaj stronę, na której jesteś, albo kliknij prawym przyciskiem myszy i wybierz ją z menu. Na start nie ma nic do ustawiania.
 
-Potem wybierasz, kiedy ma działać. W trakcie przeglądania: wpis znika zaraz po otwarciu strony.
-Albo przy następnym otwarciu przeglądarki: wizyta zostaje jeszcze tego dnia. Albo od razu przy
-dodawaniu: przełącznik pod polem dodawania jest domyślnie włączony, więc dodana strona lub
-słowo usuwa z historii pasujące starsze wizyty za jednym razem. Wiersz powie ci, ile ich
-wyczyszczono.
+Decydujesz, kiedy ma działać: może czyścić w trakcie przeglądania – wtedy wpis znika, gdy strona się ładuje. Może czekać do następnego uruchomienia – wtedy wizyta zostaje, dopóki nie zamkniesz laptopa. A gdy dodajesz coś nowego, przełącznik „starsze wizyty też” pod polem dodawania (domyślnie włączony) zabiera je z historii od razu i mówi, ile ich było.
 
-Poza historią może czyścić cache, cookies, listę pobranych plików i tekst wpisany w formularze.
-Ta część jest wyłączona, dopóki jej nie włączysz. Działa na tej samej liście, z jedną
-różnicą: cookies znikają dla całej strony, więc na tej stronie będziesz potem wylogowany.
-Wyjątkiem jest lista zachowanych: tych stron nie tyka i zostajesz na nich zalogowany.
+Historia to główna rzecz, ale poza nią może czyścić też pamięć podręczną, ciasteczka, pobrane pliki i tekst wpisany w formularze. Wszystko to jest domyślnie wyłączone. Jedna uwaga: ciasteczka znikają z całej strony, więc wylogujesz się z niej. Twoja lista zachowanych stron zostaje nietknięta.
 
-Czego nie zrobi:
+Wszystko dzieje się na twoim komputerze: bez konta, serwera i analityki, sam nie wysyła ani nie pobiera niczego. Historia czyszczenia zostaje u ciebie i możesz ją wyczyścić w każdej chwili. Na listę możesz też założyć PIN, żeby nikt inny przy tym komputerze jej nie przeczytał.
 
-- nie rusza haseł. przeglądarka zabrała rozszerzeniom możliwość ich usuwania, więc nie ma takiego
-  przełącznika,
-- nie ograniczy historii, listy pobranych plików ani tekstu z formularzy do jednej strony – te
-  dane czyści się za wybrany okres, nie dla jednego adresu,
-- nie uruchomi się dokładnie w chwili zamknięcia przeglądarki, bo przeglądarka na to nie pozwala.
-  Czyszczenie ustawione na zamknięcie wypada więc przy następnym otwarciu. Prawie zawsze tego
-  nie zauważysz.
-
-Wszystko dzieje się na twoim komputerze. Bez konta, bez serwera, bez statystyk i bez wysyłania
-czegokolwiek na zewnątrz. Zapis wyczyszczonych wpisów zostaje u ciebie i możesz go usunąć,
-kiedy chcesz.
-
-Na listę możesz założyć PIN. Nikt inny przy tym komputerze nie zobaczy, co na niej masz.
+Żeby nic cię nie zaskoczyło: haseł nie rusza, bo przeglądarka na to rozszerzeniom nie pozwala. Czyszczenie przy zamknięciu przeglądarki nie włączy się w dokładnej sekundzie zamknięcia – zrobi to przy następnym otwarciu. A pobrane pliki i tekst z formularzy czyści dla wybranego zakresu czasu – nie dla pojedynczych stron.
 ```
+
+Każdy akapit to jedna linia, więc wklejenie do panelu daje czyste akapity, a nie zdania łamane w miejscu, w którym łamie się ten plik.
 
 ## Kategoria
 
@@ -180,10 +160,10 @@ dopisania.
 
 ## Gdzie stoją liczby
 
-- Limity pól zachowane: opis 1941/16000, jedno przeznaczenie 433/1000, najdłuższe uzasadnienie
+- Limity pól zachowane: opis 1624/16000, jedno przeznaczenie 433/1000, najdłuższe uzasadnienie
   uprawnienia 321/1000.
-- Opis przechodzi polską bramkę stylu (`pl_check.py --register pl-ui`): 0 błędów, 0 ostrzeżeń.
-  Zdania mają średnio 13,6 słowa (czysta polska prasa: 18,0), najdłuższe 49 (tam 55), pauzy en
-  6,5 na 1000 słów (tam 15,3), a łańcuchy przecinków 0,81 przy progu 1,2.
+- Opis przechodzi polską bramkę stylu (`pl_check.py --register pl-ui`): 0 błędów, 1 ostrzeżenie
+  o łańcuchach przecinków (1,11 przy progu 1,2). Zdania mają średnio 13,8 słowa (czysta polska
+  prasa: 18,0), najdłuższe 25 (tam 55), a pauzy en 16,1 na 1000 słów (tam 15,3).
 - Wszystkie trzy oświadczenia w zakładce prywatności muszą być zaznaczone, inaczej formularz się
   nie wyśle.
