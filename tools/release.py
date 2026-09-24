@@ -431,9 +431,9 @@ def main():
     readme = DESKTOP / "README.txt"
     if readme.exists():
         text = readme.read_text(encoding="utf-8")
-        text = re.sub(r"lil-bro-wipe-1\.\d+\.\d+\.zip", zip_name, text)
-        text = re.sub(r"load-unpacked-1\.\d+\.\d+", f"load-unpacked-{version}", text)
-        text = re.sub(r"UPLOAD-1\.\d+\.\d+", f"UPLOAD-{version}", text)
+        text = re.sub(r"lil-bro-wipe-\d+\.\d+\.\d+\.zip", zip_name, text)
+        text = re.sub(r"load-unpacked-\d+\.\d+\.\d+", f"load-unpacked-{version}", text)
+        text = re.sub(r"UPLOAD-\d+\.\d+\.\d+", f"UPLOAD-{version}", text)
         readme.write_bytes(text.encode("utf-8"))
     # The table and the README's numbers are re-derived from the artifact just built
     # rather than assumed to be current: that is the pair that went stale here.

@@ -271,6 +271,20 @@ if (!storeSrc.includes('extraSinceMs')) {
 }
 console.log('  extra clear: four kinds off by default, manual trigger, one funnel, no passwords');
 
+// The two switches that reach backwards come switched on in a fresh install, and stay
+// that way: an install that has to go find them first has already kept the visits it
+// meant to clear. The startup sweep is a default in the code; the older-visits pill is
+// ticked in the markup and re-ticked on every load of the page.
+if (!/sweepExistingOnStartup:\s*true/.test(storeSrc)) {
+  console.log('  FAIL sweepExistingOnStartup no longer defaults to true — a fresh install would stop sweeping old visits');
+  fail++;
+}
+if (!/id="clearPast"[^>]*checked/.test(readFileSync(join(root, 'src/options.html'), 'utf8'))) {
+  console.log('  FAIL the older-visits pill is no longer ticked by default in options.html');
+  fail++;
+}
+console.log('  backwards: the startup sweep and the older-visits pill both come switched on');
+
 // Every destructive surface must go through the confirmation gates. Each page has a
 // fixed number of sendMessage call sites. In options: the wipe funnel, the extra clear
 // with its own confirmation, the manual cookie clear, the suggestions read, which only

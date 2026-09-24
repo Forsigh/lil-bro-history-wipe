@@ -3,11 +3,10 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 2.1.0.
+different builds called themselves 1.3.0. The current code is numbered 2.0.1.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
-| 2.1.0 | 24 Sep | `fd9ff5f` | `f065321831d06b39` | Adding something to the list can now take out the visits that are already in your history, in the same step. There is a new switch under the add row, on by default: when it is on,  |
 | 2.0.1 | 23 Sep | `6ee9144` | `7aca25e02e9c1c6b` | Your list's add row is back on one line. The dropdown, the box and the Add button sit together again, the way they did before the paste-a-list update turned the box into a multi-li |
 | 2.0.0 | 23 Sep | `a835da1` | `53cf87c162ae553b` | Export is a full setup file now. It always carried your list and your settings; it also |
 | 1.10.0 | 23 Sep | `4748907` | `15ad255ab7ed96eb` | Export is a full setup file now. It always carried your list and your settings; it also |
