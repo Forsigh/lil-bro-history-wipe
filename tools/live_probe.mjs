@@ -922,8 +922,26 @@ try {
   // removed: there is now no password field on this page at all.
   record('the popup asks for no PIN', lockView2.pinFields === 0, `${lockView2.pinFields} password field(s)`);
   record('the popup keeps its controls', lockView2.addHidden === false && lockView2.controlsHidden === false);
-  record('the list is off the screen and the scan is off with it',
-    lockView2.listRows === 0 && lockView2.scanDisabled === true);
+  record('the list stays off the screen while locked',
+    lockView2.listRows === 0 && lockView2.scanDisabled === false);
+  // The scan keeps working while the PIN is on: it answers with counts, and the names
+  // never reach the list. The old build switched the button off and a dead button read
+  // as broken, so this drives the click and reads what the popup actually says.
+  await pop5.evaluate(`document.getElementById('previewBtn').click()`);
+  let lockedScan = { msg: '', rows: -1 };
+  for (let i = 0; i < 30; i += 1) {
+    await new Promise((r) => setTimeout(r, 250));
+    lockedScan = JSON.parse(
+      await pop5.evaluate(`JSON.stringify({
+        msg: document.getElementById('wipeMsg').textContent.trim(),
+        rows: document.getElementById('previewList').children.length
+      })`)
+    );
+    if (lockedScan.msg && !/Looking for matches/i.test(lockedScan.msg)) break;
+  }
+  record('the scan answers with counts while locked, naming nothing',
+    /entries/i.test(lockedScan.msg) && /PIN/.test(lockedScan.msg) && lockedScan.rows === 0,
+    lockedScan.msg.slice(0, 90));
   // The verdict names what happens to this tab, so it says nothing while locked.
   record('popup says nothing about the tab while locked', lockView2.verdict === '', `"${lockView2.verdict}"`);
   await closePage(pop5.id);
