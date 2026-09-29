@@ -77,6 +77,23 @@ async function bumpStats(count, phase) {
   });
 }
 
+/** One line per deep scan, so the log answers the question it gets asked: did the scan
+ *  run, and what did it see. Counts only, and it costs one slot of the log. */
+async function logSweepSummary(res, phase) {
+  return pushLog([
+    {
+      url: '(deep scan)',
+      title: '',
+      rule: '',
+      why: 'sweep',
+      word: '',
+      excerpt: `scanned ${res.scanned}, wiped ${res.deleted}`,
+      at: Date.now(),
+      phase,
+    },
+  ]);
+}
+
 /** What each rule has removed, as a running total. Entries for rules that are gone are
  *  dropped here rather than by a separate sweep, so deleting a rule cannot leave its
  *  number behind on the page. */
@@ -736,6 +753,7 @@ async function runSessionStart(phase = 'startup') {
     if (settings.sweepExistingOnStartup && live.length) {
       const res = await sweepHistory(live, phase, { allow: isKeepMode(settings) });
       deleted += res.deleted;
+      await logSweepSummary(res, phase);
     }
 
     await bumpStats(deleted, phase);
@@ -925,7 +943,10 @@ async function manualRun(dryRun) {
   }
 
   const res = await sweepHistory(live, dryRun ? 'preview' : 'manual', { dryRun, allow });
-  if (!dryRun) await bumpStats(res.deleted, 'manual');
+  if (!dryRun) {
+    await bumpStats(res.deleted, 'manual');
+    await logSweepSummary(res, 'manual');
+  }
   return {
     ok: true,
     dryRun: !!dryRun,

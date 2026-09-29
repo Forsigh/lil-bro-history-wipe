@@ -22,6 +22,7 @@ export function whyLine(t, entry) {
     'wipe-all': 'everything, on your order',
     extras: 'extra browsing data you asked to clear',
     cookies: 'cookies for this site, on tab close',
+    sweep: 'deep scan finished',
   };
   const keys = {
     'word-url': 'logWordInAddress',
@@ -34,6 +35,7 @@ export function whyLine(t, entry) {
     'wipe-all': 'logWipeAll',
     extras: 'logExtras',
     cookies: 'logCookies',
+    sweep: 'logSweep',
   };
   const code = entry && entry.why;
   if (!code || !fallback[code]) return (entry && entry.rule) || '';

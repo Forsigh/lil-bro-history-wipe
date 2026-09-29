@@ -81,12 +81,16 @@ function applyLock() {
   const locked = isLocked();
   document.body.classList.toggle('locked', locked);
   $('lockCard').classList.toggle('hidden', !locked);
+  $('previewBtn').title = locked
+    ? t('lockPopupNote') || 'The list and the log stay out of sight while the PIN is on. Unlock them in the settings.'
+    : '';
   if (!locked) return;
   $('lockNote').textContent =
     t('lockPopupNote') || 'The list and the log stay out of sight while the PIN is on. Unlock them in the settings.';
   $('previewList').innerHTML = '';
-  // A scan here only ever produced that list, so it would do nothing visible.
-  $('previewBtn').disabled = true;
+  // The scan keeps working while the PIN is on: it answers with counts, and the names
+  // never reach the screen (renderPreview sits behind the same check). Silence was the
+  // worse answer, because a button that does nothing reads as broken.
   $('wipeMsg').textContent = '';
   $('siteVerdict').textContent = '';
 }
@@ -471,20 +475,22 @@ function runAction(type) {
     if (!res || !res.ok) return setMsg((res && res.error) || t('errRunFailed') || 'Run failed.', 'err');
 
     if (isPreview) {
-      setMsg(
-        res.matched
-          ? res.wipeAll
-            ? t('resArmedAll', [res.scanned]) ||
-              `Wipe-all is armed: all ${res.scanned} entries would be erased.`
-            : state.settings.listMode === 'allow'
-              ? t('resKeepWould', [res.matched]) ||
-                `Entries not on your keep list that would be wiped: ${res.matched}.`
-              : t('resWould', [res.matched, res.scanned]) ||
-                `Entries that would be wiped: ${res.matched} (scanned ${res.scanned}).`
-          : t('resNothing', [res.scanned]) ||
-            `Nothing would be wiped after scanning ${res.scanned} entries.`,
-        res.matched ? 'ok' : 'mini'
-      );
+      const text = res.matched
+        ? res.wipeAll
+          ? t('resArmedAll', [res.scanned]) ||
+            `Wipe-all is armed: all ${res.scanned} entries would be erased.`
+          : state.settings.listMode === 'allow'
+            ? t('resKeepWould', [res.matched]) ||
+              `Entries not on your keep list that would be wiped: ${res.matched}.`
+            : t('resWould', [res.matched, res.scanned]) ||
+              `Entries that would be wiped: ${res.matched} (scanned ${res.scanned}).`
+        : t('resNothing', [res.scanned]) ||
+          `Nothing would be wiped after scanning ${res.scanned} entries.`;
+      // With the PIN on the scan still answers; only the names stay behind the lock.
+      const hint = isLocked()
+        ? ' ' + (t('lockPopupNote') || 'The list and the log stay out of sight while the PIN is on. Unlock them in the settings.')
+        : '';
+      setMsg(text + hint, res.matched ? 'ok' : 'mini');
       renderPreview(res.sample || []);
       return;
     }
@@ -503,6 +509,8 @@ function runAction(type) {
 }
 
 function renderPreview(sample) {
+  // While the PIN is on, counts are fine and names are not.
+  if (isLocked()) return;
   const list = $('previewList');
   list.innerHTML = '';
   for (const item of sample.slice(0, 5)) {

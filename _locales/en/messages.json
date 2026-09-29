@@ -419,6 +419,9 @@
   "logKeepList": {
     "message": "not on your keep list"
   },
+  "logSweep": {
+    "message": "deep scan finished"
+  },
   "logWipeAll": {
     "message": "everything, on your order"
   },
@@ -1041,7 +1044,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "There is a new switch under the add row, and it is on by default: a site or word you add now takes the visits it matches out of your history right away, instead of leaving them for the next browser start. This note shows up once per update, then stays away."
+    "message": "The Scan button in the popup works with the PIN on now. It counts what it finds and keeps the names off the screen. Every run also leaves a line in the log, so a scan is easy to check."
   },
   "whatsNewOk": {
     "message": "Got it"

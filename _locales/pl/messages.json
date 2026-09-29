@@ -419,6 +419,9 @@
   "logKeepList": {
     "message": "nie ma go na liście zachowanych"
   },
+  "logSweep": {
+    "message": "skanowanie zakończone"
+  },
   "logWipeAll": {
     "message": "wszystko, na twoje polecenie"
   },
@@ -1041,7 +1044,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Pod polem dodawania jest nowy przełącznik, domyślnie włączony: dodane strony i słowa od razu usuwają pasujące wizyty z historii, zamiast czekać na kolejny start przeglądarki. Ta kartka pokaże się raz po każdej aktualizacji i zniknie."
+    "message": "Skanowanie w okienku działa teraz też przy włączonym PIN-ie. Policzy znaleziska, ale nazw nie pokaże. Każde uruchomienie zostawia też linijkę w logu, więc łatwo sprawdzić, co zrobiło."
   },
   "whatsNewOk": {
     "message": "Rozumiem"
