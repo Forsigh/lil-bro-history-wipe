@@ -2,6 +2,14 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 2.0.3
+
+The Scan button in the popup works with the PIN on now. It used to be switched off while the lock was on, so clicking it did nothing at all; now it runs and gives you the numbers, and only the names stay behind the PIN.
+
+A deep scan also leaves one line in the log saying how many entries it looked at and how many it removed. Until now a scan that found nothing and a scan that never ran looked the same, and there was no way to tell which one you were looking at.
+
+Nothing else changed.
+
 ## 2.0.2
 
 Adding something to the list can now take out the visits that are already in your history, in the same step. There is a new switch under the add row, on by default: when it is on, the rule you add is run against the history straight away, through the same pass "Wipe now" uses, and the row tells you how many older visits went.
