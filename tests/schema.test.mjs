@@ -30,6 +30,7 @@ const SETTINGS_TYPES = {
   notifyOnWipe: 'boolean',
   logEnabled: 'boolean',
   logLimit: 'number',
+  logKeep: 'string',
   includeSubdomainsDefault: 'boolean',
   wipeAllHistory: 'boolean',
   listMode: 'string',

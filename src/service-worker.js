@@ -15,7 +15,9 @@ import {
   extraSelection,
   extraSinceMs,
   describeExtras,
+  trimLog,
 } from './store.js';
+import { UNLOCK_MARK_KEY } from './lock.js';
 
 const SWEEP_TIME_BUDGET_MS = 4 * 60 * 1000; // stay well inside the 5 min per-request cap
 const SWEEP_PAGE_SIZE = 1000;
@@ -57,7 +59,12 @@ async function pushLog(entries) {
   return withLock(async () => {
     const { settings, log: existing } = await getState();
     if (!settings.logEnabled) return;
-    const merged = [...entries, ...existing].slice(0, Math.max(1, settings.logLimit));
+    // Old lines drop off by the chosen window on the way in, so a browser left running
+    // for weeks still forgets; the cap below is about size, this edit is about time.
+    const merged = trimLog([...entries, ...existing], settings).slice(
+      0,
+      Math.max(1, settings.logLimit)
+    );
     await saveState({ log: merged });
   });
 }
@@ -802,6 +809,22 @@ async function runSessionStart(phase = 'startup') {
   startupInFlight = true;
   try {
     const { settings, rules } = await getState();
+
+    // The log's own lifespan, run whatever the cleaning is doing: pausing the extension
+    // must not make old names permanent. 'session' empties the list at the start of a
+    // fresh browser session; the day windows drop what aged out, here and on every new
+    // line, so a browser left open for weeks forgets too. storage.session is empty when
+    // this runs, which is exactly what the session pick means.
+    if (settings.logKeep === 'session') {
+      await withLock(async () => saveState({ log: [] }));
+    } else if (settings.logKeep && settings.logKeep !== 'forever') {
+      await withLock(async () => {
+        const { log: existing } = await getState();
+        const kept = trimLog(existing, settings);
+        if (kept.length !== existing.length) await saveState({ log: kept });
+      });
+    }
+
     if (!settings.enabled) return { deleted: 0, disabled: true };
 
     // Whole-history mode short-circuits the rule engine entirely.
@@ -960,10 +983,26 @@ chrome.contextMenus.onClicked.addListener(async (info) => {
   log('rule added from context menu:', describeRule(candidate.rule));
 });
 
-// The keyboard shortcut: wipe the site you are looking at, now, without opening anything.
-// A command counts as a gesture, so the popup does not have to be open for it to work.
+/** The lock-now job: drop the session mark the settings are open under. Pages left open
+ *  watch that key, so one press hides everything again without touching the browser. */
+async function lockEverythingNow() {
+  try {
+    await chrome.storage.session.remove(UNLOCK_MARK_KEY);
+  } catch (e) {
+    log('lock now failed', e);
+  }
+  return { ok: true };
+}
+
+// The keyboard shortcuts: wipe the site you are looking at, or lock the PIN right now,
+// without opening anything. A command counts as a gesture, so the popup does not have to
+// be open for either to work.
 if (chrome.commands && chrome.commands.onCommand) {
   chrome.commands.onCommand.addListener(async (command) => {
+    if (command === 'lock-now') {
+      await lockEverythingNow();
+      return;
+    }
     if (command !== 'wipe-site') return;
     const res = await wipeSiteNow(await activeTabUrl());
     if (!res.ok) log('shortcut did nothing:', res.error);
@@ -1136,6 +1175,13 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     wipeSiteNow(target)
       .then(reply)
       .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
+    return true;
+  }
+
+  // The lock-now shortcut, driven through the same job it uses, so a browser no probe
+  // can press keys in still exercises the real path.
+  if (msg.type === 'lockNow') {
+    lockEverythingNow().then(reply);
     return true;
   }
 

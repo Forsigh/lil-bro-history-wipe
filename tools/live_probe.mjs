@@ -2130,11 +2130,89 @@ try {
     shortcut.before === 2 && shortcut.left === 0 && shortcut.others === 1 &&
       shortcut.res && shortcut.res.ok === true && !shortcut.error,
     `${shortcut.before} there before, ${shortcut.left} after, ${shortcut.others} other site kept, wiped ${shortcut.res && shortcut.res.wiped}, error ${shortcut.error}`);
-  record('the shortcut is declared, so the browser can offer it',
+  record('both shortcuts are declared, so the browser can offer them',
     !!(shortcut.commands && shortcut.commands['wipe-site'] &&
-      shortcut.commands['wipe-site'].suggested_key),
+      shortcut.commands['wipe-site'].suggested_key &&
+      shortcut.commands['lock-now'] && shortcut.commands['lock-now'].suggested_key),
     JSON.stringify(shortcut.commands || null));
   await closePage(sitePage.id);
+
+  // The lock-now shortcut's job, driven through the same message it uses. An open
+  // settings page watches the session mark: when it goes, the page hides itself again,
+  // and that is what makes one key press enough.
+  const lockSetup = await openPage(`chrome-extension://${id}/src/options.html`);
+  await lockSetup.evaluate(`(async()=>{
+    const cur = (await chrome.storage.local.get('settings')).settings || {};
+    await chrome.storage.local.set({ settings: { ...cur, lockEnabled: true, lockHash: 'probe-hash', lockSalt: 'probe-salt', lockIterations: 1000 } });
+    await chrome.storage.session.set({ unlockMark: { open: Date.now() + 60000 } });
+    return 'ok';
+  })()`);
+  await closePage(lockSetup.id);
+  const lockNowPage = await openPage(`chrome-extension://${id}/src/options.html`);
+  await sleep(800);
+  const beforeLockNow = JSON.parse(
+    await lockNowPage.evaluate(`JSON.stringify({ locked: document.body.classList.contains('locked') })`)
+  );
+  const lockNowView = JSON.parse(
+    await lockNowPage.evaluate(`(async()=>{
+      const res = await new Promise((r) => chrome.runtime.sendMessage({ type: 'lockNow' }, r));
+      await new Promise((r) => setTimeout(r, 700));
+      const { unlockMark } = await chrome.storage.session.get('unlockMark');
+      return JSON.stringify({
+        ok: !!(res && res.ok),
+        markGone: !unlockMark,
+        lockedNow: document.body.classList.contains('locked'),
+        stat: document.getElementById('statTotal').textContent,
+      });
+    })()`)
+  );
+  record('the unlock window is open before the lock-now test',
+    beforeLockNow.locked === false, JSON.stringify(beforeLockNow));
+  record('lock now: one message closes the window', lockNowView.ok && lockNowView.markGone,
+    JSON.stringify(lockNowView));
+  record('lock now: the open settings page hides itself right away',
+    lockNowView.lockedNow === true && lockNowView.stat === '–', JSON.stringify(lockNowView));
+  await closePage(lockNowPage.id);
+
+  // The log's lifespan, driven through the page: picking a window drops what is already
+  // too old, not only what comes next.
+  const seedLog = await openPage(`chrome-extension://${id}/src/options.html`);
+  await seedLog.evaluate(`(async()=>{
+    const cur = (await chrome.storage.local.get('settings')).settings || {};
+    await chrome.storage.local.set({ settings: { ...cur, lockEnabled: false, lockHash: '', lockSalt: '', logEnabled: true } });
+    await chrome.storage.session.remove('unlockMark');
+    const now = Date.now();
+    await chrome.storage.local.set({ log: [
+      { url: 'https://old.example/x', title: '', rule: 'old.example', why: 'word-url', word: 'x', excerpt: '', at: now - 10 * 24 * 3600 * 1000 },
+      { url: 'https://fresh.example/y', title: '', rule: 'fresh.example', why: 'word-url', word: 'y', excerpt: '', at: now - 1000 },
+    ] });
+    return 'ok';
+  })()`);
+  await closePage(seedLog.id);
+  const keepPage = await openPage(`chrome-extension://${id}/src/options.html`);
+  await sleep(800);
+  const keepLogView = JSON.parse(
+    await keepPage.evaluate(`(async()=>{
+      const before = document.querySelectorAll('#logList .logline').length;
+      const pick = document.getElementById('logKeepPick');
+      pick.value = '7';
+      pick.dispatchEvent(new Event('change'));
+      await new Promise((r) => setTimeout(r, 800));
+      const { log } = await chrome.storage.local.get('log');
+      return JSON.stringify({
+        before,
+        rows: log.map((l) => l.url),
+        shown: document.querySelectorAll('#logList .logline').length,
+      });
+    })()`)
+  );
+  record('the log shows both lines before the pick', keepLogView.before === 2, JSON.stringify(keepLogView));
+  record('a shorter window deletes the aged-out line for real',
+    keepLogView.rows.length === 1 && keepLogView.rows[0] === 'https://fresh.example/y',
+    JSON.stringify(keepLogView.rows));
+  record('and the page redraws with only what is kept', keepLogView.shown === 1,
+    `${keepLogView.shown} shown`);
+  await closePage(keepPage.id);
 } catch (e) {
   record('probe ran to the end', false, String(e.message || e));
 } finally {

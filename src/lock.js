@@ -15,6 +15,10 @@ export const RECOVERY_WORD = 'lilbro';
 // <select> hands back strings; 'session' means until the browser closes.
 export const UNLOCK_CHOICES = ['1', '2', '3', '5', '10', 'session'];
 
+// The session key the unlock window lives under. One string, used by the settings page,
+// the worker's lock-now job and the tests, so a typo cannot silently kill the lock.
+export const UNLOCK_MARK_KEY = 'unlockMark';
+
 /**
  * How long one unlock lasts. A pick of minutes becomes a wall-clock stamp; junk falls
  * back to the shipped default of three minutes. The stamp is compared against a clock

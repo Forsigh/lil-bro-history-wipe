@@ -413,6 +413,22 @@ if (JSON.stringify(pickValues) !== JSON.stringify(['1', '2', '3', '5', '10', 'se
   console.log(`  FAIL the unlock pick offers ${pickValues.join(', ')} instead of 1, 2, 3, 5, 10, session`);
   fail++;
 }
+// The log's own lifespan: the pick offers exactly the shipped windows, and the lock-now
+// hint exists in both of its shapes.
+const keepBlock = optionsHtml.match(/id="logKeepPick"[\s\S]*?<\/select>/);
+const keepValues = keepBlock ? [...keepBlock[0].matchAll(/value="([^"]+)"/g)].map((m) => m[1]) : [];
+if (JSON.stringify(keepValues) !== JSON.stringify(['7', '30', '90', 'forever', 'session'])) {
+  console.log(`  FAIL the log-keep pick offers ${keepValues.join(', ')} instead of 7, 30, 90, forever, session`);
+  fail++;
+}
+if (
+  !optionsHtml.includes('id="shortcutRow"') ||
+  !optionsHtml.includes('id="shortcutNone"') ||
+  !optionsSrc.includes('renderShortcut')
+) {
+  console.log('  FAIL the lock-now hint is missing its rows or its renderer');
+  fail++;
+}
 if (!lockSrc.includes('crypto.subtle') || !lockSrc.includes('PBKDF2')) {
   console.log('  FAIL lock.js no longer hashes the PIN with PBKDF2');
   fail++;

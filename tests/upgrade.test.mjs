@@ -155,6 +155,7 @@ console.log('an installed 1.3.5 profile, read by this build');
   check('the keys added since then take their defaults', () => {
     if (settings.lang !== 'auto') throw new Error(`lang is ${JSON.stringify(settings.lang)}`);
     if (settings.unlockMinutes !== '3') throw new Error(`unlockMinutes is ${JSON.stringify(settings.unlockMinutes)}`);
+    if (settings.logKeep !== 'forever') throw new Error(`logKeep is ${JSON.stringify(settings.logKeep)}`);
   });
   check('nothing in the old blob was dropped on the way through', () => {
     const keys = Object.keys(settings);

@@ -9,6 +9,10 @@
     "wipe-site": {
       "suggested_key": { "default": "Alt+Shift+W" },
       "description": "__MSG_cmdWipeSite__"
+    },
+    "lock-now": {
+      "suggested_key": { "default": "Alt+Shift+L" },
+      "description": "__MSG_cmdLockNow__"
     }
   },
   "permissions": [

@@ -30,6 +30,7 @@ function makeFakeChrome(seed = [], opts = {}) {
     onInstalled: [],
     onMessage: [],
     onMenu: [],
+    commands: [],
     winCreated: [],
     winRemoved: [],
   };
@@ -133,6 +134,9 @@ function makeFakeChrome(seed = [], opts = {}) {
       onMessage: { addListener: (fn) => listeners.onMessage.push(fn) },
       getURL: (p) => `chrome-extension://fake/${p}`,
       lastError: undefined,
+    },
+    commands: {
+      onCommand: { addListener: (fn) => listeners.commands.push(fn) },
     },
     contextMenus: {
       removeAll: async () => {},
@@ -1585,6 +1589,95 @@ function check(label, fn) {
     assert.equal(h.store.local.stats.byRule['r-gone'], undefined));
   check('and the rule still on the list keeps counting', () =>
     assert.equal(h.store.local.stats.byRule['r-count'], 3));
+}
+
+// ---------------------------------------------------------------------------
+// the log's own lifespan, and lock-now
+// ---------------------------------------------------------------------------
+console.log('the log lets go on its own');
+{
+  const { trimLog, LOG_KEEP_CHOICES } = await import('../src/store.js');
+  const day = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const rows = [
+    { url: 'a', at: now - 10 * day },
+    { url: 'b', at: now - 2 * day },
+    { url: 'c' },
+  ];
+  check('the window choices are the shipped five', () =>
+    assert.deepEqual(LOG_KEEP_CHOICES, ['forever', '7', '30', '90', 'session']));
+  check('forever keeps everything', () =>
+    assert.equal(trimLog(rows, { logKeep: 'forever' }, now).length, 3));
+  check('seven days drops the ten-day-old line', () =>
+    assert.deepEqual(trimLog(rows, { logKeep: '7' }, now).map((r) => r.url), ['b', 'c']));
+  check('a line without a readable date stays', () =>
+    assert.ok(trimLog(rows, { logKeep: '7' }, now).some((r) => r.url === 'c')));
+  check('junk in the setting keeps everything', () =>
+    assert.equal(trimLog(rows, { logKeep: 'wat' }, now).length, 3));
+  check('session leaves the lines in place; the start is what empties them', () =>
+    assert.equal(trimLog(rows, { logKeep: 'session' }, now).length, 3));
+}
+{
+  // A deep scan writes a log line; the window applies on the way in, so one fresh line
+  // is enough to take the old one out.
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://aging.example/one', title: 'one', lastVisitTime: NOW },
+  ]);
+  f.store.local.rules = [{ id: 'r1', type: 'domain', value: 'aging.example', enabled: true }];
+  f.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: true,
+    notifyOnWipe: false,
+    logEnabled: true,
+    logKeep: '7',
+  };
+  f.store.local.log = [
+    { url: 'https://old.example/x', rule: 'old.example', at: NOW - 10 * 24 * 60 * 60 * 1000 },
+  ];
+  await boot(f.chrome, f.store);
+  await waitFor('aging sweep done', () => f.db.deleted.length === 1);
+  await waitFor('sweep summary logged', () => (f.store.local.log || []).some((r) => r.why === 'sweep'));
+  check('a new line drops the aged-out one', () =>
+    assert.ok(!(f.store.local.log || []).some((r) => r.url === 'https://old.example/x')));
+  check('the fresh line is there', () =>
+    assert.ok((f.store.local.log || []).some((r) => r.why === 'sweep')));
+}
+{
+  // The next browser start empties the list when that is the chosen window, even with
+  // the cleaning paused: that is the point of the setting.
+  const f = makeFakeChrome([]);
+  f.store.local.settings = { enabled: false, logKeep: 'session' };
+  f.store.local.log = [{ url: 'https://seen.example/x', at: NOW }];
+  await bootNoWait(f.chrome);
+  f.listeners.onStartup[0]();
+  await waitFor('session start forgets', () => (f.store.local.log || []).length === 0);
+  check('a session window empties the log at the next start', () =>
+    assert.equal(f.store.local.log.length, 0));
+}
+{
+  // The lock-now shortcut, and the same job through a message: the session mark that
+  // keeps the settings open is the whole target.
+  const f = makeFakeChrome([]);
+  f.store.local.settings = { lockEnabled: true, lockHash: 'h', lockSalt: 's' };
+  await bootNoWait(f.chrome);
+  f.store.session.unlockMark = { open: Date.now() + 60000 };
+  const viaMessage = await new Promise((r) => f.listeners.onMessage[0]({ type: 'lockNow' }, {}, r));
+  check('lock now: the message clears the open window', () =>
+    assert.ok(viaMessage.ok && !('unlockMark' in f.store.session)));
+  check('lock now: the shortcut is wired to the same job', () =>
+    assert.equal(f.listeners.commands.length, 1));
+  f.store.session.unlockMark = { open: Date.now() + 60000 };
+  await f.listeners.commands[0]('lock-now');
+  check('lock now: the shortcut clears the open window', () =>
+    assert.ok(!('unlockMark' in f.store.session)));
+  f.store.session.unlockMark = { open: Date.now() + 60000 };
+  try {
+    await f.listeners.commands[0]('wipe-site');
+  } catch {
+    // No real tab behind the fake; the point here is only the mark.
+  }
+  check('the wipe shortcut leaves the window alone', () =>
+    assert.ok('unlockMark' in f.store.session));
 }
 
 console.log(`\nworker: ${pass} passed, ${fail} failed`);

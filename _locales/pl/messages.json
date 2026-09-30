@@ -167,6 +167,27 @@
   "optKeepLog": {
     "message": "Zapisuj, co zostało wyczyszczone"
   },
+  "optLogKeep": {
+    "message": "Trzymaj stare wpisy przez"
+  },
+  "optLogKeep7": {
+    "message": "7 dni"
+  },
+  "optLogKeep30": {
+    "message": "30 dni"
+  },
+  "optLogKeep90": {
+    "message": "90 dni"
+  },
+  "optLogKeepForever": {
+    "message": "bezterminowo"
+  },
+  "optLogKeepSession": {
+    "message": "do zamknięcia przeglądarki"
+  },
+  "optLogKeepHint": {
+    "message": "Gdy ich czas minie, wpisy znikają na dobre. Na stronie widać tylko to, co zostało."
+  },
   "optWhatToWipe": {
     "message": "Twoja lista"
   },
@@ -494,6 +515,12 @@
   "lockOpen": {
     "message": "Odblokowane. Po wybranym czasie samo się znowu zamknie."
   },
+  "optShortcutNote": {
+    "message": "Jeden klawisz znowu wszystko ukrywa, gdziekolwiek jesteś:"
+  },
+  "optShortcutNone": {
+    "message": "Żaden klawisz nie jest jeszcze ustawiony. Nadasz go w ustawieniach skrótów przeglądarki."
+  },
   "lockListHidden": {
     "message": "Lista jest ukryta, dopóki blokada jest włączona."
   },
@@ -592,6 +619,9 @@
   },
   "cmdWipeSite": {
     "message": "Usuń tę stronę z historii"
+  },
+  "cmdLockNow": {
+    "message": "Zablokuj listę i log od razu"
   },
   "notifyWiped": {
     "message": "Usunięto z historii: $1."
@@ -1110,7 +1140,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "PIN jest teraz całkiem cichy: gdy jest włączony, nawet liczby zostają ukryte. Po jednym odblokowaniu ustawienia zostają otwarte przez wybrany czas, od minuty do końca sesji przeglądarki. Jest też nowe czyszczenie starych wpisów: idzie po dacie i sięga to, czego zwykły skan nie widzi."
+    "message": "PIN jest teraz całkiem cichy, a jedno odblokowanie zostaje otwarte przez wybrany czas. Log może zapominać sam: po 7, 30 albo 90 dniach, albo po zamknięciu przeglądarki. Czyszczenie starych wpisów idzie po dacie i sięga to, czego zwykły skan nie widzi. I jeszcze skrót: jeden klawisz znowu wszystko ukrywa, gdziekolwiek jesteś."
   },
   "whatsNewOk": {
     "message": "Rozumiem"

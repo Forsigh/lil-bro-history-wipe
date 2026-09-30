@@ -167,6 +167,27 @@
   "optKeepLog": {
     "message": "Keep a list of what was cleaned"
   },
+  "optLogKeep": {
+    "message": "Keep old lines for"
+  },
+  "optLogKeep7": {
+    "message": "7 days"
+  },
+  "optLogKeep30": {
+    "message": "30 days"
+  },
+  "optLogKeep90": {
+    "message": "90 days"
+  },
+  "optLogKeepForever": {
+    "message": "forever"
+  },
+  "optLogKeepSession": {
+    "message": "until the browser closes"
+  },
+  "optLogKeepHint": {
+    "message": "When their time is up the lines are deleted for good. The screen only shows what is still kept."
+  },
   "optWhatToWipe": {
     "message": "Your list"
   },
@@ -494,6 +515,12 @@
   "lockOpen": {
     "message": "Unlocked. It stays open for the set time and then locks itself again."
   },
+  "optShortcutNote": {
+    "message": "One key hides everything again, wherever you are:"
+  },
+  "optShortcutNone": {
+    "message": "No key is set for it. Give it one in the browser's shortcut settings."
+  },
   "lockListHidden": {
     "message": "Your list is hidden while the lock is on."
   },
@@ -592,6 +619,9 @@
   },
   "cmdWipeSite": {
     "message": "Wipe this site from history"
+  },
+  "cmdLockNow": {
+    "message": "Lock the list and the log right now"
   },
   "notifyWiped": {
     "message": "Wiped $1 from history."
@@ -1110,7 +1140,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "The PIN is fully silent now: while it is on, even the numbers stay hidden. Unlock once and the settings stay open for a set time, from a minute up to the whole browser session. And there is a new wipe that goes by age, reaching entries a normal scan cannot see."
+    "message": "The PIN is fully silent now, and one unlock stays open for a set time. The log can forget on its own: after 7, 30 or 90 days, or when the browser closes. A wipe that goes by age reaches entries a normal scan cannot see. And one key hides everything again, wherever you are."
   },
   "whatsNewOk": {
     "message": "Got it"

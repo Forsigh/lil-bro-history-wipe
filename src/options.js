@@ -20,6 +20,8 @@ import {
   presetName,
   parseCookieKeep,
   RULE_TYPES,
+  trimLog,
+  LOG_KEEP_CHOICES,
 } from './store.js';
 import { applyI18n, currentLang, setLang, t } from './i18n.js';
 import { findMatch } from './matcher.js';
@@ -39,6 +41,7 @@ import {
   checkRecovery,
   unlockUntil,
   unlockOpen,
+  UNLOCK_MARK_KEY,
   LOCK_MESSAGES,
   MAX_ATTEMPTS,
   LOCKOUT_MS,
@@ -57,7 +60,7 @@ let relockTimer = null;
 async function readUnlockMark() {
   if (!isLockConfigured(state && state.settings)) return false;
   try {
-    const { unlockMark } = await chrome.storage.session.get('unlockMark');
+    const { [UNLOCK_MARK_KEY]: unlockMark } = await chrome.storage.session.get(UNLOCK_MARK_KEY);
     return unlockOpen(unlockMark, Date.now());
   } catch {
     return false;
@@ -67,7 +70,7 @@ async function readUnlockMark() {
 async function writeUnlockMark() {
   const open = unlockUntil(state.settings.unlockMinutes, Date.now());
   try {
-    await chrome.storage.session.set({ unlockMark: { open } });
+    await chrome.storage.session.set({ [UNLOCK_MARK_KEY]: { open } });
   } catch {
     // No session area: the unlock still holds for this page.
   }
@@ -75,7 +78,7 @@ async function writeUnlockMark() {
 
 async function clearUnlockMark() {
   try {
-    await chrome.storage.session.remove('unlockMark');
+    await chrome.storage.session.remove(UNLOCK_MARK_KEY);
   } catch {
     // Nothing stored, nothing to clear.
   }
@@ -90,7 +93,7 @@ async function armRelock() {
   if (relockTimer) clearTimeout(relockTimer);
   relockTimer = null;
   try {
-    const { unlockMark } = await chrome.storage.session.get('unlockMark');
+    const { [UNLOCK_MARK_KEY]: unlockMark } = await chrome.storage.session.get(UNLOCK_MARK_KEY);
     if (!unlockMark || unlockMark.open === 'session') return;
     const left = Number(unlockMark.open) - Date.now();
     if (left <= 0) return;
@@ -105,8 +108,8 @@ async function armRelock() {
 
 // Another tab closing the lock closes every open settings page with it.
 chrome.storage.session.onChanged.addListener(async (changes) => {
-  if (!('unlockMark' in changes)) return;
-  if (unlockOpen(changes.unlockMark.newValue, Date.now())) return;
+  if (!(UNLOCK_MARK_KEY in changes)) return;
+  if (unlockOpen(changes[UNLOCK_MARK_KEY].newValue, Date.now())) return;
   if (!unlocked) return;
   unlocked = false;
   await load();
@@ -169,6 +172,26 @@ function isLocked() {
   return isLockConfigured(state.settings) && !unlocked;
 }
 
+/**
+ * The lock-now hint wears whatever key the browser currently has for the command, read
+ * from the API rather than hardcoded: the browser's own shortcut page can change it, and
+ * a fixed combo would then point at a key that does nothing.
+ */
+async function renderShortcut() {
+  const show = isLockConfigured(state.settings) && !isLocked();
+  let combo = '';
+  try {
+    const all = await chrome.commands.getAll();
+    const cmd = (all || []).find((c) => c.name === 'lock-now');
+    combo = (cmd && cmd.shortcut) || '';
+  } catch {
+    combo = '';
+  }
+  $('shortcutRow').classList.toggle('hidden', !(show && combo));
+  $('shortcutNone').classList.toggle('hidden', !(show && !combo));
+  if (combo) $('shortcutKeys').textContent = combo;
+}
+
 /** Show the right PIN row, and hide the list sections while locked. */
 function applyLock() {
   const configured = isLockConfigured(state.settings);
@@ -180,6 +203,7 @@ function applyLock() {
   $('lockUnlockRow').classList.toggle('hidden', !configured || unlocked);
   $('lockNowRow').classList.toggle('hidden', !configured || locked);
   $('unlockForRow').classList.toggle('hidden', !configured || locked);
+  renderShortcut().catch(() => {});
   $('lockHonest').textContent = LOCK_MESSAGES.honest;
   // The scan keeps working while the PIN is on, but it answers with one quiet line: with
   // the numbers hidden too, nothing countable or nameable reaches the page. The tester
@@ -227,6 +251,7 @@ function renderSettings() {
   $('pastWrap').classList.toggle('hidden', s.listMode === 'allow');
   $('lockEnabled').checked = !!s.lockEnabled;
   $('unlockPick').value = s.unlockMinutes || '3';
+  $('logKeepPick').value = LOG_KEEP_CHOICES.includes(String(s.logKeep)) ? String(s.logKeep) : 'forever';
   $('langPick').value = s.lang || 'auto';
   $('keepWarn').textContent = s.listMode === 'allow'
     ? t('optKeepWarn') || 'On: everything not on your list is being wiped. Cookies and cache are separate.'
@@ -570,6 +595,22 @@ $('notify').addEventListener('change', async () => {
 $('logEnabled').addEventListener('change', async () => {
   state.settings.logEnabled = $('logEnabled').checked;
   await saveState({ settings: state.settings });
+});
+
+// The log's own lifespan. The window applies to the lines already there, not only to
+// what comes next: what is too old goes right now, so the screen shows what is really
+// being kept rather than promising it later.
+$('logKeepPick').addEventListener('change', async () => {
+  const pick = $('logKeepPick').value;
+  const choice = LOG_KEEP_CHOICES.includes(pick) ? pick : 'forever';
+  state.settings.logKeep = choice;
+  await saveState({ settings: state.settings });
+  const kept = trimLog(state.log, state.settings);
+  if (kept.length !== (state.log || []).length) {
+    state.log = kept;
+    await saveState({ log: kept });
+  }
+  renderLog();
 });
 // An empty state with a way out of it: the button puts the cursor in the box above, so
 // nobody has to work out which field the sentence was talking about.

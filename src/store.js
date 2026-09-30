@@ -8,6 +8,27 @@ import { t } from './i18n.js';
 // because every page already reaches for the state helpers.
 export { normalizeDomain };
 
+// How long the log keeps its lines. Strings, because a <select> hands back strings;
+// 'forever' is the shipped default and keeps everything, and 'session' empties the
+// list at the start of the next browser session, where the startup run happens.
+export const LOG_KEEP_CHOICES = ['forever', '7', '30', '90', 'session'];
+
+/** The log, minus the lines the chosen window has let go of. A row with no readable
+ *  timestamp stays: an age cannot be judged from nothing, and a guess is not a reason
+ *  to delete. */
+export function trimLog(list, settings, now = Date.now()) {
+  const rows = Array.isArray(list) ? list : [];
+  const keep = settings && LOG_KEEP_CHOICES.includes(String(settings.logKeep))
+    ? String(settings.logKeep)
+    : 'forever';
+  if (keep === 'forever' || keep === 'session') return rows;
+  const cutoff = now - Number(keep) * 24 * 60 * 60 * 1000;
+  return rows.filter((row) => {
+    const at = Number(row && row.at);
+    return !Number.isFinite(at) || at >= cutoff;
+  });
+}
+
 export const DEFAULT_SETTINGS = {
   enabled: true,
   // 'realtime' = wipe the moment you visit; 'onclose' = wipe when the browser
@@ -20,6 +41,10 @@ export const DEFAULT_SETTINGS = {
   notifyOnWipe: true,
   logEnabled: true,
   logLimit: 200,
+  // How long the log keeps its lines: 'forever', '7', '30', '90', or 'session' for
+  // until the browser closes. The list names what was cleaned, so it is allowed to
+  // forget on its own.
+  logKeep: 'forever',
   // Remembers the "include subdomains" tick in the popup for next time.
   includeSubdomainsDefault: false,
   // DANGER: when true, every trigger erases the whole history instead of matching
