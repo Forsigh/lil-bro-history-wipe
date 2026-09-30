@@ -2,6 +2,12 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 2.0.7
+
+Two small fixes on top of 2.0.6. The Polish interface stopped showing English pieces: a rule now reads "słowo „x”", and a site with subdomains shows "+ subdomeny", in the list, in the popup and in the confirmations the same way. And the Custom preset now says where its switches live: the Advanced tab.
+
+2.0.6 rides along in this build: the old-history control that shows the exact date before anything is touched, the week option, and the switch that runs that deletion by itself at every browser start.
+
 ## 2.0.6
 
 The control that deletes history by age says what it does now. Pick a line, a week up to a year, and the exact date it means is right there under it: "everything before 30 August." Delete now runs it once; the new switch runs it by itself at every browser start, and each run leaves a line in the log.
