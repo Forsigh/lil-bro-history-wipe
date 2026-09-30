@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 2.0.3.
+different builds called themselves 1.3.0. The current code is numbered 2.0.4.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 2.0.4 | 30 Sep | `b16e179` | `2bcc5c4d040b15aa` | With the PIN on, the pages are fully silent now. The numbers were the last thing still talking: the totals, the strip along the top, and what a scan or a wipe answered all stayed v |
 | 2.0.3 | 29 Sep | `c5a27bd` | `b451b9d3080db323` | The Scan button in the popup works with the PIN on now. It used to be switched off while the lock was on, so clicking it did nothing at all; now it runs and gives you the numbers,  |
 | 2.0.2 | 24 Sep | `707a78c` | `b4f2d0e6d3de1ef8` | Adding something to the list can now take out the visits that are already in your history, in the same step. There is a new switch under the add row, on by default: when it is on,  |
 | 2.0.1 | 23 Sep | `6ee9144` | `7aca25e02e9c1c6b` | Your list's add row is back on one line. The dropdown, the box and the Add button sit together again, the way they did before the paste-a-list update turned the box into a multi-li |
