@@ -2237,12 +2237,13 @@ try {
       pick.dispatchEvent(new Event('change'));
       await new Promise((r) => setTimeout(r, 500));
       const lineAfter = document.getElementById('oldLine').textContent;
+      const picked = await chrome.storage.local.get('settings');
       return JSON.stringify({
         values: [...pick.options].map((o) => o.value),
         line: lineBefore,
         autoOn: !!(on.settings && on.settings.oldAuto),
         autoOff: !!(off.settings && off.settings.oldAuto),
-        days: off.settings && off.settings.oldDays,
+        days: picked.settings && picked.settings.oldDays,
         lineAfter,
       });
     })()`)
