@@ -12,3 +12,5 @@ desktop.ini
 .DS_Store
 builds/.probe-*
 builds/.sheets-*
+/en/
+/pl/
