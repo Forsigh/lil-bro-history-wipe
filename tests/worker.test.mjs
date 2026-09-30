@@ -933,7 +933,7 @@ function check(label, fn) {
 }
 
 // ---------------------------------------------------------------------------
-// 12. old leftovers: the age-based wipe, the only deleteRange path
+// 12. old history by age: the only deleteRange path
 // ---------------------------------------------------------------------------
 {
   const DAY = 24 * 60 * 60 * 1000;
@@ -951,30 +951,30 @@ function check(label, fn) {
     assert.equal(kept, true, 'message listener keeps the channel open');
   });
 
-  check('old leftovers: one range delete, and nothing else forbidden', () =>
+  check('old history: one range delete, and nothing else forbidden', () =>
     assert.deepEqual(f.db.forbidden, ['history.deleteRange']));
-  check('old leftovers: the range runs from the epoch to the cutoff', () => {
+  check('old history: the range runs from the epoch to the cutoff', () => {
     const c = f.db.rangeCalls[0];
     const want = Date.now() - 90 * DAY;
     return c && c.startTime === 0 && Math.abs(c.endTime - want) < 10000;
   });
-  check('old leftovers: the old entry went, the recent one stayed', () => {
+  check('old history: the old entry went, the recent one stayed', () => {
     const urls = f.db.items.map((i) => i.url);
     assert.ok(!urls.includes('https://old.example/x'), 'old entry should be gone');
     assert.ok(urls.includes('https://new.example/y'), 'recent entry should stay');
   });
-  check('old leftovers: reports the count it could see', () => assert.equal(reply.deleted, 1));
-  check('old leftovers: the log carries the reason and the date', () => {
+  check('old history: reports the count it could see', () => assert.equal(reply.deleted, 1));
+  check('old history: the log carries the reason and the date', () => {
     const row = (f.store.local.log || []).find((e) => e.why === 'old-range');
     assert.ok(row, 'log row with why old-range');
     assert.ok(row.word, 'log row carries the readable date');
   });
 
   const bad = await new Promise((resolve) =>
-    f.listeners.onMessage[0]({ type: 'wipeOld', days: 7 }, {}, resolve)
+    f.listeners.onMessage[0]({ type: 'wipeOld', days: 45 }, {}, resolve)
   );
-  check('old leftovers: an age that is not a preset is refused', () => assert.equal(bad.ok, false));
-  check('old leftovers: refusing did not add another range delete', () =>
+  check('old history: an age that is not a preset is refused', () => assert.equal(bad.ok, false));
+  check('old history: refusing did not add another range delete', () =>
     assert.equal(f.db.calls.deleteRange, 1));
 }
 
@@ -1678,6 +1678,94 @@ console.log('the log lets go on its own');
   }
   check('the wipe shortcut leaves the window alone', () =>
     assert.ok('unlockMark' in f.store.session));
+}
+
+// ---------------------------------------------------------------------------
+// 13. the age line, when it runs by itself
+// ---------------------------------------------------------------------------
+console.log('the age line, when it runs by itself');
+{
+  const { ageCutoff, ageDate, OLD_AGE_CHOICES } = await import('../src/store.js');
+  const DAY = 24 * 60 * 60 * 1000;
+  const T = 1759200000000;
+  check('age line: the cutoff sits the window back from now', () =>
+    assert.equal(ageCutoff(30, T), T - 30 * DAY));
+  check('age line: and it moves with the day, never frozen', () =>
+    assert.equal(ageCutoff(30, T + DAY), T - 29 * DAY));
+  check('age line: the pick offers a week first, then the same windows', () =>
+    assert.deepEqual(OLD_AGE_CHOICES, [7, 30, 90, 180, 365]));
+  check('age line: the date carries the year it points at', () =>
+    assert.ok(ageDate(T, 'en').includes(String(new Date(T).getFullYear()))));
+
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://ancient.example/x', title: 'x', lastVisitTime: NOW - 100 * DAY },
+    { id: 'b', url: 'https://forty.example/y', title: 'y', lastVisitTime: NOW - 40 * DAY },
+    { id: 'c', url: 'https://fresh.example/z', title: 'z', lastVisitTime: NOW - 3 * DAY },
+  ]);
+  f.store.local.rules = [];
+  f.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    oldAuto: true,
+    oldDays: '30',
+  };
+  await bootNoWait(f.chrome);
+  await waitFor('the age line ran at the start', () =>
+    (f.store.local.log || []).some((e) => e.why === 'old-range'));
+  check('age line at the start: everything before the line went', () => {
+    const urls = f.db.items.map((i) => i.url);
+    assert.ok(!urls.includes('https://ancient.example/x'));
+    assert.ok(!urls.includes('https://forty.example/y'));
+  });
+  check('age line at the start: the fresh entry stayed', () =>
+    assert.ok(f.db.items.map((i) => i.url).includes('https://fresh.example/z')));
+  check('age line at the start: the log names the reason and the date', () => {
+    const row = (f.store.local.log || []).find((e) => e.why === 'old-range');
+    assert.ok(row && row.word, 'the row carries the readable date');
+  });
+}
+{
+  const DAY = 24 * 60 * 60 * 1000;
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://ancient.example/x', title: 'x', lastVisitTime: NOW - 100 * DAY },
+  ]);
+  f.store.local.rules = [];
+  f.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    enabled: false,
+    oldAuto: true,
+    oldDays: '30',
+  };
+  await bootNoWait(f.chrome);
+  await sleep(200);
+  check('age line at the start: the pause stops it too', () => {
+    assert.ok(f.db.items.map((i) => i.url).includes('https://ancient.example/x'));
+    assert.ok(!(f.store.local.log || []).some((e) => e.why === 'old-range'));
+  });
+}
+{
+  // the week window is a real choice now: ten days back goes, five days back stays
+  const DAY = 24 * 60 * 60 * 1000;
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://tenday.example/x', title: 'x', lastVisitTime: NOW - 10 * DAY },
+    { id: 'b', url: 'https://fiveday.example/y', title: 'y', lastVisitTime: NOW - 5 * DAY },
+  ]);
+  f.store.local.rules = [];
+  f.store.local.settings = { mode: 'realtime', sweepExistingOnStartup: false, notifyOnWipe: false };
+  await bootNoWait(f.chrome);
+  await sleep(80);
+  const reply = await new Promise((resolve) => {
+    f.listeners.onMessage[0]({ type: 'wipeOld', days: 7 }, {}, resolve);
+  });
+  check('age line: the week window is a real choice now', () => assert.equal(reply.ok, true));
+  check('age line: a ten-day-old entry goes, a five-day-old stays', () => {
+    const urls = f.db.items.map((i) => i.url);
+    assert.ok(!urls.includes('https://tenday.example/x'));
+    assert.ok(urls.includes('https://fiveday.example/y'));
+  });
 }
 
 console.log(`\nworker: ${pass} passed, ${fail} failed`);

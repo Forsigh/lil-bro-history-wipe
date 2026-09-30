@@ -31,6 +31,8 @@ const SETTINGS_TYPES = {
   logEnabled: 'boolean',
   logLimit: 'number',
   logKeep: 'string',
+  oldAuto: 'boolean',
+  oldDays: 'string',
   includeSubdomainsDefault: 'boolean',
   wipeAllHistory: 'boolean',
   listMode: 'string',

@@ -16,6 +16,9 @@ import {
   extraSinceMs,
   describeExtras,
   trimLog,
+  OLD_AGE_CHOICES,
+  ageCutoff,
+  ageDate,
 } from './store.js';
 import { UNLOCK_MARK_KEY } from './lock.js';
 
@@ -693,7 +696,7 @@ async function wipeEverything(phase) {
  */
 async function wipeOld(beforeTs, phase) {
   const kept = await activeKeeps();
-  const label = new Date(beforeTs).toLocaleDateString();
+  const label = ageDate(beforeTs, currentLang());
 
   if (kept.length) {
     let deleted = 0;
@@ -727,7 +730,7 @@ async function wipeOld(beforeTs, phase) {
         targets.push({
           url: item.url,
           title: item.title || '',
-          rule: 'old leftovers',
+          rule: 'old history',
           why: 'old-range-except',
         });
       }
@@ -737,7 +740,7 @@ async function wipeOld(beforeTs, phase) {
       endTime = oldest - 1;
     }
     await pushLog([
-      { url: '(old leftovers)', title: '', rule: 'old leftovers', why: 'old-range-except', at: Date.now(), phase },
+      { url: '(old history)', title: '', rule: 'old history', why: 'old-range-except', at: Date.now(), phase },
     ]);
     return { deleted, kept: true };
   }
@@ -750,7 +753,7 @@ async function wipeOld(beforeTs, phase) {
     return { deleted: 0, kept: false };
   }
   await pushLog([
-    { url: '(old leftovers)', title: '', rule: 'old leftovers', why: 'old-range', word: label, at: Date.now(), phase },
+    { url: '(old history)', title: '', rule: 'old history', why: 'old-range', word: label, at: Date.now(), phase },
   ]);
   return { deleted: counted, kept: false };
 }
@@ -854,6 +857,14 @@ async function runSessionStart(phase = 'startup') {
       const res = await sweepHistory(live, phase, { allow: isKeepMode(settings) });
       deleted += res.deleted;
       await logSweepSummary(res, phase);
+    }
+
+    // 3. The age line, when it runs by itself: everything before today minus the window
+    // goes at every browser start, whatever the mode. The pause switch above already
+    // returned, and a never-delete direction still wins inside wipeOld.
+    if (settings.oldAuto) {
+      await useLang(); // the cutoff date goes into the log in the reader's language
+      deleted += (await wipeOld(ageCutoff(Number(settings.oldDays) || 30), phase)).deleted;
     }
 
     await bumpStats(deleted, phase);
@@ -1199,16 +1210,16 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
     return true;
   }
 
-  // The old-leftovers control: everything older than a chosen age in one range delete
+  // The old history control: everything older than a chosen age in one range delete
   // (or a rule-respecting walk when never-delete rules are on).
   if (msg.type === 'wipeOld') {
     (async () => {
       const { settings } = await getState();
       await useLang();
       if (!settings.enabled) return { ok: false, error: t('notifyPaused') || 'Lil Bro is paused.' };
-      const days = [30, 90, 180, 365].includes(Number(msg.days)) ? Number(msg.days) : 0;
+      const days = OLD_AGE_CHOICES.includes(Number(msg.days)) ? Number(msg.days) : 0;
       if (!days) return { ok: false, error: t('errOldFailed') || 'The wipe failed.' };
-      const beforeTs = Date.now() - days * 24 * 60 * 60 * 1000;
+      const beforeTs = ageCutoff(days);
       const res = await wipeOld(beforeTs, 'manual');
       await bumpStats(res.deleted, 'manual');
       return { ok: true, deleted: res.deleted, kept: !!res.kept, before: beforeTs };

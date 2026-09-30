@@ -2213,6 +2213,51 @@ try {
   record('and the page redraws with only what is kept', keepLogView.shown === 1,
     `${keepLogView.shown} shown`);
   await closePage(keepPage.id);
+
+  // The old history control: the date line under the pick is the copy fix, so the probe
+  // checks it names a real date, that the pick carries the five windows, and that the
+  // toggle lands in storage when it is flipped and unflipped.
+  const oldPage = await openPage(`chrome-extension://${id}/src/options.html`);
+  await sleep(800);
+  const oldView = JSON.parse(
+    await oldPage.evaluate(`(async()=>{
+      const pick = document.getElementById('oldPick');
+      const line = document.getElementById('oldLine');
+      const box = document.getElementById('oldAuto');
+      const lineBefore = line ? line.textContent : '';
+      box.checked = true;
+      box.dispatchEvent(new Event('change'));
+      await new Promise((r) => setTimeout(r, 500));
+      const on = await chrome.storage.local.get('settings');
+      box.checked = false;
+      box.dispatchEvent(new Event('change'));
+      await new Promise((r) => setTimeout(r, 500));
+      const off = await chrome.storage.local.get('settings');
+      pick.value = '90';
+      pick.dispatchEvent(new Event('change'));
+      await new Promise((r) => setTimeout(r, 500));
+      const lineAfter = document.getElementById('oldLine').textContent;
+      return JSON.stringify({
+        values: [...pick.options].map((o) => o.value),
+        line: lineBefore,
+        autoOn: !!(on.settings && on.settings.oldAuto),
+        autoOff: !!(off.settings && off.settings.oldAuto),
+        days: off.settings && off.settings.oldDays,
+        lineAfter,
+      });
+    })()`)
+  );
+  record('the age pick offers five windows, a week first',
+    JSON.stringify(oldView.values) === JSON.stringify(['7', '30', '90', '180', '365']),
+    JSON.stringify(oldView.values));
+  record('the date line names the date the window means',
+    /\d{1,2}.*\d{4}/.test(oldView.line), oldView.line);
+  record('the toggle saves on and off for real',
+    oldView.autoOn && !oldView.autoOff, `on ${oldView.autoOn} / off ${oldView.autoOff}`);
+  record('changing the pick moves the line and remembers the choice',
+    oldView.lineAfter !== oldView.line && oldView.days === '90',
+    `${oldView.days}: ${oldView.lineAfter}`);
+  await closePage(oldPage.id);
 } catch (e) {
   record('probe ran to the end', false, String(e.message || e));
 } finally {

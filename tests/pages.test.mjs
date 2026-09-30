@@ -165,9 +165,10 @@ for (const banned of ['removeHistory', 'removeCookies', 'removeCache', 'removePa
   }
 }
 // deleteRange is the one API that reaches entries hidden from every search (the
-// address-bar leftovers), so it is allowed in exactly one place: wipeOld(), which only
-// the old-leftovers control on the settings page runs, after its own confirmation.
-// Everywhere else it still counts as out of reach.
+// address-bar leftovers), so it is allowed in exactly one place: wipeOld(). Two callers
+// reach it by design: the control on the settings page, after its own confirmation, and
+// the startup run when the age toggle is on, which the user opted into once. Everywhere
+// else it still counts as out of reach.
 const wipeOldStart = workerSrc.indexOf('async function wipeOld');
 const wipeOldEnd = workerSrc.indexOf('async function', wipeOldStart + 10);
 const wipeOldBody = wipeOldStart === -1 ? '' : workerSrc.slice(wipeOldStart, wipeOldEnd === -1 ? undefined : wipeOldEnd);
@@ -181,9 +182,11 @@ if (wipeOldStart === -1 || rangeCount !== 2 || !wipeOldBody.includes('chrome.his
   console.log(`  FAIL chrome.history.deleteRange appears ${rangeCount} time(s) — it must live only inside wipeOld()`);
   fail++;
 }
+// Two awaited callers by design (the settings message and the startup run); a third
+// would mean another destructive path grew without a gate.
 const oldLeftoverCalls = (workerCode.match(/await wipeOld\(/g) || []).length;
-if (oldLeftoverCalls !== 1) {
-  console.log(`  FAIL wipeOld() is awaited ${oldLeftoverCalls} times — expected exactly the old-leftovers message`);
+if (oldLeftoverCalls !== 2) {
+  console.log(`  FAIL wipeOld() is awaited ${oldLeftoverCalls} times — expected the settings message and the startup run`);
   fail++;
 }
 const browsingDataCalls = (workerCode.match(/chrome\.browsingData\.remove\(/g) || []).length;
@@ -427,6 +430,19 @@ if (
   !optionsSrc.includes('renderShortcut')
 ) {
   console.log('  FAIL the lock-now hint is missing its rows or its renderer');
+  fail++;
+}
+// The old-history control: the date line under the pick is the point of it (it says what
+// the window means before anything is clicked), and the pick offers exactly the shipped
+// windows now that a week is one of them.
+const oldBlock = optionsHtml.match(/id="oldPick"[\s\S]*?<\/select>/);
+const oldValues = oldBlock ? [...oldBlock[0].matchAll(/value="([^"]+)"/g)].map((m) => m[1]) : [];
+if (JSON.stringify(oldValues) !== JSON.stringify(['7', '30', '90', '180', '365'])) {
+  console.log(`  FAIL the old-history pick offers ${oldValues.join(', ')} instead of 7, 30, 90, 180, 365`);
+  fail++;
+}
+if (!optionsHtml.includes('id="oldAuto"') || !optionsHtml.includes('id="oldLine"')) {
+  console.log('  FAIL the old-history control lost its toggle or its date line');
   fail++;
 }
 if (!lockSrc.includes('crypto.subtle') || !lockSrc.includes('PBKDF2')) {

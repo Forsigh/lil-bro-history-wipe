@@ -22,6 +22,9 @@ import {
   RULE_TYPES,
   trimLog,
   LOG_KEEP_CHOICES,
+  OLD_AGE_CHOICES,
+  ageCutoff,
+  ageDate,
 } from './store.js';
 import { applyI18n, currentLang, setLang, t } from './i18n.js';
 import { findMatch } from './matcher.js';
@@ -252,6 +255,9 @@ function renderSettings() {
   $('lockEnabled').checked = !!s.lockEnabled;
   $('unlockPick').value = s.unlockMinutes || '3';
   $('logKeepPick').value = LOG_KEEP_CHOICES.includes(String(s.logKeep)) ? String(s.logKeep) : 'forever';
+  $('oldPick').value = OLD_AGE_CHOICES.map(String).includes(String(s.oldDays)) ? String(s.oldDays) : '30';
+  $('oldAuto').checked = !!s.oldAuto;
+  renderOldLine();
   $('langPick').value = s.lang || 'auto';
   $('keepWarn').textContent = s.listMode === 'allow'
     ? t('optKeepWarn') || 'On: everything not on your list is being wiped. Cookies and cache are separate.'
@@ -1075,23 +1081,40 @@ $('previewBtn').addEventListener('click', () => {
   runAction('preview').catch(() => {});
 });
 
-// The old-leftovers control. It goes by age, and it is the one control that reaches
+// The old history control. It goes by age, and it is the one control that reaches
 // entries the browser hides from any search, so the warning says every site is included.
+// The line under the pick says what the window means as a date, recomputed on every run.
+function renderOldLine() {
+  const days = Number($('oldPick').value) || 30;
+  const when = ageDate(ageCutoff(days), currentLang());
+  $('oldLine').textContent = t('optOldLine', [when]) || `Right now that means everything before ${when}.`;
+}
+
+$('oldPick').addEventListener('change', async () => {
+  state.settings.oldDays = $('oldPick').value;
+  await saveState({ settings: state.settings });
+  renderOldLine();
+});
+
+$('oldAuto').addEventListener('change', async () => {
+  state.settings.oldAuto = $('oldAuto').checked;
+  await saveState({ settings: state.settings });
+});
+
 $('oldBtn').addEventListener('click', async () => {
   const days = Number($('oldPick').value) || 30;
-  const pick = $('oldPick').selectedOptions[0];
-  const label = pick ? pick.textContent : `${days} days`;
+  const when = ageDate(ageCutoff(days), currentLang());
   const gate = await singleConfirm(() =>
     window.confirm(
-      t('optOldConfirm', [label]) ||
-        `Wipe everything older than ${label}? This goes by age, so every site that old is included, not just your list. It cannot be undone.`
+      t('optOldConfirm', [when]) ||
+        `Delete everything older than ${when}? Every site that old goes, whole entries, not just leftovers. It cannot be undone.`
     )
   );
   if (!gate.ok) {
     setMsg($('oldMsg'), t('optCancelledWipe') || 'Cancelled, nothing was wiped.');
     return;
   }
-  setMsg($('oldMsg'), t('msgOldWorking') || 'Wiping older entries…');
+  setMsg($('oldMsg'), t('msgOldWorking') || 'Deleting older entries…');
   chrome.runtime.sendMessage({ type: 'wipeOld', days }, (res) => {
     if (chrome.runtime.lastError) {
       setMsg($('oldMsg'), chrome.runtime.lastError.message, 'err');
@@ -1101,14 +1124,20 @@ $('oldBtn').addEventListener('click', async () => {
       setMsg($('oldMsg'), (res && res.error) || t('errOldFailed') || 'The wipe failed.', 'err');
       return;
     }
+    if (isLocked()) {
+      // Fully silent: the PIN keeps the numbers off the screen too.
+      setMsg($('oldMsg'), t('resSilent') || 'Done. The PIN hides the numbers too.', 'ok');
+      load();
+      return;
+    }
     const n = String(res.deleted);
     setMsg(
       $('oldMsg'),
       res.kept
-        ? t('resOldDoneKept', [label, n]) ||
-          `Done. Wiped what your rules can see older than ${label} (${n} counted). Sites you told it never to delete were left alone, and entries Chrome hides stay, because nothing can say whose they are.`
-        : t('resOldDone', [label, n]) ||
-          `Done. Everything older than ${label} is wiped, Chrome's hidden entries included (${n} counted).`,
+        ? t('resOldDoneKept', [when, n]) ||
+          `Done. Deleted what your rules can see older than ${when} (${n} counted). Sites you told it never to delete were left alone, and entries Chrome hides stay, because nothing can say whose they are.`
+        : t('resOldDone', [when, n]) ||
+          `Done. Everything older than ${when} is deleted, entries Chrome hides included (${n} counted).`,
       'ok'
     );
     load();

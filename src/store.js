@@ -13,6 +13,9 @@ export { normalizeDomain };
 // list at the start of the next browser session, where the startup run happens.
 export const LOG_KEEP_CHOICES = ['forever', '7', '30', '90', 'session'];
 
+// The windows the age line offers, in days. A week is first because it is the cautious
+// choice; 'oldDays' remembers whichever one the pick shows.
+
 /** The log, minus the lines the chosen window has let go of. A row with no readable
  *  timestamp stays: an age cannot be judged from nothing, and a guess is not a reason
  *  to delete. */
@@ -27,6 +30,24 @@ export function trimLog(list, settings, now = Date.now()) {
     const at = Number(row && row.at);
     return !Number.isFinite(at) || at >= cutoff;
   });
+}
+
+export const OLD_AGE_CHOICES = [7, 30, 90, 180, 365];
+
+/** The moment the age line sits at: now minus the window, recomputed from the clock on
+ *  every run, so it moves with the day and is never a frozen date. */
+export function ageCutoff(days, now = Date.now()) {
+  return now - Number(days) * 24 * 60 * 60 * 1000;
+}
+
+/** A cutoff as a readable date ("30 August 2026"), said in the language the reader has
+ *  the page in, not the browser's. */
+export function ageDate(ts, lang) {
+  try {
+    return new Date(ts).toLocaleDateString(lang, { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch {
+    return new Date(ts).toLocaleDateString();
+  }
 }
 
 export const DEFAULT_SETTINGS = {
@@ -45,6 +66,11 @@ export const DEFAULT_SETTINGS = {
   // until the browser closes. The list names what was cleaned, so it is allowed to
   // forget on its own.
   logKeep: 'forever',
+  // The age line for old history: the pick under "Delete history older than" shows it,
+  // and when the toggle is on, everything older than the line goes at every browser
+  // start, whatever the cleaning mode is.
+  oldAuto: false,
+  oldDays: '30',
   // Remembers the "include subdomains" tick in the popup for next time.
   includeSubdomainsDefault: false,
   // DANGER: when true, every trigger erases the whole history instead of matching

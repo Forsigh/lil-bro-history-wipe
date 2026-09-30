@@ -795,31 +795,40 @@
     "message": "Domyślnie wyłączone. Twoje reguły nadal działają."
   },
   "optOldLabel": {
-    "message": "Stare wpisy"
+    "message": "Usuń historię starszą niż"
+  },
+  "optOld1w": {
+    "message": "tydzień"
   },
   "optOld1m": {
-    "message": "starsze niż miesiąc"
+    "message": "miesiąc"
   },
   "optOld3m": {
-    "message": "starsze niż 3 miesiące"
+    "message": "3 miesiące"
   },
   "optOld6m": {
-    "message": "starsze niż pół roku"
+    "message": "6 miesięcy"
   },
   "optOld1y": {
-    "message": "starsze niż rok"
+    "message": "rok"
   },
   "optOldBtn": {
-    "message": "Wyczyść je"
+    "message": "Usuń teraz"
   },
   "optOldNote": {
-    "message": "Działa po dacie, nie po liście: zniknie wszystko starsze niż wybrana data, łącznie z wpisami ukrytymi przez Chrome."
+    "message": "Wszystko starsze niż ta data znika: każda witryna, całe wpisy, także te, które Chrome ukrywa przed innymi czyszczeniami."
+  },
+  "optOldAuto": {
+    "message": "Rób to automatycznie przy każdym starcie przeglądarki"
+  },
+  "optOldLine": {
+    "message": "Teraz oznacza to wszystko przed $1."
   },
   "optOldConfirm": {
-    "message": "Wyczyścić wszystko starsze niż $1? Idzie po dacie, więc znikną wszystkie strony z tego okresu, nie tylko twoja lista. Tego nie da się cofnąć."
+    "message": "Usunąć wszystko starsze niż $1? Zniknie każda witryna starsza niż ta data, całe wpisy, nie tylko resztki. Tego nie da się cofnąć."
   },
   "msgOldWorking": {
-    "message": "Czyszczę stare wpisy…"
+    "message": "Usuwam stare wpisy…"
   },
   "resOldDone": {
     "message": "Gotowe. Wszystko starsze niż $1 wyczyszczone, razem z wpisami ukrytymi przez Chrome (policzone wpisy: $2)."
@@ -1140,7 +1149,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "PIN jest teraz całkiem cichy, a jedno odblokowanie zostaje otwarte przez wybrany czas. Log może zapominać sam: po 7, 30 albo 90 dniach, albo po zamknięciu przeglądarki. Czyszczenie starych wpisów idzie po dacie i sięga to, czego zwykły skan nie widzi. I jeszcze skrót: jeden klawisz znowu wszystko ukrywa, gdziekolwiek jesteś."
+    "message": "Czyszczenie starej historii jest teraz proste: wybierasz granicę, widzisz dokładną datę, a wszystko starsze znika. Może też robić to samo przy każdym starcie przeglądarki."
   },
   "whatsNewOk": {
     "message": "Rozumiem"

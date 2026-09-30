@@ -795,37 +795,46 @@
     "message": "Off by default. Your rules are still being applied."
   },
   "optOldLabel": {
-    "message": "Old leftovers"
+    "message": "Delete history older than"
+  },
+  "optOld1w": {
+    "message": "a week"
   },
   "optOld1m": {
-    "message": "older than a month"
+    "message": "a month"
   },
   "optOld3m": {
-    "message": "older than 3 months"
+    "message": "3 months"
   },
   "optOld6m": {
-    "message": "older than 6 months"
+    "message": "6 months"
   },
   "optOld1y": {
-    "message": "older than a year"
+    "message": "a year"
   },
   "optOldBtn": {
-    "message": "Wipe those"
+    "message": "Delete now"
   },
   "optOldNote": {
-    "message": "Goes by age, not by your list: everything older than the date is removed, including entries Chrome hides from other cleanups."
+    "message": "Everything older than the line is deleted: all sites, whole entries, and it reaches entries Chrome hides from other cleanups."
+  },
+  "optOldAuto": {
+    "message": "Do it automatically at every browser start"
+  },
+  "optOldLine": {
+    "message": "Right now that means everything before $1."
   },
   "optOldConfirm": {
-    "message": "Wipe everything older than $1? This goes by age, so every site that old is included, not just your list. It cannot be undone."
+    "message": "Delete everything older than $1? Every site that old goes, whole entries, not just leftovers. It cannot be undone."
   },
   "msgOldWorking": {
-    "message": "Wiping older entries…"
+    "message": "Deleting older entries…"
   },
   "resOldDone": {
-    "message": "Done. Everything older than $1 is wiped, Chrome's hidden entries included ($2 counted)."
+    "message": "Done. Everything older than $1 is deleted, entries Chrome hides included ($2 counted)."
   },
   "resOldDoneKept": {
-    "message": "Done. Wiped what your rules can see older than $1 ($2 counted). Sites you told it never to delete were left alone, and entries Chrome hides stay, because nothing can say whose they are."
+    "message": "Done. Deleted what your rules can see older than $1 ($2 counted). Sites you told it never to delete were left alone, and entries Chrome hides stay, because nothing can say whose they are."
   },
   "errOldFailed": {
     "message": "The wipe failed."
@@ -1140,7 +1149,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "The PIN is fully silent now, and one unlock stays open for a set time. The log can forget on its own: after 7, 30 or 90 days, or when the browser closes. A wipe that goes by age reaches entries a normal scan cannot see. And one key hides everything again, wherever you are."
+    "message": "Old history is simple now: pick a line, see the exact date it means, and everything older is deleted. It can also do that by itself at every browser start."
   },
   "whatsNewOk": {
     "message": "Got it"

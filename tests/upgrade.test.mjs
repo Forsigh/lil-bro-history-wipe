@@ -156,6 +156,8 @@ console.log('an installed 1.3.5 profile, read by this build');
     if (settings.lang !== 'auto') throw new Error(`lang is ${JSON.stringify(settings.lang)}`);
     if (settings.unlockMinutes !== '3') throw new Error(`unlockMinutes is ${JSON.stringify(settings.unlockMinutes)}`);
     if (settings.logKeep !== 'forever') throw new Error(`logKeep is ${JSON.stringify(settings.logKeep)}`);
+    if (settings.oldAuto !== false) throw new Error(`oldAuto is ${JSON.stringify(settings.oldAuto)}`);
+    if (settings.oldDays !== '30') throw new Error(`oldDays is ${JSON.stringify(settings.oldDays)}`);
   });
   check('nothing in the old blob was dropped on the way through', () => {
     const keys = Object.keys(settings);
