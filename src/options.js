@@ -942,6 +942,46 @@ $('previewBtn').addEventListener('click', () => {
   runAction('preview').catch(() => {});
 });
 
+// The old-leftovers control. It goes by age, and it is the one control that reaches
+// entries the browser hides from any search, so the warning says every site is included.
+$('oldBtn').addEventListener('click', async () => {
+  const days = Number($('oldPick').value) || 30;
+  const pick = $('oldPick').selectedOptions[0];
+  const label = pick ? pick.textContent : `${days} days`;
+  const gate = await singleConfirm(() =>
+    window.confirm(
+      t('optOldConfirm', [label]) ||
+        `Wipe everything older than ${label}? This goes by age, so every site that old is included, not just your list. It cannot be undone.`
+    )
+  );
+  if (!gate.ok) {
+    setMsg($('oldMsg'), t('optCancelledWipe') || 'Cancelled, nothing was wiped.');
+    return;
+  }
+  setMsg($('oldMsg'), t('msgOldWorking') || 'Wiping older entries…');
+  chrome.runtime.sendMessage({ type: 'wipeOld', days }, (res) => {
+    if (chrome.runtime.lastError) {
+      setMsg($('oldMsg'), chrome.runtime.lastError.message, 'err');
+      return;
+    }
+    if (!res || !res.ok) {
+      setMsg($('oldMsg'), (res && res.error) || t('errOldFailed') || 'The wipe failed.', 'err');
+      return;
+    }
+    const n = String(res.deleted);
+    setMsg(
+      $('oldMsg'),
+      res.kept
+        ? t('resOldDoneKept', [label, n]) ||
+          `Done. Wiped what your rules can see older than ${label} (${n} counted). Sites you told it never to delete were left alone, and entries Chrome hides stay, because nothing can say whose they are.`
+        : t('resOldDone', [label, n]) ||
+          `Done. Everything older than ${label} is wiped, Chrome's hidden entries included (${n} counted).`,
+      'ok'
+    );
+    load();
+  });
+});
+
 /**
  * Two gates for the whole-history wipe (a typed phrase, then a final dialog), one
  * for the rule-based wipe. Preview never asks.

@@ -158,11 +158,33 @@ const workerSrc = readFileSync(join(root, 'src/service-worker.js'), 'utf8');
 const stripComments = (src) =>
   src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '');
 const workerCode = stripComments(workerSrc);
-for (const banned of ['deleteRange', 'removeHistory', 'removeCookies', 'removeCache', 'removePasswords', 'removePluginData', 'removeWebSQL', 'passwords:']) {
+for (const banned of ['removeHistory', 'removeCookies', 'removeCache', 'removePasswords', 'removePluginData', 'removeWebSQL', 'passwords:']) {
   if (workerCode.includes(banned)) {
     console.log(`  FAIL service-worker.js references "${banned}" — that deletion path must stay out of reach`);
     fail++;
   }
+}
+// deleteRange is the one API that reaches entries hidden from every search (the
+// address-bar leftovers), so it is allowed in exactly one place: wipeOld(), which only
+// the old-leftovers control on the settings page runs, after its own confirmation.
+// Everywhere else it still counts as out of reach.
+const wipeOldStart = workerSrc.indexOf('async function wipeOld');
+const wipeOldEnd = workerSrc.indexOf('async function', wipeOldStart + 10);
+const wipeOldBody = wipeOldStart === -1 ? '' : workerSrc.slice(wipeOldStart, wipeOldEnd === -1 ? undefined : wipeOldEnd);
+const rangeCount = (workerCode.match(/deleteRange/g) || []).length;
+const rangeOutside = stripComments(
+  wipeOldStart === -1
+    ? workerSrc
+    : workerSrc.slice(0, wipeOldStart) + workerSrc.slice(wipeOldEnd === -1 ? workerSrc.length : wipeOldEnd)
+);
+if (wipeOldStart === -1 || rangeCount !== 2 || !wipeOldBody.includes('chrome.history.deleteRange(') || rangeOutside.includes('deleteRange')) {
+  console.log(`  FAIL chrome.history.deleteRange appears ${rangeCount} time(s) — it must live only inside wipeOld()`);
+  fail++;
+}
+const oldLeftoverCalls = (workerCode.match(/await wipeOld\(/g) || []).length;
+if (oldLeftoverCalls !== 1) {
+  console.log(`  FAIL wipeOld() is awaited ${oldLeftoverCalls} times — expected exactly the old-leftovers message`);
+  fail++;
 }
 const browsingDataCalls = (workerCode.match(/chrome\.browsingData\.remove\(/g) || []).length;
 if (browsingDataCalls !== 1) {
@@ -288,9 +310,10 @@ console.log('  backwards: the startup sweep and the older-visits pill both come 
 // Every destructive surface must go through the confirmation gates. Each page has a
 // fixed number of sendMessage call sites. In options: the wipe funnel, the extra clear
 // with its own confirmation, the manual cookie clear, the suggestions read, which only
-// reads and deletes nothing, and the older-visits sweep from the add row, which runs
-// only the rules just added, never reaches past the keep list, and is switched by the
-// pill sitting on the row it belongs to. A new destructive path still trips this count.
+// reads and deletes nothing, the older-visits sweep from the add row, which runs only
+// the rules just added and never reaches past the keep list, and the old-leftovers
+// wipe, which goes by age and asks before it runs. A new destructive path still trips
+// this count.
 const optionsSrc = readFileSync(join(root, 'src/options.js'), 'utf8');
 const popupSrc = readFileSync(join(root, 'src/popup.js'), 'utf8');
 
@@ -298,7 +321,7 @@ for (const [file, src, needed] of [
   [
     'src/options.js',
     optionsSrc,
-    ['confirm-gate.js', 'doubleConfirm', 'singleConfirm', 'await confirmDestructive()', 'MESSAGES.wipeAllStep1', 'MESSAGES.wipeNowConfirm', 'MESSAGES.clearLogConfirm', 'MESSAGES.removeRule', 'MESSAGES.importConfirm', 'now, covering', 'describeExtras(state.settings)'],
+    ['confirm-gate.js', 'doubleConfirm', 'singleConfirm', 'await confirmDestructive()', 'MESSAGES.wipeAllStep1', 'MESSAGES.wipeNowConfirm', 'MESSAGES.clearLogConfirm', 'MESSAGES.removeRule', 'MESSAGES.importConfirm', 'now, covering', 'describeExtras(state.settings)', 'optOldConfirm', "type: 'wipeOld'"],
   ],
   [
     'src/popup.js',
@@ -313,7 +336,7 @@ for (const [file, src, needed] of [
     }
   }
   const sends = (src.match(/chrome\.runtime\.sendMessage\(/g) || []).length;
-  const expected = file === 'src/options.js' ? 5 : 2;
+  const expected = file === 'src/options.js' ? 6 : 2;
   if (sends !== expected) {
     console.log(`  FAIL ${file} has ${sends} sendMessage call sites, expected ${expected}`);
     fail++;

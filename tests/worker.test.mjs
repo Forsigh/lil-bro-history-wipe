@@ -12,6 +12,7 @@ function makeFakeChrome(seed = [], opts = {}) {
     items: seed.map((i) => ({ ...i })),
     deleted: [],
     searchCalls: [],
+    rangeCalls: [],
     // Anything a "nuke everything" implementation would reach for. Recorded, so a
     // test can prove the extension never touches them.
     forbidden: [],
@@ -95,9 +96,13 @@ function makeFakeChrome(seed = [], opts = {}) {
         db.calls.deleteAll++;
         db.items = [];
       },
-      async deleteRange() {
+      async deleteRange({ startTime = 0, endTime = Number.MAX_SAFE_INTEGER } = {}) {
         db.forbidden.push('history.deleteRange');
         db.calls.deleteRange++;
+        db.rangeCalls.push({ startTime, endTime });
+        db.items = db.items.filter(
+          (i) => (i.lastVisitTime || 0) < startTime || (i.lastVisitTime || 0) > endTime
+        );
       },
       onVisited: { addListener: (fn) => listeners.onVisited.push(fn) },
     },
@@ -921,6 +926,52 @@ function check(label, fn) {
   check('wipe-all + wipe now: reports the count', () => assert.equal(wipe.deleted, 5));
   check('wipe-all + wipe now: cookies and cache still untouched', () =>
     assert.deepEqual(j.db.forbidden, ['history.deleteAll']));
+}
+
+// ---------------------------------------------------------------------------
+// 12. old leftovers: the age-based wipe, the only deleteRange path
+// ---------------------------------------------------------------------------
+{
+  const DAY = 24 * 60 * 60 * 1000;
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://old.example/x', title: 'x', lastVisitTime: NOW - 200 * DAY },
+    { id: 'b', url: 'https://new.example/y', title: 'y', lastVisitTime: NOW - 5 * DAY },
+  ]);
+  f.store.local.rules = [];
+  f.store.local.settings = { mode: 'realtime', sweepExistingOnStartup: false, notifyOnWipe: false };
+  await bootNoWait(f.chrome);
+  await sleep(80);
+
+  const reply = await new Promise((resolve) => {
+    const kept = f.listeners.onMessage[0]({ type: 'wipeOld', days: 90 }, {}, resolve);
+    assert.equal(kept, true, 'message listener keeps the channel open');
+  });
+
+  check('old leftovers: one range delete, and nothing else forbidden', () =>
+    assert.deepEqual(f.db.forbidden, ['history.deleteRange']));
+  check('old leftovers: the range runs from the epoch to the cutoff', () => {
+    const c = f.db.rangeCalls[0];
+    const want = Date.now() - 90 * DAY;
+    return c && c.startTime === 0 && Math.abs(c.endTime - want) < 10000;
+  });
+  check('old leftovers: the old entry went, the recent one stayed', () => {
+    const urls = f.db.items.map((i) => i.url);
+    assert.ok(!urls.includes('https://old.example/x'), 'old entry should be gone');
+    assert.ok(urls.includes('https://new.example/y'), 'recent entry should stay');
+  });
+  check('old leftovers: reports the count it could see', () => assert.equal(reply.deleted, 1));
+  check('old leftovers: the log carries the reason and the date', () => {
+    const row = (f.store.local.log || []).find((e) => e.why === 'old-range');
+    assert.ok(row, 'log row with why old-range');
+    assert.ok(row.word, 'log row carries the readable date');
+  });
+
+  const bad = await new Promise((resolve) =>
+    f.listeners.onMessage[0]({ type: 'wipeOld', days: 7 }, {}, resolve)
+  );
+  check('old leftovers: an age that is not a preset is refused', () => assert.equal(bad.ok, false));
+  check('old leftovers: refusing did not add another range delete', () =>
+    assert.equal(f.db.calls.deleteRange, 1));
 }
 
 // ---------------------------------------------------------------------------

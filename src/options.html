@@ -143,6 +143,18 @@
             <span id="sweepMsg" class="mini"></span>
           </div>
           <div id="previewList"></div>
+          <div class="row">
+            <label class="mini" for="oldPick" data-i18n="optOldLabel">Old leftovers</label>
+            <select id="oldPick" class="lang-select">
+              <option value="30" data-i18n="optOld1m">older than a month</option>
+              <option value="90" data-i18n="optOld3m">older than 3 months</option>
+              <option value="180" data-i18n="optOld6m">older than 6 months</option>
+              <option value="365" data-i18n="optOld1y">older than a year</option>
+            </select>
+            <button id="oldBtn" class="ghost" data-i18n="optOldBtn">Wipe those</button>
+            <span id="oldMsg" class="mini"></span>
+          </div>
+          <div class="row mini" data-i18n="optOldNote">Goes by age, not by your list: everything older than the date is removed, including entries Chrome hides from other cleanups.</div>
         </div>
 
       </section>

@@ -577,10 +577,11 @@ async function sweepHistory(rules, phase, { budgetMs = SWEEP_TIME_BUDGET_MS, dry
 /** Label used in the log for entries removed by the whole-history wipe. */
 const WIPE_ALL_RULE = { type: 'domain', value: 'wipe all history', includeSubdomains: false };
 
-/** Count every entry in the database, so the UI can report an honest number. */
-async function countHistory(budgetMs = SWEEP_TIME_BUDGET_MS) {
+/** Count every entry in the database, so the UI can report an honest number.
+ *  With an end limit, it counts everything older than that moment instead. */
+async function countHistory(budgetMs = SWEEP_TIME_BUDGET_MS, endTimeLimit = null) {
   const started = Date.now();
-  let endTime = Date.now() + 60 * 1000;
+  let endTime = endTimeLimit || Date.now() + 60 * 1000;
   let count = 0;
 
   for (;;) {
@@ -669,6 +670,82 @@ async function wipeEverything(phase) {
   ]);
   await withLock(async () => saveState({ pending: [] }));
   return { deleted: counted };
+}
+
+/**
+ * Remove everything older than a moment, on the user's order.
+ *
+ * This is the one path that reaches entries Chrome hides from history.search: it goes
+ * by age instead of by name, because a hidden entry cannot be found by any query, so it
+ * cannot be told apart from its neighbours. Every site older than the cut is included,
+ * and the control in the settings says exactly that.
+ *
+ * With a never-delete rule in the list the promise still wins: the walk drops to the
+ * entries the rules can see one by one, and hidden entries stay, because nothing can
+ * say whose they are.
+ */
+async function wipeOld(beforeTs, phase) {
+  const kept = await activeKeeps();
+  const label = new Date(beforeTs).toLocaleDateString();
+
+  if (kept.length) {
+    let deleted = 0;
+    let endTime = Date.now() + 60 * 1000;
+    const seen = new Set();
+    for (;;) {
+      let batch;
+      try {
+        batch = await chrome.history.search({
+          text: '',
+          startTime: 0,
+          endTime,
+          maxResults: SWEEP_PAGE_SIZE,
+        });
+      } catch (e) {
+        log('old-leftovers search failed', e);
+        break;
+      }
+      if (!batch || batch.length === 0) break;
+
+      let oldest = null;
+      const targets = [];
+      for (const item of batch) {
+        if (!item || !item.url || seen.has(item.url)) continue;
+        seen.add(item.url);
+        const t = item.lastVisitTime || 0;
+        if (t && (oldest === null || t < oldest)) oldest = t;
+        if (!t || t >= beforeTs) continue;
+        if (!isWipeableUrl(item.url)) continue;
+        if (explainExempt(item, kept)) continue;
+        targets.push({
+          url: item.url,
+          title: item.title || '',
+          rule: 'old leftovers',
+          why: 'old-range-except',
+        });
+      }
+      deleted += await wipeTargets(targets, phase);
+
+      if (oldest === null || oldest <= 1 || oldest >= endTime) break;
+      endTime = oldest - 1;
+    }
+    await pushLog([
+      { url: '(old leftovers)', title: '', rule: 'old leftovers', why: 'old-range-except', at: Date.now(), phase },
+    ]);
+    return { deleted, kept: true };
+  }
+
+  const counted = await countHistory(SWEEP_TIME_BUDGET_MS, beforeTs);
+  try {
+    await chrome.history.deleteRange({ startTime: 0, endTime: beforeTs });
+  } catch (e) {
+    log('deleteRange failed', e);
+    return { deleted: 0, kept: false };
+  }
+  await pushLog([
+    { url: '(old leftovers)', title: '', rule: 'old leftovers', why: 'old-range', word: label, at: Date.now(), phase },
+  ]);
+  return { deleted: counted, kept: false };
 }
 
 // ---------------------------------------------------------------------------
@@ -1071,6 +1148,25 @@ chrome.runtime.onMessage.addListener((msg, sender, reply) => {
 
   if (msg.type === 'preview') {
     manualRun(true)
+      .then(reply)
+      .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
+    return true;
+  }
+
+  // The old-leftovers control: everything older than a chosen age in one range delete
+  // (or a rule-respecting walk when never-delete rules are on).
+  if (msg.type === 'wipeOld') {
+    (async () => {
+      const { settings } = await getState();
+      await useLang();
+      if (!settings.enabled) return { ok: false, error: t('notifyPaused') || 'Lil Bro is paused.' };
+      const days = [30, 90, 180, 365].includes(Number(msg.days)) ? Number(msg.days) : 0;
+      if (!days) return { ok: false, error: t('errOldFailed') || 'The wipe failed.' };
+      const beforeTs = Date.now() - days * 24 * 60 * 60 * 1000;
+      const res = await wipeOld(beforeTs, 'manual');
+      await bumpStats(res.deleted, 'manual');
+      return { ok: true, deleted: res.deleted, kept: !!res.kept, before: beforeTs };
+    })()
       .then(reply)
       .catch((e) => reply({ ok: false, error: String(e && e.message ? e.message : e) }));
     return true;

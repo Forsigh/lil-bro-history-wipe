@@ -737,6 +737,45 @@
   "optWipeAllOff": {
     "message": "Off by default. Your rules are still being applied."
   },
+  "optOldLabel": {
+    "message": "Old leftovers"
+  },
+  "optOld1m": {
+    "message": "older than a month"
+  },
+  "optOld3m": {
+    "message": "older than 3 months"
+  },
+  "optOld6m": {
+    "message": "older than 6 months"
+  },
+  "optOld1y": {
+    "message": "older than a year"
+  },
+  "optOldBtn": {
+    "message": "Wipe those"
+  },
+  "optOldNote": {
+    "message": "Goes by age, not by your list: everything older than the date is removed, including entries Chrome hides from other cleanups."
+  },
+  "optOldConfirm": {
+    "message": "Wipe everything older than $1? This goes by age, so every site that old is included, not just your list. It cannot be undone."
+  },
+  "msgOldWorking": {
+    "message": "Wiping older entries…"
+  },
+  "resOldDone": {
+    "message": "Done. Everything older than $1 is wiped, Chrome's hidden entries included ($2 counted)."
+  },
+  "resOldDoneKept": {
+    "message": "Done. Wiped what your rules can see older than $1 ($2 counted). Sites you told it never to delete were left alone, and entries Chrome hides stay, because nothing can say whose they are."
+  },
+  "errOldFailed": {
+    "message": "The wipe failed."
+  },
+  "logOldRange": {
+    "message": "everything before $1"
+  },
   "optWhenManual": {
     "message": "only when you press a button"
   },

@@ -737,6 +737,45 @@
   "optWipeAllOff": {
     "message": "Domyślnie wyłączone. Twoje reguły nadal działają."
   },
+  "optOldLabel": {
+    "message": "Stare wpisy"
+  },
+  "optOld1m": {
+    "message": "starsze niż miesiąc"
+  },
+  "optOld3m": {
+    "message": "starsze niż 3 miesiące"
+  },
+  "optOld6m": {
+    "message": "starsze niż pół roku"
+  },
+  "optOld1y": {
+    "message": "starsze niż rok"
+  },
+  "optOldBtn": {
+    "message": "Wyczyść je"
+  },
+  "optOldNote": {
+    "message": "Działa po dacie, nie po liście: zniknie wszystko starsze niż wybrana data, łącznie z wpisami ukrytymi przez Chrome."
+  },
+  "optOldConfirm": {
+    "message": "Wyczyścić wszystko starsze niż $1? Idzie po dacie, więc znikną wszystkie strony z tego okresu, nie tylko twoja lista. Tego nie da się cofnąć."
+  },
+  "msgOldWorking": {
+    "message": "Czyszczę stare wpisy…"
+  },
+  "resOldDone": {
+    "message": "Gotowe. Wszystko starsze niż $1 wyczyszczone, razem z wpisami ukrytymi przez Chrome (policzone wpisy: $2)."
+  },
+  "resOldDoneKept": {
+    "message": "Gotowe. Wyczyszczone to, co widzą reguły, starsze niż $1 (policzone wpisy: $2). Strony z listy „nigdy nie kasuj” zostały, a wpisy ukryte przez Chrome też zostają — nie da się ustalić, czyje są."
+  },
+  "errOldFailed": {
+    "message": "Czyszczenie nie wyszło."
+  },
+  "logOldRange": {
+    "message": "wszystko starsze niż $1"
+  },
   "optWhenManual": {
     "message": "tylko gdy klikniesz przycisk"
   },
