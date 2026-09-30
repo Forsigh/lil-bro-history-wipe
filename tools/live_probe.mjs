@@ -448,7 +448,7 @@ try {
     await new Promise(r=>setTimeout(r,600));
     document.getElementById('previewBtn').click();
     const t0=Date.now(); let txt='';
-    for(;;){ txt=document.getElementById('sweepMsg').textContent; if (/Done\\./.test(txt)) break; if (Date.now()-t0>15000) break; await new Promise(r=>setTimeout(r,300)); }
+    for(;;){ txt=document.getElementById('sweepMsg').textContent; if (txt.indexOf('Done.') === 0) break; if (Date.now()-t0>15000) break; await new Promise(r=>setTimeout(r,300)); }
     return JSON.stringify({
       locked: document.body.classList.contains('locked'),
       stat: document.getElementById('statTotal').textContent,
@@ -458,7 +458,7 @@ try {
   const rl = JSON.parse(relocked);
   record('hide-now closes the window at once', rl.locked === true, relocked);
   record('a locked page shows a dash instead of a count', rl.stat === '–', `statTotal=${rl.stat}`);
-  record('a scan under the PIN answers without a number', /^Done\\./.test(rl.scan) && !/\\d/.test(rl.scan), rl.scan);
+  record('a scan under the PIN answers without a number', rl.scan.includes('PIN') && !/[0-9]/.test(rl.scan), rl.scan);
 
   await closePage(locked.id);
 
@@ -956,9 +956,10 @@ try {
   record('the popup keeps its controls', lockView2.addHidden === false && lockView2.controlsHidden === false);
   record('the list stays off the screen while locked',
     lockView2.listRows === 0 && lockView2.scanDisabled === false);
-  // The scan keeps working while the PIN is on: it answers with counts, and the names
-  // never reach the list. The old build switched the button off and a dead button read
-  // as broken, so this drives the click and reads what the popup actually says.
+  // The scan keeps working while the PIN is on, but it answers with one quiet line: the
+  // numbers are hidden with everything else, and no name ever reaches the list. The old
+  // build switched the button off and a dead button read as broken, so this drives the
+  // click and reads what the popup actually says.
   await pop5.evaluate(`document.getElementById('previewBtn').click()`);
   let lockedScan = { msg: '', rows: -1 };
   for (let i = 0; i < 30; i += 1) {
@@ -971,8 +972,8 @@ try {
     );
     if (lockedScan.msg && !/Looking for matches/i.test(lockedScan.msg)) break;
   }
-  record('the scan answers with counts while locked, naming nothing',
-    /entries/i.test(lockedScan.msg) && /PIN/.test(lockedScan.msg) && lockedScan.rows === 0,
+  record('the scan answers without a number while locked, naming nothing',
+    lockedScan.msg.includes('PIN') && !/[0-9]/.test(lockedScan.msg) && lockedScan.rows === 0,
     lockedScan.msg.slice(0, 90));
   // The verdict names what happens to this tab, so it says nothing while locked.
   record('popup says nothing about the tab while locked', lockView2.verdict === '', `"${lockView2.verdict}"`);
@@ -1987,7 +1988,7 @@ try {
     // its panel and only its panel, and the selected tab says so on the element.
     const walk = await shotOptions.evaluate(`(() => {
       const out = [];
-      for (const id of ['tabCleaning', 'tabLogs', 'tabAdvanced']) {
+      for (const id of ['tabCleaning', 'tabLogs', 'tabPrivacy', 'tabAdvanced']) {
         const tab = document.getElementById(id);
         tab.click();
         const panel = document.getElementById(tab.getAttribute('aria-controls'));
@@ -2058,6 +2059,9 @@ try {
       await chrome.storage.local.set({settings:{...cur,lockEnabled:true,lockHash:hex(bits),lockSalt:hex(salt),lockIterations:1000}});
       return 'ok';
     })()`);
+    // The unlock window is real now, so a run that unlocked this profile a couple of
+    // minutes ago leaves the session open: clear the mark, or this page comes up open.
+    await ev(`chrome.storage.session.remove('unlockMark')`);
     const shotLocked = await openPage(`chrome-extension://${id}/src/options.html`);
     await sleep(800);
     const lockedTabs = JSON.parse(
@@ -2077,7 +2081,7 @@ try {
     await shoot(shotLocked, 'options-pin.png', 640, 400, false, 2);
     record('while the PIN holds, the Logs tab greys out and asks for the PIN instead of opening',
       lockedTabs.greyed === true && lockedTabs.ariaDisabled === 'true' &&
-        lockedTabs.selected === 'tabAdvanced' && pinBox.stillHidden === true && pinBox.dialogOpen === true,
+        lockedTabs.selected === 'tabPrivacy' && pinBox.stillHidden === true && pinBox.dialogOpen === true,
       `greyed: ${lockedTabs.greyed}, aria: ${lockedTabs.ariaDisabled}, opens on ${lockedTabs.selected}, panel hidden after the click: ${pinBox.stillHidden}, PIN box up: ${pinBox.dialogOpen}`);
     // And the box has to work: the right PIN opens the log itself, right there.
     const logUnlock = JSON.parse(
