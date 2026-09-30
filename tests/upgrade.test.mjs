@@ -152,8 +152,9 @@ console.log('an installed 1.3.5 profile, read by this build');
   check('all 26 settings from 1.3.5 survive the update', () => {
     if (lost.length) throw new Error(`changed or lost: ${lost.join(', ')}`);
   });
-  check('the one key added since then takes its default', () => {
+  check('the keys added since then take their defaults', () => {
     if (settings.lang !== 'auto') throw new Error(`lang is ${JSON.stringify(settings.lang)}`);
+    if (settings.unlockMinutes !== '3') throw new Error(`unlockMinutes is ${JSON.stringify(settings.unlockMinutes)}`);
   });
   check('nothing in the old blob was dropped on the way through', () => {
     const keys = Object.keys(settings);

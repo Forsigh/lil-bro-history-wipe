@@ -396,13 +396,17 @@ try {
     rowsRendered: document.getElementById('rulesBody').children.length,
     unlockRowVisible: !document.getElementById('lockUnlockRow').classList.contains('hidden'),
     forgotVisible: !document.getElementById('lockForgotRow').classList.contains('hidden'),
-    recoveryHidden: document.getElementById('lockRecoverRow').classList.contains('hidden')
+    recoveryHidden: document.getElementById('lockRecoverRow').classList.contains('hidden'),
+    privacyShown: !document.getElementById('panelPrivacy').classList.contains('hidden'),
+    statQuiet: document.getElementById('statTotal').textContent
   })`);
   const lv = JSON.parse(lockView);
   record('locked page hides the list sections', lv.bodyLocked && lv.rulesHidden, `rulesHidden=${lv.rulesHidden}`);
   record('locked page renders no rule rows at all', lv.rowsRendered === 0, `${lv.rowsRendered} rows in the DOM`);
   record('locked page offers the PIN box', lv.unlockRowVisible);
   record('locked page offers the way out', lv.forgotVisible && lv.recoveryHidden);
+  record('a locked page opens on the Privacy room', lv.privacyShown);
+  record('a locked page shows a dash, not a count', lv.statQuiet === '–', `statTotal=${lv.statQuiet}`);
 
   const wrong = await locked.evaluate(`(async()=>{
     document.getElementById('lockPin').value='0000';
@@ -428,6 +432,34 @@ try {
   const rv = JSON.parse(right);
   record('the right PIN unlocks and shows the list', !rv.locked && rv.rows === 1, `${rv.rows} rule row(s)`);
   record('unlocking leaves the lock switched on', rv.lockOn === true, rv.msg);
+
+  // The unlock is a window now: a reload inside it stays open, "hide now" closes it at
+  // once, and a scan under the PIN answers without a single number.
+  await locked.evaluate("setTimeout(() => location.reload(), 50); 'reloading'");
+  await new Promise((r) => setTimeout(r, 1800));
+  const afterReload = await locked.evaluate(
+    "JSON.stringify({ locked: document.body.classList.contains('locked'), rows: document.getElementById('rulesBody').children.length })"
+  );
+  const ar = JSON.parse(afterReload);
+  record('a reload inside the unlock window stays open', ar.locked === false && ar.rows === 1, afterReload);
+
+  const relocked = await locked.evaluate(`(async()=>{
+    document.getElementById('lockNowBtn').click();
+    await new Promise(r=>setTimeout(r,600));
+    document.getElementById('previewBtn').click();
+    const t0=Date.now(); let txt='';
+    for(;;){ txt=document.getElementById('sweepMsg').textContent; if (/Done\\./.test(txt)) break; if (Date.now()-t0>15000) break; await new Promise(r=>setTimeout(r,300)); }
+    return JSON.stringify({
+      locked: document.body.classList.contains('locked'),
+      stat: document.getElementById('statTotal').textContent,
+      scan: txt
+    });
+  })()`);
+  const rl = JSON.parse(relocked);
+  record('hide-now closes the window at once', rl.locked === true, relocked);
+  record('a locked page shows a dash instead of a count', rl.stat === '–', `statTotal=${rl.stat}`);
+  record('a scan under the PIN answers without a number', /^Done\\./.test(rl.scan) && !/\\d/.test(rl.scan), rl.scan);
+
   await closePage(locked.id);
 
   // --- 9. the forgotten-PIN way out, in the real page ----------------------

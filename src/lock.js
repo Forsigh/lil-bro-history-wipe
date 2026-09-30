@@ -11,6 +11,30 @@ export const LOCKOUT_MS = 30000;
 // There is no server, so there is no reset email. This word is the way out.
 export const RECOVERY_WORD = 'lilbro';
 
+// The choices offered for how long one unlock lasts. Minutes are strings because a
+// <select> hands back strings; 'session' means until the browser closes.
+export const UNLOCK_CHOICES = ['1', '2', '3', '5', '10', 'session'];
+
+/**
+ * How long one unlock lasts. A pick of minutes becomes a wall-clock stamp; junk falls
+ * back to the shipped default of three minutes. The stamp is compared against a clock
+ * when it is read, so nothing has to fire on time for it to be honored.
+ */
+export function unlockUntil(choice, now) {
+  if (choice === 'session') return 'session';
+  const mins = Number(choice);
+  const safe = Number.isFinite(mins) && mins > 0 ? mins : 3;
+  return now + safe * 60000;
+}
+
+/** Is a stored unlock mark still open? Missing, stale and malformed marks are closed. */
+export function unlockOpen(mark, now) {
+  if (!mark) return false;
+  if (mark.open === 'session') return true;
+  const until = Number(mark.open);
+  return Number.isFinite(until) && until > now;
+}
+
 /**
  * The wording that goes with the PIN, in the language the pages are showing.
  *
@@ -43,7 +67,7 @@ export const LOCK_MESSAGES = {
     return t('lockRemoved') || 'PIN removed. Nothing is hidden any more.';
   },
   get open() {
-    return t('lockOpen') || 'Unlocked for now. Reloading this page hides the list again.';
+    return t('lockOpen') || 'Unlocked. It stays open for the set time and then locks itself again.';
   },
   get listHidden() {
     return t('lockListHidden') || 'Your list is hidden while the lock is on.';

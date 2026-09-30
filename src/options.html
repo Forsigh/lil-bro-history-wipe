@@ -27,15 +27,16 @@
       </div>
 
       <div class="banner lockbanner hidden" id="lockedBanner">
-        <b data-i18n="optLockedTag">Locked.</b> <span data-i18n="optLockedBody">Your list is hidden until you unlock it in Advanced. Cleaning carries on, and the counts still come through.</span>
+        <b data-i18n="optLockedTag">Locked.</b> <span data-i18n="optLockedBody">Your list is hidden until you unlock it in Privacy. Cleaning carries on quietly.</span>
       </div>
 
-      <!-- Three rooms instead of one long corridor. The day-to-day controls live in the
-           first, what it saw lives in the second, and everything that needs explaining
-           before you touch it lives in the third. -->
+      <!-- Four rooms instead of one long corridor. The day-to-day controls live in the
+           first, what it saw lives in the second, the lock lives in the third, and
+           everything that needs explaining before you touch it lives in the fourth. -->
       <div class="tabs" role="tablist" aria-label="Settings sections">
         <button class="tab" id="tabCleaning" role="tab" aria-controls="panelCleaning" aria-selected="true" data-i18n="tabCleaning">Cleaning</button>
         <button class="tab" id="tabLogs" role="tab" aria-controls="panelLogs" aria-selected="false" data-i18n="tabLogs" data-i18n-title="tabLogsLocked" title="Enter your PIN to see the log">Logs</button>
+        <button class="tab" id="tabPrivacy" role="tab" aria-controls="panelPrivacy" aria-selected="false" data-i18n="tabPrivacy">Privacy</button>
         <button class="tab" id="tabAdvanced" role="tab" aria-controls="panelAdvanced" aria-selected="false" data-i18n="tabAdvanced">Advanced</button>
       </div>
 
@@ -184,6 +185,54 @@
 
       </section>
 
+      <section class="panel hidden" id="panelPrivacy" role="tabpanel" aria-labelledby="tabPrivacy">
+
+        <h2 data-i18n="optLockSection">Privacy</h2>
+        <div class="card">
+          <div class="row">
+            <label class="pill">
+              <input type="checkbox" id="lockEnabled" />
+              <span data-i18n="optLockEnable">Hide the list, the log and the numbers behind a PIN</span>
+            </label>
+          </div>
+          <div class="row mini" id="lockHonest"></div>
+          <div class="row hidden" id="lockSetupRow">
+            <input id="lockPin1" type="password" data-i18n-placeholder="optLockPinNew" placeholder="new PIN" />
+            <input id="lockPin2" type="password" data-i18n-placeholder="optLockPinRepeat" placeholder="repeat it" />
+            <button id="lockSave" data-i18n="optSavePin">Save PIN</button>
+          </div>
+          <div class="row hidden" id="lockUnlockRow">
+            <input id="lockPin" type="password" data-i18n-placeholder="pinPlaceholder" placeholder="PIN" />
+            <button id="lockUnlock" data-i18n="optLockUnlock">Unlock</button>
+          </div>
+          <div class="row mini" id="lockMsg"></div>
+          <div class="row hidden" id="unlockForRow">
+            <label class="mini" for="unlockPick" data-i18n="optUnlockFor">Stay unlocked for</label>
+            <select id="unlockPick" class="lang-select">
+              <option value="1" data-i18n="optUnlock1">1 minute</option>
+              <option value="2" data-i18n="optUnlock2">2 minutes</option>
+              <option value="3" data-i18n="optUnlock3">3 minutes</option>
+              <option value="5" data-i18n="optUnlock5">5 minutes</option>
+              <option value="10" data-i18n="optUnlock10">10 minutes</option>
+              <option value="session" data-i18n="optUnlockSession">until the browser closes</option>
+            </select>
+          </div>
+          <div class="row hidden" id="lockNowRow">
+            <button id="lockNowBtn" class="ghost" data-i18n="optLockHideNow">Hide the list now</button>
+          </div>
+          <div class="row hidden" id="lockForgotRow">
+            <button id="lockForgot" class="ghost" data-i18n="optLockForgot">Forgot the PIN?</button>
+          </div>
+          <div class="row hidden" id="lockRecoverRow">
+            <input id="lockRecovery" class="grow" type="text" placeholder="type lilbro" />
+            <button id="lockRecoverBtn" class="danger" data-i18n="optLockRecoverBtn">Remove the PIN and wipe my list</button>
+          </div>
+          <div class="row mini" id="lockRecoveryNote"></div>
+          <div class="row mini" data-i18n="optLockNote">You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site only shows a notification.</div>
+        </div>
+
+      </section>
+
       <section class="panel hidden" id="panelAdvanced" role="tabpanel" aria-labelledby="tabAdvanced">
 
         <h2 data-i18n="optLook">Look</h2>
@@ -209,39 +258,6 @@
               <option value="pl" data-i18n="langPl">Polski</option>
             </select>
           </div>
-        </div>
-
-        <h2 data-i18n="optLockSection">Your list behind a PIN</h2>
-        <div class="card">
-          <div class="row">
-            <label class="pill">
-              <input type="checkbox" id="lockEnabled" />
-              <span data-i18n="optLockEnable">Hide the list behind a PIN</span>
-            </label>
-          </div>
-          <div class="row mini" id="lockHonest"></div>
-          <div class="row hidden" id="lockSetupRow">
-            <input id="lockPin1" type="password" data-i18n-placeholder="optLockPinNew" placeholder="new PIN" />
-            <input id="lockPin2" type="password" data-i18n-placeholder="optLockPinRepeat" placeholder="repeat it" />
-            <button id="lockSave" data-i18n="optSavePin">Save PIN</button>
-          </div>
-          <div class="row hidden" id="lockUnlockRow">
-            <input id="lockPin" type="password" data-i18n-placeholder="pinPlaceholder" placeholder="PIN" />
-            <button id="lockUnlock" data-i18n="optLockUnlock">Unlock</button>
-          </div>
-          <div class="row mini" id="lockMsg"></div>
-          <div class="row hidden" id="lockNowRow">
-            <button id="lockNowBtn" class="ghost" data-i18n="optLockHideNow">Hide the list now</button>
-          </div>
-          <div class="row hidden" id="lockForgotRow">
-            <button id="lockForgot" class="ghost" data-i18n="optLockForgot">Forgot the PIN?</button>
-          </div>
-          <div class="row hidden" id="lockRecoverRow">
-            <input id="lockRecovery" class="grow" type="text" placeholder="type lilbro" />
-            <button id="lockRecoverBtn" class="danger" data-i18n="optLockRecoverBtn">Remove the PIN and wipe my list</button>
-          </div>
-          <div class="row mini" id="lockRecoveryNote"></div>
-          <div class="row mini" data-i18n="optLockNote">You need the PIN to turn this off as well. While it is on, the right-click menu that adds a site only shows a notification.</div>
         </div>
 
         <h2 class="lockable" data-i18n="optStayOnList">Staying on your list</h2>

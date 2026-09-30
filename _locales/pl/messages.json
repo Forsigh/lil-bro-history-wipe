@@ -114,10 +114,34 @@
     "message": "Zablokowane."
   },
   "optLockedBody": {
-    "message": "Lista jest ukryta, dopóki jej nie odblokujesz. Czyszczenie działa dalej, a liczby nadal widać."
+    "message": "Lista jest ukryta, dopóki jej nie odblokujesz w Prywatności. Czyszczenie działa dalej, po cichu."
   },
-  "lockNumbersNote": {
-    "message": "PIN włączony: liczby widać, nazwy nie."
+  "optUnlockFor": {
+    "message": "Zostaje odblokowane na"
+  },
+  "optUnlock1": {
+    "message": "minutę"
+  },
+  "optUnlock2": {
+    "message": "2 minuty"
+  },
+  "optUnlock3": {
+    "message": "3 minuty"
+  },
+  "optUnlock5": {
+    "message": "5 minut"
+  },
+  "optUnlock10": {
+    "message": "10 minut"
+  },
+  "optUnlockSession": {
+    "message": "do zamknięcia przeglądarki"
+  },
+  "resSilent": {
+    "message": "Zrobione. PIN ukrywa też liczby."
+  },
+  "quietHidden": {
+    "message": "Ukryte, dopóki PIN jest włączony."
   },
   "optWhenToWipe": {
     "message": "Kiedy ma czyścić?"
@@ -435,7 +459,7 @@
     "message": "ciasteczka tej strony, przy zamknięciu karty"
   },
   "lockPopupNote": {
-    "message": "Lista i log są schowane, dopóki PIN jest włączony. Odblokujesz je w ustawieniach."
+    "message": "Lista, log i liczby są schowane, dopóki PIN jest włączony. Odblokujesz je w ustawieniach."
   },
   "optStatusLine": {
     "message": ": wszystko, co dodasz, zostaje na tym komputerze."
@@ -468,7 +492,7 @@
     "message": "PIN usunięty. Nic nie jest już ukryte."
   },
   "lockOpen": {
-    "message": "Odblokowane na teraz. Po odświeżeniu strony lista znowu się ukryje."
+    "message": "Odblokowane. Po wybranym czasie samo się znowu zamknie."
   },
   "lockListHidden": {
     "message": "Lista jest ukryta, dopóki blokada jest włączona."
@@ -906,7 +930,7 @@
     "message": "Importuj"
   },
   "optLockEnable": {
-    "message": "Ukryj listę za PIN-em"
+    "message": "Ukryj listę, log i liczby za PIN-em"
   },
   "optLockPinNew": {
     "message": "nowy PIN"
@@ -1086,7 +1110,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Skanowanie w okienku działa teraz też przy włączonym PIN-ie. Policzy znaleziska, ale nazw nie pokaże. Każde uruchomienie zostawia też linijkę w logu, więc łatwo sprawdzić, co zrobiło."
+    "message": "PIN jest teraz całkiem cichy: gdy jest włączony, nawet liczby zostają ukryte. Po jednym odblokowaniu ustawienia zostają otwarte przez wybrany czas, od minuty do końca sesji przeglądarki. Jest też nowe czyszczenie starych wpisów: idzie po dacie i sięga to, czego zwykły skan nie widzi."
   },
   "whatsNewOk": {
     "message": "Rozumiem"
@@ -1095,7 +1119,7 @@
     "message": "($1 więcej)"
   },
   "optLockSection": {
-    "message": "Lista pod PIN-em"
+    "message": "Prywatność"
   },
   "rulesEmptyAdd": {
     "message": "Dodaj pierwszą"
@@ -1105,6 +1129,9 @@
   },
   "tabLogs": {
     "message": "Log"
+  },
+  "tabPrivacy": {
+    "message": "Prywatność"
   },
   "tabAdvanced": {
     "message": "Zaawansowane"

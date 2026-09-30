@@ -114,10 +114,34 @@
     "message": "Locked."
   },
   "optLockedBody": {
-    "message": "Your list stays hidden until you unlock it. Cleaning carries on, and the counts still come through."
+    "message": "Your list stays hidden until you unlock it in Privacy. Cleaning carries on quietly."
   },
-  "lockNumbersNote": {
-    "message": "PIN on: numbers only, names stay hidden."
+  "optUnlockFor": {
+    "message": "Stay unlocked for"
+  },
+  "optUnlock1": {
+    "message": "1 minute"
+  },
+  "optUnlock2": {
+    "message": "2 minutes"
+  },
+  "optUnlock3": {
+    "message": "3 minutes"
+  },
+  "optUnlock5": {
+    "message": "5 minutes"
+  },
+  "optUnlock10": {
+    "message": "10 minutes"
+  },
+  "optUnlockSession": {
+    "message": "until the browser closes"
+  },
+  "resSilent": {
+    "message": "Done. The PIN hides the numbers too."
+  },
+  "quietHidden": {
+    "message": "Hidden while the PIN is on."
   },
   "optWhenToWipe": {
     "message": "When should it clean?"
@@ -435,7 +459,7 @@
     "message": "cookies for this site, on tab close"
   },
   "lockPopupNote": {
-    "message": "The list and the log stay out of sight while the PIN is on. Unlock them in the settings."
+    "message": "The list, the log and the numbers stay out of sight while the PIN is on. Unlock them in the settings."
   },
   "optStatusLine": {
     "message": ": everything you add stays on this computer."
@@ -468,7 +492,7 @@
     "message": "PIN removed. Nothing is hidden any more."
   },
   "lockOpen": {
-    "message": "Unlocked for now. Reloading this page hides the list again."
+    "message": "Unlocked. It stays open for the set time and then locks itself again."
   },
   "lockListHidden": {
     "message": "Your list is hidden while the lock is on."
@@ -906,7 +930,7 @@
     "message": "Import"
   },
   "optLockEnable": {
-    "message": "Hide the list behind a PIN"
+    "message": "Hide the list, the log and the numbers behind a PIN"
   },
   "optLockPinNew": {
     "message": "new PIN"
@@ -1086,7 +1110,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "The Scan button in the popup works with the PIN on now. It counts what it finds and keeps the names off the screen. Every run also leaves a line in the log, so a scan is easy to check."
+    "message": "The PIN is fully silent now: while it is on, even the numbers stay hidden. Unlock once and the settings stay open for a set time, from a minute up to the whole browser session. And there is a new wipe that goes by age, reaching entries a normal scan cannot see."
   },
   "whatsNewOk": {
     "message": "Got it"
@@ -1095,7 +1119,7 @@
     "message": "($1 more)"
   },
   "optLockSection": {
-    "message": "Your list behind a PIN"
+    "message": "Privacy"
   },
   "rulesEmptyAdd": {
     "message": "Add the first one"
@@ -1105,6 +1129,9 @@
   },
   "tabLogs": {
     "message": "Logs"
+  },
+  "tabPrivacy": {
+    "message": "Privacy"
   },
   "tabAdvanced": {
     "message": "Advanced"

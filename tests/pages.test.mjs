@@ -388,15 +388,29 @@ if (!popupSrc.includes('lockPopupNote') || !popupSrc.includes("'lockCard'")) {
   console.log('  FAIL the popup no longer says why the list is missing');
   fail++;
 }
-// The settings scan follows the popup: with the PIN on it answers with counts and puts
-// no name on the page, and the button must not go dead — a greyed-out control is what
-// reads as broken.
+// The settings scan follows the popup: with the PIN on it answers with no numbers and
+// puts no name on the page, and the button must not go dead — a greyed-out control is
+// what reads as broken.
 if (
   optionsSrc.includes("$('previewBtn').disabled") ||
-  !optionsSrc.includes('lockNumbersNote') ||
-  !optionsSrc.includes('counts are fine and names are not')
+  !optionsSrc.includes('resSilent') ||
+  !optionsSrc.includes('Fully silent') ||
+  optionsSrc.includes('lockNumbersNote')
 ) {
-  console.log('  FAIL the settings scan does not stay count-only under the PIN');
+  console.log('  FAIL the settings scan does not stay quiet under the PIN');
+  fail++;
+}
+// The lock's room: a locked page lands on the Privacy tab, and the unlock pick offers
+// exactly the shipped window lengths.
+const optionsHtml = readFileSync(join(root, 'src/options.html'), 'utf8');
+if (!optionsHtml.includes('id="panelPrivacy"') || !optionsSrc.includes("showTab($('tabPrivacy'))")) {
+  console.log('  FAIL the privacy room is missing or a locked page does not open there');
+  fail++;
+}
+const pickBlock = optionsHtml.match(/id="unlockPick"[\s\S]*?<\/select>/);
+const pickValues = pickBlock ? [...pickBlock[0].matchAll(/value="([^"]+)"/g)].map((m) => m[1]) : [];
+if (JSON.stringify(pickValues) !== JSON.stringify(['1', '2', '3', '5', '10', 'session'])) {
+  console.log(`  FAIL the unlock pick offers ${pickValues.join(', ')} instead of 1, 2, 3, 5, 10, session`);
   fail++;
 }
 if (!lockSrc.includes('crypto.subtle') || !lockSrc.includes('PBKDF2')) {

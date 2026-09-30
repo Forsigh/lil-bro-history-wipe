@@ -88,9 +88,9 @@ function applyLock() {
   $('lockNote').textContent =
     t('lockPopupNote') || 'The list and the log stay out of sight while the PIN is on. Unlock them in the settings.';
   $('previewList').innerHTML = '';
-  // The scan keeps working while the PIN is on: it answers with counts, and the names
-  // never reach the screen (renderPreview sits behind the same check). Silence was the
-  // worse answer, because a button that does nothing reads as broken.
+  // The scan keeps working while the PIN is on, but it answers with one quiet line: with
+  // the numbers hidden too, nothing countable reaches the screen (renderPreview sits
+  // behind the same check).
   $('wipeMsg').textContent = '';
   $('siteVerdict').textContent = '';
 }
@@ -474,6 +474,12 @@ function runAction(type) {
     if (chrome.runtime.lastError) return setMsg(chrome.runtime.lastError.message, 'err');
     if (!res || !res.ok) return setMsg((res && res.error) || t('errRunFailed') || 'Run failed.', 'err');
 
+    if (isLocked()) {
+      // Fully silent: the PIN keeps the numbers out of sight too.
+      setMsg(t('resSilent') || 'Done. The PIN hides the numbers too.');
+      return;
+    }
+
     if (isPreview) {
       const text = res.matched
         ? res.wipeAll
@@ -509,7 +515,7 @@ function runAction(type) {
 }
 
 function renderPreview(sample) {
-  // While the PIN is on, counts are fine and names are not.
+  // While the PIN is on, nothing from the list goes into the page.
   if (isLocked()) return;
   const list = $('previewList');
   list.innerHTML = '';

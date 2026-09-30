@@ -35,6 +35,10 @@ export const DEFAULT_SETTINGS = {
   lockHash: '',
   lockSalt: '',
   lockIterations: 0,
+  // How long one unlock lasts: minutes as a string, or 'session' for until the browser
+  // closes. Stored like any other setting; the open window itself lives in
+  // chrome.storage.session, which the browser empties on close.
+  unlockMinutes: '3',
   // The clear presets: cache, download history, saved form text, cookies.
   extraCache: false,
   extraCookies: false,

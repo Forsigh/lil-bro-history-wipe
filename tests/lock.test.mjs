@@ -7,6 +7,9 @@ import {
   pinProblem,
   attemptState,
   checkRecovery,
+  unlockUntil,
+  unlockOpen,
+  UNLOCK_CHOICES,
   LOCK_MESSAGES,
   MIN_PIN_LENGTH,
   PIN_ITERATIONS,
@@ -158,6 +161,21 @@ check('the warning says what else is lost', () =>
   assert.ok(/(site|word on your list|switch|log)/.test(LOCK_MESSAGES.recoveryLead)));
 check('the warning says it cannot be undone', () =>
   assert.ok(LOCK_MESSAGES.recoveryLead.includes('None of it comes back')));
+
+console.log('the unlock window');
+check('the choices are the shipped six', () =>
+  assert.deepEqual(UNLOCK_CHOICES, ['1', '2', '3', '5', '10', 'session']));
+check('minutes become a stamp', () => assert.equal(unlockUntil('3', 1000), 1000 + 3 * 60000));
+check('ten minutes become a stamp', () => assert.equal(unlockUntil('10', 0), 600000));
+check('the session pick stays session', () => assert.equal(unlockUntil('session', 0), 'session'));
+check('junk falls back to three minutes', () => assert.equal(unlockUntil('wat', 0), 180000));
+check('a session mark is open', () => assert.equal(unlockOpen({ open: 'session' }, 999), true));
+check('a future stamp is open', () => assert.equal(unlockOpen({ open: 2000 }, 1500), true));
+check('a past stamp is closed', () => assert.equal(unlockOpen({ open: 2000 }, 2500), false));
+check('exactly now is closed', () => assert.equal(unlockOpen({ open: 2000 }, 2000), false));
+check('no mark is closed', () => assert.equal(unlockOpen(null, 1), false));
+check('junk is closed', () =>
+  assert.deepEqual([unlockOpen({ open: 'x' }, 1), unlockOpen({}, 1)], [false, false]));
 
 console.log(`\nlock: ${pass} passed, ${fail} failed`);
 process.exit(fail === 0 ? 0 : 1);

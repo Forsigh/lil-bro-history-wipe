@@ -37,6 +37,8 @@ import {
   pinProblem,
   attemptState,
   checkRecovery,
+  unlockUntil,
+  unlockOpen,
   LOCK_MESSAGES,
   MAX_ATTEMPTS,
   LOCKOUT_MS,
@@ -45,9 +47,70 @@ import {
 const $ = (id) => document.getElementById(id);
 
 let state = null;
-// The lock lasts as long as this page is open: a reload hides the list again.
+// An unlock lasts for the set window. A stamp in chrome.storage.session keeps the page
+// open across reloads, and the browser emptying that area on close is the "until I
+// close the browser" pick, exactly.
 let unlocked = false;
 let pinIntent = 'unlock';
+let relockTimer = null;
+
+async function readUnlockMark() {
+  if (!isLockConfigured(state && state.settings)) return false;
+  try {
+    const { unlockMark } = await chrome.storage.session.get('unlockMark');
+    return unlockOpen(unlockMark, Date.now());
+  } catch {
+    return false;
+  }
+}
+
+async function writeUnlockMark() {
+  const open = unlockUntil(state.settings.unlockMinutes, Date.now());
+  try {
+    await chrome.storage.session.set({ unlockMark: { open } });
+  } catch {
+    // No session area: the unlock still holds for this page.
+  }
+}
+
+async function clearUnlockMark() {
+  try {
+    await chrome.storage.session.remove('unlockMark');
+  } catch {
+    // Nothing stored, nothing to clear.
+  }
+}
+
+/**
+ * A page left open past the window locks itself. Nothing has to fire for the stamp to be
+ * honored (it is checked on every read); this is only so the screen agrees without
+ * waiting for a reload.
+ */
+async function armRelock() {
+  if (relockTimer) clearTimeout(relockTimer);
+  relockTimer = null;
+  try {
+    const { unlockMark } = await chrome.storage.session.get('unlockMark');
+    if (!unlockMark || unlockMark.open === 'session') return;
+    const left = Number(unlockMark.open) - Date.now();
+    if (left <= 0) return;
+    relockTimer = setTimeout(async () => {
+      unlocked = false;
+      await load();
+    }, left + 250);
+  } catch {
+    // Same as above: no session area, this page just keeps its state.
+  }
+}
+
+// Another tab closing the lock closes every open settings page with it.
+chrome.storage.session.onChanged.addListener(async (changes) => {
+  if (!('unlockMark' in changes)) return;
+  if (unlockOpen(changes.unlockMark.newValue, Date.now())) return;
+  if (!unlocked) return;
+  unlocked = false;
+  await load();
+});
 
 // Dates and times follow the language the page is showing, not the browser's, or a Polish
 // page prints "10:12 PM".
@@ -76,6 +139,7 @@ function setMsg(el, text, kind = '') {
 
 async function load() {
   state = await getState();
+  unlocked = await readUnlockMark();
   renderSettings();
   renderStats();
   renderExtras();
@@ -97,6 +161,7 @@ async function load() {
     'Lil Bro v' +
     chrome.runtime.getManifest().version +
     (t('optStatusLine') || ': everything you add stays on this computer.');
+  if (unlocked) await armRelock();
 }
 
 /** A PIN is set and this page has not been unlocked yet. */
@@ -114,22 +179,23 @@ function applyLock() {
   $('lockSetupRow').classList.toggle('hidden', !(wantsOn && !configured));
   $('lockUnlockRow').classList.toggle('hidden', !configured || unlocked);
   $('lockNowRow').classList.toggle('hidden', !configured || locked);
+  $('unlockForRow').classList.toggle('hidden', !configured || locked);
   $('lockHonest').textContent = LOCK_MESSAGES.honest;
-  // The scan keeps working while the PIN is on: it answers with counts, and the names
-  // never reach the page (renderPreview sits behind the same check). The tester answers
-  // with a rule name, so it stays shut, inputs included.
+  // The scan keeps working while the PIN is on, but it answers with one quiet line: with
+  // the numbers hidden too, nothing countable or nameable reaches the page. The tester
+  // answers with a rule name, so it stays shut, inputs included.
   $('lockForgotRow').classList.toggle('hidden', !locked);
   if (!locked) $('lockRecoverRow').classList.add('hidden');
   $('previewList').classList.toggle('hidden', locked);
   $('testUrl').disabled = locked;
   $('testTitle').disabled = locked;
   // The log names the sites it cleaned, so while the PIN is on it stays out of reach. The
-  // tab greys out but keeps answering: clicking it asks for the PIN right there. The
-  // card in Advanced stays as the second way in, and a locked page opens there.
+  // tab greys out but keeps answering: clicking it asks for the PIN right there. The card
+  // lives in the Privacy room, and a locked page opens there.
   $('tabLogs').classList.toggle('off', locked);
   $('tabLogs').setAttribute('aria-disabled', String(locked));
   $('tabLogs').title = locked ? t('tabLogsLocked') || 'Enter your PIN to see the log' : '';
-  if (locked) showTab($('tabAdvanced'));
+  if (locked) showTab($('tabPrivacy'));
 }
 
 function showUnlock(intent, message) {
@@ -160,6 +226,7 @@ function renderSettings() {
   // list into a keep list.
   $('pastWrap').classList.toggle('hidden', s.listMode === 'allow');
   $('lockEnabled').checked = !!s.lockEnabled;
+  $('unlockPick').value = s.unlockMinutes || '3';
   $('langPick').value = s.lang || 'auto';
   $('keepWarn').textContent = s.listMode === 'allow'
     ? t('optKeepWarn') || 'On: everything not on your list is being wiped. Cookies and cache are separate.'
@@ -194,10 +261,15 @@ function renderSettings() {
   // someone came with, once in the status card beside the counters.
   $('stateText').textContent = stateLine;
   $('glanceState').textContent = stateLine;
-  $('glanceRules').textContent =
-    (t('glanceOnYourList') || 'On your list') + ': ' + (state.rules || []).length;
+  // While the PIN is on, the glance keeps the state and drops the numbers.
+  const quiet = isLocked();
+  $('glanceRules').textContent = quiet
+    ? ''
+    : (t('glanceOnYourList') || 'On your list') + ': ' + (state.rules || []).length;
   const totalKept = (state.stats && state.stats.wipedTotal) || 0;
-  $('glanceTotal').textContent = t('glanceTotal', [totalKept.toLocaleString(currentLang())]);
+  $('glanceTotal').textContent = quiet
+    ? ''
+    : t('glanceTotal', [totalKept.toLocaleString(currentLang())]);
 }
 
 /** The extra clear: what is on, how far back it reaches, and when it runs. */
@@ -349,26 +421,32 @@ function renderRules() {
 
 function renderStats() {
   const st = state.stats;
-  $('statTotal').textContent = st.wipedTotal || 0;
-  $('statLastCount').textContent = st.lastRunCount || 0;
-  $('lastRun').textContent = st.lastRunAt
-    ? t('lastRunAt', [fmtWhen(st.lastRunAt), st.lastRunPhase || 'run']) ||
-      `Last run: ${fmtWhen(st.lastRunAt)} (${st.lastRunPhase || 'run'})`
-    : t('optLastRunNone') || 'No runs yet.';
+  // The PIN hides the numbers too: a locked page shows the state, nothing countable.
+  const quiet = isLocked();
+  $('statTotal').textContent = quiet ? '–' : st.wipedTotal || 0;
+  $('statLastCount').textContent = quiet ? '–' : st.lastRunCount || 0;
+  $('lastRun').textContent = quiet
+    ? t('quietHidden') || 'Hidden while the PIN is on.'
+    : st.lastRunAt
+      ? t('lastRunAt', [fmtWhen(st.lastRunAt), st.lastRunPhase || 'run']) ||
+        `Last run: ${fmtWhen(st.lastRunAt)} (${st.lastRunPhase || 'run'})`
+      : t('optLastRunNone') || 'No runs yet.';
 
   const last = $('glanceLast');
-  last.textContent = st.lastRunAt
-    ? (t('glanceLastRun') || 'Last clean') + ': ' + fmtShort(st.lastRunAt)
-    : '';
-  last.classList.toggle('hidden', !st.lastRunAt);
+  last.textContent =
+    !quiet && st.lastRunAt
+      ? (t('glanceLastRun') || 'Last clean') + ': ' + fmtShort(st.lastRunAt)
+      : '';
+  last.classList.toggle('hidden', quiet || !st.lastRunAt);
 
   const queued = (state.pending || []).length;
   const when =
     state.settings.mode === 'onclose'
       ? t('queueWhenClose') || 'when you close the browser'
       : t('queueWhenStart') || 'at your next start';
-  $('queueInfo').textContent =
-    state.settings.mode === 'realtime' ? '' : t('queueLine', [String(queued), when]) || `${queued} queued, wiped ${when}.`;
+  $('queueInfo').textContent = quiet
+    ? ''
+    : state.settings.mode === 'realtime' ? '' : t('queueLine', [String(queued), when]) || `${queued} queued, wiped ${when}.`;
 }
 
 /**
@@ -500,7 +578,7 @@ $('rulesEmptyAdd').addEventListener('click', () => {
   $('ruleValue').scrollIntoView({ block: 'center', behavior: 'smooth' });
 });
 
-// Three rooms with one door open at a time: the tab you pick decides which panel is on
+// Four rooms with one door open at a time: the tab you pick decides which panel is on
 // screen. Plain buttons carrying aria-selected, so the keyboard reaches them like any
 // other button and the state sits on the element rather than in a class name.
 function showTab(tab) {
@@ -657,8 +735,9 @@ $('lockEnabled').addEventListener('change', async () => {
   if (!wantsOn) {
     state.settings = mergeSettings({ ...state.settings, lockEnabled: false });
     await saveState({ settings: state.settings });
+    await clearUnlockMark();
     setMsg($('lockMsg'), '', 'mini');
-    applyLock();
+    await load();
     return;
   }
   applyLock(); // reveals the two PIN boxes
@@ -677,6 +756,7 @@ $('lockSave').addEventListener('click', async () => {
   $('lockPin2').value = '';
   // Saving a PIN hides the list straight away. Waiting for the next reload is how
   // a working lock looks broken.
+  await clearUnlockMark();
   unlocked = false;
   pinIntent = 'unlock';
   await load();
@@ -684,6 +764,7 @@ $('lockSave').addEventListener('click', async () => {
 });
 
 $('lockNowBtn').addEventListener('click', async () => {
+  await clearUnlockMark();
   unlocked = false;
   await load();
   setMsg($('lockMsg'), t('optLockHidden') || 'Hidden. The list comes back when you type the PIN.', 'ok');
@@ -723,6 +804,8 @@ $('lockUnlock').addEventListener('click', async () => {
   }
   unlocked = true;
   pinIntent = 'unlock';
+  if (wasRemove) await clearUnlockMark();
+  else await writeUnlockMark();
   await load();
   // Unlocking is somebody asking for the list, so the page goes back to where the list is.
   showTab($('tabCleaning'));
@@ -742,6 +825,7 @@ $('lockRecoverBtn').addEventListener('click', async () => {
     return;
   }
   await factoryReset();
+  await clearUnlockMark();
   unlocked = true;
   pinIntent = 'unlock';
   await load();
@@ -749,8 +833,15 @@ $('lockRecoverBtn').addEventListener('click', async () => {
   setMsg($('lockMsg'), LOCK_MESSAGES.recoveryDone, 'ok');
 });
 
+// How long one unlock lasts. It takes effect from the next unlock on; a window that is
+// already open keeps the length it was granted with.
+$('unlockPick').addEventListener('change', async () => {
+  state.settings.unlockMinutes = $('unlockPick').value;
+  await saveState({ settings: state.settings });
+});
+
 // The PIN box that opens from the locked Logs tab. Same gate and same lockout counter as
-// the card in Advanced, so a wrong guess costs the same wherever it is typed.
+// the card in Privacy, so a wrong guess costs the same wherever it is typed.
 function openLogPin() {
   $('logPinInput').value = '';
   setMsg($('logPinMsg'), '');
@@ -780,6 +871,7 @@ async function logPinTry() {
   }
   await writeAttempts(0, 0);
   unlocked = true;
+  await writeUnlockMark();
   await load();
   $('logPinDialog').close();
   showTab($('tabLogs'));
@@ -1027,10 +1119,15 @@ async function runAction(type) {
       return;
     }
 
-    // With the PIN on, the numbers still come through and no name does (renderPreview).
-    const lockNote = isLocked()
-      ? ' ' + (t('lockNumbersNote') || 'PIN on: numbers only, names stay hidden.')
-      : '';
+    if (isLocked()) {
+      // Fully silent: the PIN keeps the numbers off the screen too.
+      setMsg(
+        $('sweepMsg'),
+        t('resSilent') || 'Done. The PIN hides the numbers too.',
+        isPreview ? 'mini' : 'ok'
+      );
+      return;
+    }
 
     if (isPreview) {
       const summary = res.matched
@@ -1044,19 +1141,17 @@ async function runAction(type) {
               `Entries that would be wiped: ${res.matched} (scanned ${res.scanned}).`
         : t('resNothing', [res.scanned]) ||
           `Nothing would be wiped after scanning ${res.scanned} entries.`;
-      setMsg($('sweepMsg'), summary + lockNote, res.matched ? 'ok' : 'mini');
+      setMsg($('sweepMsg'), summary, res.matched ? 'ok' : 'mini');
     } else if (res.wipeAll) {
       setMsg(
         $('sweepMsg'),
-        (t('resErasedAll', [res.deleted]) || `Erased ${res.deleted} entries, the entire history.`) +
-          lockNote,
+        t('resErasedAll', [res.deleted]) || `Erased ${res.deleted} entries, the entire history.`,
         'ok'
       );
     } else {
       setMsg(
         $('sweepMsg'),
-        (t('resScannedWiped', [res.scanned, res.deleted]) || `Scanned ${res.scanned}, wiped ${res.deleted}.`) +
-          lockNote,
+        t('resScannedWiped', [res.scanned, res.deleted]) || `Scanned ${res.scanned}, wiped ${res.deleted}.`,
         res.deleted ? 'ok' : 'mini'
       );
     }
@@ -1081,7 +1176,7 @@ async function runAction(type) {
 }
 
 function renderPreview(sample) {
-  // While the PIN is on, counts are fine and names are not.
+  // While the PIN is on, nothing from the list goes into the page.
   if (isLocked()) return;
   const list = $('previewList');
   list.innerHTML = '';

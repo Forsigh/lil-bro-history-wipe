@@ -37,6 +37,7 @@ const SETTINGS_TYPES = {
   lockHash: 'string',
   lockSalt: 'string',
   lockIterations: 'number',
+  unlockMinutes: 'string',
   extraCache: 'boolean',
   extraCookies: 'boolean',
   extraDownloads: 'boolean',
