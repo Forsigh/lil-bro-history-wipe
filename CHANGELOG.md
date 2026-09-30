@@ -2,6 +2,14 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 2.0.4
+
+With the PIN on, the pages are fully silent now. The numbers were the last thing still talking: the totals, the strip along the top, and what a scan or a wipe answered all stayed visible while the names stayed hidden. A locked page now shows its state and nothing countable, a scan answers with one plain line, and unlocking brings everything back where it was.
+
+One unlock lasts a chosen stretch now, instead of asking again the moment you step out of the settings and back in. Pick between one and ten minutes, or until the browser closes. "Hide the list now" closes the window on the spot.
+
+The lock has its own Privacy tab now, because it guards more than the list. And under Old leftovers there is a new wipe that goes by age: one date, one pass, and everything before it is gone, down to the entries the browser keeps away from every other cleanup.
+
 ## 2.0.3
 
 The Scan button in the popup works with the PIN on now. It used to be switched off while the lock was on, so clicking it did nothing at all; now it runs and gives you the numbers, and only the names stay behind the PIN.
