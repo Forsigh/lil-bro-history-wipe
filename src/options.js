@@ -115,11 +115,11 @@ function applyLock() {
   $('lockUnlockRow').classList.toggle('hidden', !configured || unlocked);
   $('lockNowRow').classList.toggle('hidden', !configured || locked);
   $('lockHonest').textContent = LOCK_MESSAGES.honest;
-  // Preview prints the URLs it matched, so it stays shut while locked. The tester
-  // answers with a rule name, so it does the same, inputs included.
+  // The scan keeps working while the PIN is on: it answers with counts, and the names
+  // never reach the page (renderPreview sits behind the same check). The tester answers
+  // with a rule name, so it stays shut, inputs included.
   $('lockForgotRow').classList.toggle('hidden', !locked);
   if (!locked) $('lockRecoverRow').classList.add('hidden');
-  $('previewBtn').disabled = locked;
   $('previewList').classList.toggle('hidden', locked);
   $('testUrl').disabled = locked;
   $('testTitle').disabled = locked;
@@ -1027,32 +1027,36 @@ async function runAction(type) {
       return;
     }
 
+    // With the PIN on, the numbers still come through and no name does (renderPreview).
+    const lockNote = isLocked()
+      ? ' ' + (t('lockNumbersNote') || 'PIN on: numbers only, names stay hidden.')
+      : '';
+
     if (isPreview) {
-      setMsg(
-        $('sweepMsg'),
-        res.matched
-          ? res.wipeAll
-            ? t('resArmedAll', [res.scanned]) ||
-              `Wipe-all is armed: all ${res.scanned} entries would be erased.`
-            : state.settings.listMode === 'allow'
-              ? t('resKeepWould', [res.matched]) ||
-                `Entries not on your keep list that would be wiped: ${res.matched}.`
-              : t('resWould', [res.matched, res.scanned]) ||
-                `Entries that would be wiped: ${res.matched} (scanned ${res.scanned}).`
-          : t('resNothing', [res.scanned]) ||
-            `Nothing would be wiped after scanning ${res.scanned} entries.`,
-        res.matched ? 'ok' : 'mini'
-      );
+      const summary = res.matched
+        ? res.wipeAll
+          ? t('resArmedAll', [res.scanned]) ||
+            `Wipe-all is armed: all ${res.scanned} entries would be erased.`
+          : state.settings.listMode === 'allow'
+            ? t('resKeepWould', [res.matched]) ||
+              `Entries not on your keep list that would be wiped: ${res.matched}.`
+            : t('resWould', [res.matched, res.scanned]) ||
+              `Entries that would be wiped: ${res.matched} (scanned ${res.scanned}).`
+        : t('resNothing', [res.scanned]) ||
+          `Nothing would be wiped after scanning ${res.scanned} entries.`;
+      setMsg($('sweepMsg'), summary + lockNote, res.matched ? 'ok' : 'mini');
     } else if (res.wipeAll) {
       setMsg(
         $('sweepMsg'),
-        t('resErasedAll', [res.deleted]) || `Erased ${res.deleted} entries, the entire history.`,
+        (t('resErasedAll', [res.deleted]) || `Erased ${res.deleted} entries, the entire history.`) +
+          lockNote,
         'ok'
       );
     } else {
       setMsg(
         $('sweepMsg'),
-        t('resScannedWiped', [res.scanned, res.deleted]) || `Scanned ${res.scanned}, wiped ${res.deleted}.`,
+        (t('resScannedWiped', [res.scanned, res.deleted]) || `Scanned ${res.scanned}, wiped ${res.deleted}.`) +
+          lockNote,
         res.deleted ? 'ok' : 'mini'
       );
     }
@@ -1077,6 +1081,8 @@ async function runAction(type) {
 }
 
 function renderPreview(sample) {
+  // While the PIN is on, counts are fine and names are not.
+  if (isLocked()) return;
   const list = $('previewList');
   list.innerHTML = '';
   if (!sample.length) return;

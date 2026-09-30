@@ -384,8 +384,19 @@ if (popupSrc.includes('verifyPin(') || /type="password"/.test(popupHtmlEarly)) {
   console.log('  FAIL the popup asks for a PIN again — it is meant to hide the list and ask for nothing');
   fail++;
 }
-if (!popupSrc.includes('lockPopupNote') || !popupSrc.includes("'lockCard')")) {
+if (!popupSrc.includes('lockPopupNote') || !popupSrc.includes("'lockCard'")) {
   console.log('  FAIL the popup no longer says why the list is missing');
+  fail++;
+}
+// The settings scan follows the popup: with the PIN on it answers with counts and puts
+// no name on the page, and the button must not go dead — a greyed-out control is what
+// reads as broken.
+if (
+  optionsSrc.includes("$('previewBtn').disabled") ||
+  !optionsSrc.includes('lockNumbersNote') ||
+  !optionsSrc.includes('counts are fine and names are not')
+) {
+  console.log('  FAIL the settings scan does not stay count-only under the PIN');
   fail++;
 }
 if (!lockSrc.includes('crypto.subtle') || !lockSrc.includes('PBKDF2')) {

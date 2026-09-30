@@ -114,7 +114,10 @@
     "message": "Locked."
   },
   "optLockedBody": {
-    "message": "Your list stays hidden until you unlock it. Cleaning carries on."
+    "message": "Your list stays hidden until you unlock it. Cleaning carries on, and the counts still come through."
+  },
+  "lockNumbersNote": {
+    "message": "PIN on: numbers only, names stay hidden."
   },
   "optWhenToWipe": {
     "message": "When should it clean?"

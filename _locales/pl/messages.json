@@ -114,7 +114,10 @@
     "message": "Zablokowane."
   },
   "optLockedBody": {
-    "message": "Lista jest ukryta, dopóki jej nie odblokujesz. Czyszczenie działa dalej."
+    "message": "Lista jest ukryta, dopóki jej nie odblokujesz. Czyszczenie działa dalej, a liczby nadal widać."
+  },
+  "lockNumbersNote": {
+    "message": "PIN włączony: liczby widać, nazwy nie."
   },
   "optWhenToWipe": {
     "message": "Kiedy ma czyścić?"
