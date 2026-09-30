@@ -663,11 +663,13 @@ export function describeRule(rule) {
   if (!rule) return 'unknown rule';
   switch (rule.type) {
     case 'domain':
-      return rule.includeSubdomains ? `${rule.value} + subdomains` : rule.value;
+      return rule.includeSubdomains
+        ? `${rule.value} ${t('ruleTagSubdomains') || '+ subdomains'}`
+        : rule.value;
     case 'url':
       return rule.value;
     case 'keyword':
-      return `keyword "${rule.value}"`;
+      return t('ruleQuotedKeyword', [rule.value]) || `keyword "${rule.value}"`;
     case 'regex':
       return `/${rule.value}/`;
     default:

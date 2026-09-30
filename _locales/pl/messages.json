@@ -864,7 +864,7 @@
     "message": "Cache, cookies, tekst formularzy, historia pobrań i cała historia, przy każdym wyzwalaczu."
   },
   "optPresetCustomNote": {
-    "message": "Twój własny zestaw z tych czterech przełączników."
+    "message": "Twój własny zestaw z tych czterech przełączników, w zakładce Zaawansowane."
   },
   "optCookiesWarnOn": {
     "message": "Cookies są usuwane na każdej stronie poza listą poniżej, więc logowania wszędzie indziej się kończą."
@@ -1102,6 +1102,15 @@
   },
   "ruleRegex": {
     "message": "Wzór"
+  },
+  "ruleTagSubdomains": {
+    "message": "+ subdomeny"
+  },
+  "ruleTagWholeWords": {
+    "message": "całe słowa"
+  },
+  "ruleQuotedKeyword": {
+    "message": "słowo „$1”"
   },
   "wouldBeWiped": {
     "message": "Lista to łapie: $1, $2"

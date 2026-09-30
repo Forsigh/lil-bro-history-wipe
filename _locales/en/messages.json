@@ -864,7 +864,7 @@
     "message": "Cache, cookies, saved form text, download history and all of your history, at every trigger."
   },
   "optPresetCustomNote": {
-    "message": "Your own mix of the four switches."
+    "message": "Your own mix of the four switches, in the Advanced tab."
   },
   "optCookiesWarnOn": {
     "message": "Cookies are deleted for every site except the list below, so logins everywhere else end."
@@ -1102,6 +1102,15 @@
   },
   "ruleRegex": {
     "message": "Pattern"
+  },
+  "ruleTagSubdomains": {
+    "message": "+ subdomains"
+  },
+  "ruleTagWholeWords": {
+    "message": "whole words"
+  },
+  "ruleQuotedKeyword": {
+    "message": "keyword \"$1\""
   },
   "wouldBeWiped": {
     "message": "Your list catches this: $1 to $2"

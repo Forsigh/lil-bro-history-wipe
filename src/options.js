@@ -345,7 +345,7 @@ function renderPresets() {
     nuclear:
       t('optPresetNuclearNote') ||
       'Cache, cookies, saved form text, download history and all of your history, at every trigger.',
-    custom: t('optPresetCustomNote') || 'Your own mix of the four switches.',
+    custom: t('optPresetCustomNote') || 'Your own mix of the four switches, in the Advanced tab.',
   };
   setMsg($('presetNote'), notes[name] || '', name === 'nuclear' ? 'err' : 'mini');
 }
@@ -389,13 +389,13 @@ function renderRules() {
     if (rule.type === 'domain' && rule.includeSubdomains) {
       const tag = document.createElement('span');
       tag.className = 'tag on';
-      tag.textContent = '+ subdomains';
+      tag.textContent = t('ruleTagSubdomains') || '+ subdomains';
       tdValue.appendChild(tag);
     }
     if (rule.type === 'keyword' && rule.wholeWord) {
       const tag = document.createElement('span');
       tag.className = 'tag on';
-      tag.textContent = 'whole words';
+      tag.textContent = t('ruleTagWholeWords') || 'whole words';
       tdValue.appendChild(tag);
     }
     const removed = (state.stats && state.stats.byRule && state.stats.byRule[rule.id]) || 0;
