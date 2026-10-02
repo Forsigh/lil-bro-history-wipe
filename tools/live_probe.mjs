@@ -448,7 +448,7 @@ try {
     await new Promise(r=>setTimeout(r,600));
     document.getElementById('previewBtn').click();
     const t0=Date.now(); let txt='';
-    for(;;){ txt=document.getElementById('sweepMsg').textContent; if (txt.indexOf('Done.') === 0) break; if (Date.now()-t0>15000) break; await new Promise(r=>setTimeout(r,300)); }
+    for(;;){ txt=document.getElementById('sweepMsg').textContent; if (txt.indexOf('Done.') === 0 || txt.indexOf('Zrobione.') === 0) break; if (Date.now()-t0>15000) break; await new Promise(r=>setTimeout(r,300)); }
     return JSON.stringify({
       locked: document.body.classList.contains('locked'),
       stat: document.getElementById('statTotal').textContent,
@@ -458,7 +458,7 @@ try {
   const rl = JSON.parse(relocked);
   record('hide-now closes the window at once', rl.locked === true, relocked);
   record('a locked page shows a dash instead of a count', rl.stat === '–', `statTotal=${rl.stat}`);
-  record('a scan under the PIN answers without a number', rl.scan.includes('PIN') && !/[0-9]/.test(rl.scan), rl.scan);
+  record('a scan under the PIN says just Done', !/[0-9]/.test(rl.scan) && !rl.scan.includes('PIN') && /^(Done\.|Zrobione\.)/.test(rl.scan.trim()), rl.scan);
 
   await closePage(locked.id);
 
@@ -972,8 +972,8 @@ try {
     );
     if (lockedScan.msg && !/Looking for matches/i.test(lockedScan.msg)) break;
   }
-  record('the scan answers without a number while locked, naming nothing',
-    lockedScan.msg.includes('PIN') && !/[0-9]/.test(lockedScan.msg) && lockedScan.rows === 0,
+  record('the scan answers with just Done while locked, naming nothing',
+    !/[0-9]/.test(lockedScan.msg) && !lockedScan.msg.includes('PIN') && /^(Done\.|Zrobione\.)/.test(lockedScan.msg) && lockedScan.rows === 0,
     lockedScan.msg.slice(0, 90));
   // The verdict names what happens to this tab, so it says nothing while locked.
   record('popup says nothing about the tab while locked', lockView2.verdict === '', `"${lockView2.verdict}"`);
