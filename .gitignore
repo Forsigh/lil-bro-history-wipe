@@ -14,3 +14,4 @@ builds/.probe-*
 builds/.sheets-*
 /en/
 /pl/
+tools/__pycache__/
