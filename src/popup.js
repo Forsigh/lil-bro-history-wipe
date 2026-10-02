@@ -476,7 +476,7 @@ function runAction(type) {
 
     if (isLocked()) {
       // Fully silent: the PIN keeps the numbers out of sight too.
-      setMsg(t('resSilent') || 'Done. The PIN hides the numbers too.');
+      setMsg(t('resSilent') || 'Done.');
       return;
     }
 
@@ -492,11 +492,7 @@ function runAction(type) {
               `Entries that would be wiped: ${res.matched} (scanned ${res.scanned}).`
         : t('resNothing', [res.scanned]) ||
           `Nothing would be wiped after scanning ${res.scanned} entries.`;
-      // With the PIN on the scan still answers; only the names stay behind the lock.
-      const hint = isLocked()
-        ? ' ' + (t('lockPopupNote') || 'The list and the log stay out of sight while the PIN is on. Unlock them in the settings.')
-        : '';
-      setMsg(text + hint, res.matched ? 'ok' : 'mini');
+      setMsg(text, res.matched ? 'ok' : 'mini');
       renderPreview(res.sample || []);
       return;
     }

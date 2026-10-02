@@ -138,7 +138,7 @@
     "message": "do zamknięcia przeglądarki"
   },
   "resSilent": {
-    "message": "Zrobione. PIN ukrywa też liczby."
+    "message": "Zrobione."
   },
   "quietHidden": {
     "message": "Ukryte, dopóki PIN jest włączony."

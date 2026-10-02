@@ -457,7 +457,7 @@ function renderStats() {
   $('statTotal').textContent = quiet ? '–' : st.wipedTotal || 0;
   $('statLastCount').textContent = quiet ? '–' : st.lastRunCount || 0;
   $('lastRun').textContent = quiet
-    ? t('quietHidden') || 'Hidden while the PIN is on.'
+    ? '–'
     : st.lastRunAt
       ? t('lastRunAt', [fmtWhen(st.lastRunAt), st.lastRunPhase || 'run']) ||
         `Last run: ${fmtWhen(st.lastRunAt)} (${st.lastRunPhase || 'run'})`
@@ -1126,7 +1126,7 @@ $('oldBtn').addEventListener('click', async () => {
     }
     if (isLocked()) {
       // Fully silent: the PIN keeps the numbers off the screen too.
-      setMsg($('oldMsg'), t('resSilent') || 'Done. The PIN hides the numbers too.', 'ok');
+      setMsg($('oldMsg'), t('resSilent') || 'Done.', 'ok');
       load();
       return;
     }
@@ -1193,7 +1193,7 @@ async function runAction(type) {
       // Fully silent: the PIN keeps the numbers off the screen too.
       setMsg(
         $('sweepMsg'),
-        t('resSilent') || 'Done. The PIN hides the numbers too.',
+        t('resSilent') || 'Done.',
         isPreview ? 'mini' : 'ok'
       );
       return;

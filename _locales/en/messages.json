@@ -138,7 +138,7 @@
     "message": "until the browser closes"
   },
   "resSilent": {
-    "message": "Done. The PIN hides the numbers too."
+    "message": "Done."
   },
   "quietHidden": {
     "message": "Hidden while the PIN is on."
