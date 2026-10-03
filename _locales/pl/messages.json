@@ -1206,7 +1206,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Trzy nowe rodzaje danych można czyścić osobno, każdy ma przełącznik w Zaawansowanych: service workery, zapisane pliki stron i bazy danych stron. Usuwanie starej historii może też działać, gdy komputer jest bezczynny, a powiadomienia pytają przeglądarkę dopiero, gdy je włączysz."
+    "message": "Puste ekrany listy i dziennika mają teraz dyskretny znaczek. Zaznaczenia i przełączniki osiadają miękko zamiast przeskakiwać, a liczniki stoją równo, więc cyfry przestają drgać przy zmianach."
   },
   "whatsNewOk": {
     "message": "Rozumiem"

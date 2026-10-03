@@ -1206,7 +1206,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "Three more kinds can be cleaned on their own, each a switch in Advanced: service workers, saved site files and site databases. The old-history delete can also run when the computer sits idle, and the notifications switch asks the browser only when you turn it on."
+    "message": "The empty list and the empty log wear a quiet mark now. Ticks and switches settle instead of snapping, and the counters line up, so numbers stop wobbling as they change."
   },
   "whatsNewOk": {
     "message": "Got it"

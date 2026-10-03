@@ -525,7 +525,17 @@ try {
       await opts.evaluate(`JSON.stringify({
         state: document.getElementById('stateText').textContent.trim(),
         dot: document.getElementById('stateDot').className,
-        rules: document.getElementById('rulesBody').textContent.trim().length
+        rules: document.getElementById('rulesBody').textContent.trim().length,
+        emptyRules: (() => {
+          const el = document.getElementById('rulesEmpty');
+          const st = getComputedStyle(el, '::before');
+          return { vis: !el.classList.contains('hidden'), mask: String(st.webkitMaskImage || st.maskImage || ''), w: st.width };
+        })(),
+        emptyLog: (() => {
+          const el = document.getElementById('logEmpty');
+          const st = getComputedStyle(el, '::before');
+          return { vis: !el.classList.contains('hidden'), mask: String(st.webkitMaskImage || st.maskImage || ''), w: st.width };
+        })()
       })`)
     );
     await closePage(opts.id);
@@ -534,6 +544,12 @@ try {
       'both pages start on a profile with nothing in it',
       pop.status === 'Active' && page.state.startsWith('Active'),
       `popup "${pop.status}" + "${pop.message}", settings "${page.state}"`
+    );
+    record(
+      'the empty list and the empty log wear their marks',
+      page.emptyRules.vis && /list-add\.svg/.test(page.emptyRules.mask) && page.emptyRules.w === '20px' &&
+        page.emptyLog.vis && /history\.svg/.test(page.emptyLog.mask) && page.emptyLog.w === '20px',
+      `list "${page.emptyRules.mask}" ${page.emptyRules.w}, log "${page.emptyLog.mask}" ${page.emptyLog.w}`
     );
     record(
       'a fresh install gets no note about what changed, and no version line',

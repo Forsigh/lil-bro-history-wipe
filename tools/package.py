@@ -39,9 +39,12 @@ FILES = [
     "src/icons/icon48.png",
     "src/icons/icon128.png",
     "src/bmc.png",
+    "src/icons/ui/list-add.svg",
+    "src/icons/ui/history.svg",
+    "src/icons/ui/LICENSE.txt",
 ]
 
-TEXT_SUFFIXES = {".json", ".js", ".html", ".css", ".md"}
+TEXT_SUFFIXES = {".json", ".js", ".html", ".css", ".md", ".svg", ".txt"}
 
 
 def sha256(data: bytes) -> str:

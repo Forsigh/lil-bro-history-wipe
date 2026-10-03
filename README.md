@@ -67,3 +67,6 @@ Permissions: `history` (the only one that shows a warning), `storage`, `contextM
 when the matching switch is turned on: `tabs` (cookie-on-tab-close), `notifications` (the
 after-clean message), `idle` (cleaning old history while the computer sits unused). No host
 permissions, no content scripts.
+
+The two marks on the empty screens come from Material Symbols, and the license rides along in the
+package beside them.

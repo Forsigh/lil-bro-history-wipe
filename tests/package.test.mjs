@@ -79,6 +79,22 @@ check('every file the package imports is in the package', () => {
   if (missing.length) throw new Error(missing.join('; '));
 });
 
+// The stylesheet points at files of its own now (the empty-screen icons). A url() the
+// packager does not carry is a mark nobody sees on the store build, and nothing else
+// reads the css, so the check lives here.
+check('every file the stylesheet points at is in the package', () => {
+  const css = readFileSync('src/styles.css', 'utf8');
+  const have = new Set(list);
+  const missing = [];
+  for (const m of css.matchAll(/url\((['"]?)([^)'"]+)\1\)/g)) {
+    const target = m[2];
+    if (/^(data:|https?:|#|\/)/.test(target)) continue;
+    const resolved = `src/${target.replace(/^\.\//, '')}`;
+    if (!have.has(resolved)) missing.push(`${target} (${resolved})`);
+  }
+  if (missing.length) throw new Error(`stylesheet references ${missing.join(', ')}, which the file list does not carry`);
+});
+
 check('every listed file exists on disk', () => {
   const gone = list.filter((name) => !existsSync(name));
   if (gone.length) throw new Error(`listed but not on disk: ${gone.join(', ')}`);
@@ -118,7 +134,12 @@ check('the exempted builds are still exactly the ones that shipped without the m
 // A file that joined the package after the newest zip was built. The build that introduces
 // it is the next one, so the zip already shipped is not held to it, and the version that
 // carries it is named here so this cannot grow into a general "missing files are fine".
-const ADDED_IN = { 'src/bmc.png': '1.8.0' };
+const ADDED_IN = {
+  'src/bmc.png': '1.8.0',
+  'src/icons/ui/list-add.svg': '2.1.0',
+  'src/icons/ui/history.svg': '2.1.0',
+  'src/icons/ui/LICENSE.txt': '2.1.0',
+};
 
 const cmpVersion = (a, b) => {
   const [x, y, z] = a.split('.').map(Number);
@@ -128,7 +149,8 @@ const cmpVersion = (a, b) => {
 
 check('the files added after a build shipped are named one at a time', () => {
   const entries = Object.entries(ADDED_IN).map(([name, v]) => `${name}@${v}`);
-  if (entries.join(',') !== 'src/bmc.png@1.8.0') {
+  if (entries.join(',') !==
+    'src/bmc.png@1.8.0,src/icons/ui/list-add.svg@2.1.0,src/icons/ui/history.svg@2.1.0,src/icons/ui/LICENSE.txt@2.1.0') {
     throw new Error(`the added-file list changed: ${entries.join(', ')}`);
   }
 });
