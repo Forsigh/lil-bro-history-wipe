@@ -1215,7 +1215,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Puste ekrany listy i dziennika mają teraz dyskretny znaczek. Zaznaczenia i przełączniki osiadają miękko zamiast przeskakiwać, a liczniki stoją równo, więc cyfry przestają drgać przy zmianach."
+    "message": "Trzy nowe rodzaje danych można czyścić osobno, a każdy przełącznik sam się tłumaczy: mały znak zapytania w środku otwiera proste zdanie o tym, co usuwa. Czyszczenie może też działać, gdy komputer stoi bezczynnie, a puste ekrany dostały swój dyskretny znaczek."
   },
   "whatsNewOk": {
     "message": "Rozumiem"

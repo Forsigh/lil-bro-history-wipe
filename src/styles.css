@@ -750,16 +750,16 @@ button.ghost:hover {
   filter: none;
 }
 
-/* The question mark beside the three storage switches: the names are the only labels
-   on the page a person has to already know. It sits close to its own pill, quieter
-   than the pill, and turns accent while its line is open. */
-.qm {
+/* The question mark inside the three storage pills: their names are the only labels
+   on the page a person has to already know. It sits at the right end of its pill and
+   turns accent while its bubble is open. */
+.pill .qm {
   flex: none;
-  margin-left: -4px;
+  margin-left: auto;
   width: 18px;
   height: 18px;
   padding: 0;
-  border: 1px solid var(--line);
+  border: 1px solid var(--muted);
   border-radius: 50%;
   background: none;
   color: var(--muted);
@@ -771,7 +771,7 @@ button.ghost:hover {
   transition: color 0.16s var(--ease), border-color 0.16s var(--ease);
 }
 
-.qm:hover {
+.pill .qm:hover {
   color: var(--text);
   border-color: var(--muted);
   background: none;
@@ -780,13 +780,52 @@ button.ghost:hover {
   box-shadow: none;
 }
 
-.qm:active {
+.pill .qm:active {
   transform: none;
 }
 
-.qm[aria-expanded='true'] {
+.pill .qm[aria-expanded='true'] {
   color: var(--accent);
   border-color: var(--accent);
+}
+
+/* The bubble pops from under its own pill, one caret pointing back at the mark. */
+#extraHelp {
+  position: absolute;
+  top: 0;
+  left: 6px;
+  z-index: 30;
+  max-width: 320px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-in);
+  background: var(--card-2);
+  color: var(--text);
+  font-size: 12px;
+  line-height: 1.5;
+  box-shadow: 0 10px 26px -16px rgba(0, 0, 0, 0.55);
+  transform-origin: var(--caret, 12px) 0;
+  animation: bubble-in 0.18s var(--ease);
+}
+
+#extraHelp::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: var(--caret, 12px);
+  width: 10px;
+  height: 10px;
+  background: var(--card-2);
+  border-left: 1px solid var(--line);
+  border-top: 1px solid var(--line);
+  transform: rotate(45deg);
+}
+
+@keyframes bubble-in {
+  from {
+    opacity: 0;
+    transform: translateY(-3px) scale(0.97);
+  }
 }
 
 button.danger {

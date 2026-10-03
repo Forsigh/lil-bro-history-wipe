@@ -326,15 +326,12 @@
             </div>
           </div>
 
-          <div class="row" style="margin-top: 12px">
-            <label class="pill"><input type="checkbox" id="extraServiceWorkers" /> <span data-i18n="optExtraServiceWorkers">Service workers</span></label>
-            <button class="qm" data-help="extraServiceWorkers" aria-controls="extraHelp" aria-expanded="false">?</button>
-            <label class="pill"><input type="checkbox" id="extraCacheStorage" /> <span data-i18n="optExtraCacheStorage">Saved site files (cache storage)</span></label>
-            <button class="qm" data-help="extraCacheStorage" aria-controls="extraHelp" aria-expanded="false">?</button>
-            <label class="pill"><input type="checkbox" id="extraIndexedDB" /> <span data-i18n="optExtraIndexedDB">Site databases (IndexedDB)</span></label>
-            <button class="qm" data-help="extraIndexedDB" aria-controls="extraHelp" aria-expanded="false">?</button>
+          <div class="row" style="margin-top: 12px; position: relative">
+            <label class="pill"><input type="checkbox" id="extraServiceWorkers" /> <span data-i18n="optExtraServiceWorkers">Service workers</span><button class="qm" data-help="extraServiceWorkers" aria-controls="extraHelp" aria-expanded="false">?</button></label>
+            <label class="pill"><input type="checkbox" id="extraCacheStorage" /> <span data-i18n="optExtraCacheStorage">Saved site files (cache storage)</span><button class="qm" data-help="extraCacheStorage" aria-controls="extraHelp" aria-expanded="false">?</button></label>
+            <label class="pill"><input type="checkbox" id="extraIndexedDB" /> <span data-i18n="optExtraIndexedDB">Site databases (IndexedDB)</span><button class="qm" data-help="extraIndexedDB" aria-controls="extraHelp" aria-expanded="false">?</button></label>
+            <div class="mini hidden" id="extraHelp"></div>
           </div>
-          <div class="row mini hidden" id="extraHelp"></div>
           <div class="row mini" data-i18n="optExtraDeepNote">Off until you tick them, and the cookie switch above takes them along anyway. On their own they forget a site properly: a service worker or a site database can remember you without any cookie.</div>
 
           <div class="row" style="margin-top: 12px">

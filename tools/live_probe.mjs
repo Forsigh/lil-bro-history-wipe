@@ -2311,8 +2311,10 @@ try {
       const qm = (name) => document.querySelector('.qm[data-help="' + name + '"]');
       const first = qm('extraServiceWorkers');
       const second = qm('extraIndexedDB');
+      const sw = document.getElementById('extraServiceWorkers');
+      const swBefore = sw.checked;
       first.click();
-      const a = { vis: !helpBox.classList.contains('hidden'), text: helpBox.textContent.trim(), open: first.getAttribute('aria-expanded') };
+      const a = { vis: !helpBox.classList.contains('hidden'), text: helpBox.textContent.trim(), open: first.getAttribute('aria-expanded'), abs: getComputedStyle(helpBox).position, swBefore: swBefore, swAfter: sw.checked };
       second.click();
       const b = { vis: !helpBox.classList.contains('hidden'), text: helpBox.textContent.trim(), firstOpen: first.getAttribute('aria-expanded') };
       second.click();
@@ -2328,13 +2330,16 @@ try {
   record('the site-database switch saves on and off for real',
     deepView.on && !deepView.off, `on ${deepView.on} / off ${deepView.off}`);
   record('the deep note under them has words in it', deepView.note > 40, `${deepView.note} chars`);
-  record('a question mark beside a storage switch opens its line',
-    deepView.help.a.vis && deepView.help.a.text.length > 40 && deepView.help.a.open === 'true',
+  record('a question mark inside a switch opens its bubble',
+    deepView.help.a.vis && deepView.help.a.text.length > 40 && deepView.help.a.open === 'true' && deepView.help.a.abs === 'absolute',
     `"${deepView.help.a.text.slice(0, 56)}"`);
-  record('picking another question mark swaps the line',
+  record('the question mark leaves its own switch where it was',
+    deepView.help.a.swAfter === deepView.help.a.swBefore,
+    `checked ${deepView.help.a.swBefore} -> ${deepView.help.a.swAfter}`);
+  record('picking another question mark swaps the bubble',
     deepView.help.b.vis && deepView.help.b.text !== deepView.help.a.text && deepView.help.b.firstOpen === 'false',
     `${deepView.help.a.text.length} -> ${deepView.help.b.text.length} chars`);
-  record('picking the same one again puts the line away',
+  record('picking the same one again puts the bubble away',
     deepView.help.c.vis === false, `visible after the second click: ${deepView.help.c.vis}`);
   await closePage(deepPage.id);
 } catch (e) {

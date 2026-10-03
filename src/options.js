@@ -718,31 +718,54 @@ for (const [id, key] of [
   });
 }
 
-// The three storage switches carry a question mark, because their names are the only
-// words on this page a person has to already know. A click writes one plain line under
-// the row; the same click puts it away.
-const helpButtons = Array.from(document.querySelectorAll('.qm[data-help]'));
+// The three storage switches carry a question mark inside the pill, because their names
+// are the only words on this page a person has to already know. The click opens a small
+// bubble under that pill, pointed at the mark; another click, Escape, or a click anywhere
+// else puts it away.
+const helpButtons = Array.from(document.querySelectorAll('.pill .qm[data-help]'));
+const helpBox = $('extraHelp');
 const helpLine = (id) => {
   if (id === 'extraServiceWorkers') return t('helpServiceWorkers') || '';
   if (id === 'extraCacheStorage') return t('helpCacheStorage') || '';
   if (id === 'extraIndexedDB') return t('helpIndexedDB') || '';
   return '';
 };
+const closeHelp = () => {
+  helpBox.textContent = '';
+  helpBox.classList.add('hidden');
+  for (const btn of helpButtons) btn.setAttribute('aria-expanded', 'false');
+};
 for (const btn of helpButtons) {
-  btn.addEventListener('click', () => {
-    const box = $('extraHelp');
+  btn.addEventListener('click', (event) => {
+    // The mark sits inside a label: without this the click would read as a toggle.
+    event.preventDefault();
+    event.stopPropagation();
     const wasOpen = btn.getAttribute('aria-expanded') === 'true';
-    for (const other of helpButtons) other.setAttribute('aria-expanded', 'false');
-    if (wasOpen) {
-      box.textContent = '';
-      box.classList.add('hidden');
-    } else {
-      box.textContent = helpLine(btn.dataset.help);
-      box.classList.remove('hidden');
-      btn.setAttribute('aria-expanded', 'true');
-    }
+    closeHelp();
+    if (wasOpen) return;
+    helpBox.textContent = helpLine(btn.dataset.help);
+    helpBox.classList.remove('hidden');
+    const pill = btn.closest('.pill');
+    const markCenter = btn.offsetLeft + btn.offsetWidth / 2;
+    const top = pill.offsetTop + pill.offsetHeight + 8;
+    const left = Math.max(
+      6,
+      Math.min(markCenter - 26, helpBox.parentElement.clientWidth - helpBox.offsetWidth - 6)
+    );
+    helpBox.style.top = top + 'px';
+    helpBox.style.left = left + 'px';
+    helpBox.style.setProperty('--caret', Math.round(markCenter - left - 5) + 'px');
+    btn.setAttribute('aria-expanded', 'true');
   });
 }
+document.addEventListener('click', (event) => {
+  if (helpBox.classList.contains('hidden')) return;
+  if (event.target.closest('.qm') || event.target.closest('#extraHelp')) return;
+  closeHelp();
+});
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape') closeHelp();
+});
 
 $('extraSince').addEventListener('change', async () => {
   state.settings.extraSince = $('extraSince').value;
