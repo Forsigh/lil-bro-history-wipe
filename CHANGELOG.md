@@ -2,6 +2,18 @@
 
 Newest first. A short note per release, and only what you would notice using it.
 
+## 2.0.9
+
+Three more kinds can be cleared on their own: service workers, saved site files, and site
+databases. Each sits in Advanced with its own switch and stays off by default. The cookie switch
+still takes them along anyway.
+
+The old-history delete can also run while the computer sits idle: 15 minutes, half an hour, or an
+hour, in the same section. It asks the browser for the idle permission the moment you flip it on.
+
+The notification switch now asks for its permission only when you turn it on, so the install
+prompt stays as small as it was.
+
 ## 2.0.8
 
 Two lines on the settings page were saying too much. A cleanup that ran while the PIN was on used to sign off with "Done. The PIN hides the numbers too." Anyone glancing at the screen learned a PIN exists. It now just says "Done." And the "last run" line, which used to read "Hidden while the PIN is on.", now shows a plain dash like the two counters above it.
