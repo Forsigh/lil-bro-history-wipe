@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 2.0.8.
+different builds called themselves 1.3.0. The current code is numbered 2.0.9.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 2.0.9 | 3 Oct | `3e692fb` | `b12944b4b6989a69` | Three more kinds can be cleared on their own: service workers, saved site files, and site |
 | 2.0.8 | 2 Oct | `162a00b` | `aa08bdebd32aa5fd` | Two lines on the settings page were saying too much. A cleanup that ran while the PIN was on used to sign off with "Done. The PIN hides the numbers too." Anyone glancing at the scr |
 | 2.0.7 | 30 Sep | `2593b83` | `acd215a59bcf30c2` | Two small fixes on top of 2.0.6. The Polish interface stopped showing English pieces: a rule now reads "słowo „x”", and a site with subdomains shows "+ subdomeny", in the list, in  |
 | 2.0.6 | 30 Sep | `f75c65b` | `cfc22ab647c155b8` | The control that deletes history by age says what it does now. Pick a line, a week up to a year, and the exact date it means is right there under it: "everything before 30 August." |
