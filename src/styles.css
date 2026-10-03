@@ -750,6 +750,45 @@ button.ghost:hover {
   filter: none;
 }
 
+/* The question mark beside the three storage switches: the names are the only labels
+   on the page a person has to already know. It sits close to its own pill, quieter
+   than the pill, and turns accent while its line is open. */
+.qm {
+  flex: none;
+  margin-left: -4px;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  background: none;
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: none;
+  cursor: pointer;
+  transition: color 0.16s var(--ease), border-color 0.16s var(--ease);
+}
+
+.qm:hover {
+  color: var(--text);
+  border-color: var(--muted);
+  background: none;
+  filter: none;
+  transform: none;
+  box-shadow: none;
+}
+
+.qm:active {
+  transform: none;
+}
+
+.qm[aria-expanded='true'] {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
 button.danger {
   background: transparent;
   color: var(--danger);

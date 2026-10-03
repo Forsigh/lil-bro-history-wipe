@@ -314,6 +314,15 @@
   "optExtraDeepNote": {
     "message": "Off until you tick them, and the cookie switch above takes them along anyway. On their own they forget a site properly: a service worker or a site database can remember you without any cookie."
   },
+  "helpServiceWorkers": {
+    "message": "Little scripts a site leaves running so it opens faster or works offline. Clearing them just means the site sets them up again."
+  },
+  "helpCacheStorage": {
+    "message": "Files a site saved on your computer so it opens quicker, like pictures and whole pages. Clearing them frees the space, and the site downloads them again."
+  },
+  "helpIndexedDB": {
+    "message": "Where a site keeps its own larger data, such as drafts, saves and settings in web apps. Clearing it removes them, so the app starts over."
+  },
   "optReachBack": {
     "message": "Reach back"
   },

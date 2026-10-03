@@ -718,6 +718,32 @@ for (const [id, key] of [
   });
 }
 
+// The three storage switches carry a question mark, because their names are the only
+// words on this page a person has to already know. A click writes one plain line under
+// the row; the same click puts it away.
+const helpButtons = Array.from(document.querySelectorAll('.qm[data-help]'));
+const helpLine = (id) => {
+  if (id === 'extraServiceWorkers') return t('helpServiceWorkers') || '';
+  if (id === 'extraCacheStorage') return t('helpCacheStorage') || '';
+  if (id === 'extraIndexedDB') return t('helpIndexedDB') || '';
+  return '';
+};
+for (const btn of helpButtons) {
+  btn.addEventListener('click', () => {
+    const box = $('extraHelp');
+    const wasOpen = btn.getAttribute('aria-expanded') === 'true';
+    for (const other of helpButtons) other.setAttribute('aria-expanded', 'false');
+    if (wasOpen) {
+      box.textContent = '';
+      box.classList.add('hidden');
+    } else {
+      box.textContent = helpLine(btn.dataset.help);
+      box.classList.remove('hidden');
+      btn.setAttribute('aria-expanded', 'true');
+    }
+  });
+}
+
 $('extraSince').addEventListener('change', async () => {
   state.settings.extraSince = $('extraSince').value;
   await saveState({ settings: state.settings });

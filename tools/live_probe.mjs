@@ -2307,16 +2307,35 @@ try {
       box.dispatchEvent(new Event('change'));
       await new Promise((r) => setTimeout(r, 500));
       const off = await chrome.storage.local.get('settings');
+      const helpBox = document.getElementById('extraHelp');
+      const qm = (name) => document.querySelector('.qm[data-help="' + name + '"]');
+      const first = qm('extraServiceWorkers');
+      const second = qm('extraIndexedDB');
+      first.click();
+      const a = { vis: !helpBox.classList.contains('hidden'), text: helpBox.textContent.trim(), open: first.getAttribute('aria-expanded') };
+      second.click();
+      const b = { vis: !helpBox.classList.contains('hidden'), text: helpBox.textContent.trim(), firstOpen: first.getAttribute('aria-expanded') };
+      second.click();
+      const c = { vis: !helpBox.classList.contains('hidden') };
       return JSON.stringify({
         note: note ? note.textContent.trim().length : 0,
         on: !!(on.settings && on.settings.extraIndexedDB),
         off: !!(off.settings && off.settings.extraIndexedDB),
+        help: { a, b, c },
       });
     })()`)
   );
   record('the site-database switch saves on and off for real',
     deepView.on && !deepView.off, `on ${deepView.on} / off ${deepView.off}`);
   record('the deep note under them has words in it', deepView.note > 40, `${deepView.note} chars`);
+  record('a question mark beside a storage switch opens its line',
+    deepView.help.a.vis && deepView.help.a.text.length > 40 && deepView.help.a.open === 'true',
+    `"${deepView.help.a.text.slice(0, 56)}"`);
+  record('picking another question mark swaps the line',
+    deepView.help.b.vis && deepView.help.b.text !== deepView.help.a.text && deepView.help.b.firstOpen === 'false',
+    `${deepView.help.a.text.length} -> ${deepView.help.b.text.length} chars`);
+  record('picking the same one again puts the line away',
+    deepView.help.c.vis === false, `visible after the second click: ${deepView.help.c.vis}`);
   await closePage(deepPage.id);
 } catch (e) {
   record('probe ran to the end', false, String(e.message || e));

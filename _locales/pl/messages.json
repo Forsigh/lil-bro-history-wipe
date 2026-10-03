@@ -314,6 +314,15 @@
   "optExtraDeepNote": {
     "message": "Wyłączone, dopóki ich nie zaznaczysz, a przełącznik cookies powyżej i tak je zabiera. Same potrafią porządnie zapomnieć stronę: service worker albo baza strony pamięta cię bez żadnego cookies."
   },
+  "helpServiceWorkers": {
+    "message": "Małe skrypty, które strona zostawia w tle, żeby otwierać się szybciej albo działać offline. Wyczyszczenie oznacza tylko tyle, że strona ustawi je od nowa."
+  },
+  "helpCacheStorage": {
+    "message": "Pliki zapisane przez strony na twoim komputerze, żeby otwierały się szybciej, jak obrazki czy całe strony. Wyczyszczenie zwalnia miejsce, a strona pobierze je znowu."
+  },
+  "helpIndexedDB": {
+    "message": "Miejsce, w którym strona trzyma swoje większe dane, na przykład szkice, zapisy i ustawienia aplikacji internetowych. Wyczyszczenie usuwa je, więc aplikacja zaczyna od nowa."
+  },
   "extraServiceWorkers": {
     "message": "Service workery"
   },
