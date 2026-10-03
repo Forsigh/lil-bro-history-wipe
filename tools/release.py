@@ -25,6 +25,7 @@ zip the packager will not write, and a release the GitHub API does not confirm.
 import argparse
 import hashlib
 import json
+import os
 import pathlib
 import re
 import shutil
@@ -36,6 +37,10 @@ import zipfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DESKTOP = pathlib.Path.home() / "Desktop" / "lil-bro-store-images"
+
+# The shot sheets need Pillow, which the interpreter running this script may not carry.
+# Point LILBRO_SHEETS_PYTHON at a python that has it; the default is this interpreter.
+SHEETS_PY = os.environ.get("LILBRO_SHEETS_PYTHON") or sys.executable
 MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
 
 # Set once the version is known, so a failure can clean up after the run.
@@ -287,7 +292,7 @@ def main():
             sheet_dir = ROOT / f"builds/.sheets-{version}-{lang}"
             shutil.rmtree(sheet_dir, ignore_errors=True)
             sheet_dir.mkdir(parents=True)
-            done = run([sys.executable, "tools/make_shot_sheets.py",
+            done = run([SHEETS_PY, "tools/make_shot_sheets.py",
                         str(out).replace("\\", "/"), str(sheet_dir).replace("\\", "/")])
             if done.returncode:
                 print(done.stdout[-2000:], done.stderr[-1500:])
