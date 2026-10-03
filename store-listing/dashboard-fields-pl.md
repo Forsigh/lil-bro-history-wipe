@@ -49,6 +49,12 @@ Folder `graphics` jest podzielony tak samo jak panel: `all-languages`, `en`, `pl
 
 Puste. Nie ma filmu.
 
+## Co nowego w tej wersji (przy wgrywaniu)
+
+Przy wgrywaniu nowej wersji jest opcjonalne pole „Co nowego". Wklej akapit z sekcji
+`CO NOWEGO W TEJ WERSJI` w `dashboard-paste-pl.txt`. To ten sam tekst, który po aktualizacji
+raz pokazuje okienko rozszerzenia, więc karta i strona sklepu mówią to samo.
+
 ## Adresy
 
 - Strona główna: `https://forsigh.github.io/lil-bro-history-wipe/`

@@ -1810,6 +1810,110 @@ try {
     );
   }
 
+  // --- 12d. a profile that came from 2.0.8, the build before the extras -------------
+  // The update the store will push: settings as 2.0.8 wrote them, none of the switch
+  // keys added since, and the what-changed card last seen at 2.0.8. The user's values
+  // have to stay, the new switches have to arrive off, and the card has to show itself
+  // once and then keep quiet.
+  await resetStore();
+  await ev(`(async()=>{
+    await chrome.storage.local.set({
+      settings: {
+        enabled: true, mode: 'startup', sweepExistingOnStartup: false, notifyOnWipe: false,
+        logEnabled: true, logLimit: 500, logKeep: '30', oldAuto: true, oldDays: '90',
+        includeSubdomainsDefault: true, wipeAllHistory: false, listMode: 'allow',
+        lockEnabled: false, lockHash: '', lockSalt: '', lockIterations: 0, unlockMinutes: 'session',
+        extraCache: true, extraCookies: true, extraDownloads: false, extraFormData: true,
+        extraSince: 'month', extraTrigger: 'triggers', popupLayout: 'classic', advanced: true,
+        lang: 'en', preset: 'custom', cookieKeep: ['keepme.example'],
+        cookiesOnStart: true, cookiesOnTabClose: true, theme: 'slate'
+      },
+      stats: { wipedTotal: 777, lastRunAt: 1760000004000, lastRunCount: 5, lastRunPhase: 'startup' },
+      log: [{ url: 'https://old-fling.example/inbox', rule: 'old-fling.example', at: 1760000003000 }],
+      pending: [],
+      rules: [
+        { id: 'm1', type: 'domain', value: 'old-fling.example', includeSubdomains: true, enabled: true, createdAt: 1760000000000 },
+        { id: 'm2', type: 'keyword', value: 'gift ideas', wholeWord: true, enabled: true, createdAt: 1760000001000 }
+      ],
+      rulesMeta: { count: 2, at: 1760000002000 },
+      whatsNewSeen: '2.0.8'
+    });
+    return 'seeded';
+  })()`);
+  const older = await openPage(`chrome-extension://${id}/src/options.html`);
+  const after208 = JSON.parse(
+    await older.evaluate(`(async()=>{
+      await new Promise(r=>setTimeout(r,900));
+      const s = (await chrome.storage.local.get('settings')).settings;
+      return JSON.stringify({
+        theme: document.documentElement.dataset.theme,
+        mode: s.mode, oldAuto: s.oldAuto, oldDays: s.oldDays, logKeep: s.logKeep,
+        extraSince: s.extraSince, extraTrigger: s.extraTrigger, unlock: s.unlockMinutes,
+        extras: ['extraServiceWorkers','extraCacheStorage','extraIndexedDB'].map((i)=>document.getElementById(i).checked),
+        idleOn: document.getElementById('oldIdleOn').checked,
+        idleMin: document.getElementById('oldIdleMin').value,
+        kept: document.getElementById('cookieKeep').value.includes('keepme.example'),
+        rules: document.getElementById('rulesBody').children.length,
+      });
+    })()`)
+  );
+  record(
+    'a 2.0.8 profile keeps every choice it made',
+    after208.theme === 'slate' && after208.mode === 'startup' && after208.oldAuto === true &&
+      after208.oldDays === '90' && after208.logKeep === '30' && after208.extraSince === 'month' &&
+      after208.extraTrigger === 'triggers' && after208.unlock === 'session' && after208.kept === true,
+    `theme ${after208.theme}, mode ${after208.mode}, old line ${after208.oldDays}, log ${after208.logKeep}`
+  );
+  record(
+    'the switches added since then arrive off, extras and idle alike',
+    JSON.stringify(after208.extras) === '[false,false,false]' && after208.idleOn === false && after208.idleMin === '30',
+    `extras ${JSON.stringify(after208.extras)}, idle ${after208.idleOn} at ${after208.idleMin} min`
+  );
+  record(
+    'its two rules are on the page after the update',
+    after208.rules === 2,
+    `${after208.rules} rule row(s)`
+  );
+  await closePage(older.id);
+
+  const oldPop = await openPage(`chrome-extension://${id}/src/popup.html`);
+  const firstPop = JSON.parse(
+    await oldPop.evaluate(`(async()=>{
+      await new Promise(r=>setTimeout(r,700));
+      const card = document.getElementById('newInThisVersion');
+      return JSON.stringify({ shown: !card.classList.contains('hidden'), body: card.textContent.trim().length });
+    })()`)
+  );
+  record(
+    'the what-changed card shows itself after jumping several versions',
+    firstPop.shown === true && firstPop.body > 40,
+    `${firstPop.body} characters in the card`
+  );
+  await oldPop.evaluate("document.getElementById('whatsNewOk').click()");
+  await closePage(oldPop.id);
+
+  const popAgain = await openPage(`chrome-extension://${id}/src/popup.html`);
+  const secondPop = JSON.parse(
+    await popAgain.evaluate(`(async()=>{
+      await new Promise(r=>setTimeout(r,600));
+      return JSON.stringify({ shown: !document.getElementById('newInThisVersion').classList.contains('hidden') });
+    })()`)
+  );
+  record(
+    'and stays away on the next open, so it never nags',
+    secondPop.shown === false,
+    `card shown again: ${secondPop.shown}`
+  );
+  await closePage(popAgain.id);
+
+  // Park the old line back on its default: the checks below this point pick a fresh
+  // window and expect the date line to move when they do.
+  await ev(`(async()=>{
+    const cur = (await chrome.storage.local.get('settings')).settings || {};
+    await chrome.storage.local.set({ settings: { ...cur, oldDays: '30', oldAuto: false } });
+    return 'parked';
+  })()`);
+
   // --- 13. optional screenshots: the compact popup, the classic one, the options --
   // node tools/live_probe.mjs <port> <browser> <output-dir> [en|pl] [theme]
   const shotsDir = process.argv[4];

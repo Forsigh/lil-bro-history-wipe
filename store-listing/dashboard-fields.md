@@ -50,6 +50,13 @@ Polish slot, which the listing shows to a Polish visitor instead.
 
 Leave empty. There is no video.
 
+## What's new in this version (at upload)
+
+The upload flow carries an optional "What's new" box. Paste the paragraph under `WHAT'S NEW
+IN THIS VERSION` in `dashboard-paste-en.txt` (the Polish one from `dashboard-paste-pl.txt`).
+It is the same text the popup shows once after an update, so the card and the store page
+agree with each other.
+
 ## URLs
 
 - Homepage: `https://forsigh.github.io/lil-bro-history-wipe/`

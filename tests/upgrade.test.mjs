@@ -179,6 +179,112 @@ console.log('an installed 1.3.5 profile, read by this build');
   });
 }
 
+// 1b. A profile from 2.0.8, the last build before the three extras and the idle run.
+//     Every key 2.0.8 wrote, each at a value that is not the default, copied from its
+//     own store.js in builds/lil-bro-wipe-2.0.8.zip. This is the update the store will
+//     hand to people on 2.0.8.
+const SETTINGS_208 = {
+  enabled: true,
+  mode: 'startup',
+  sweepExistingOnStartup: false,
+  notifyOnWipe: false,
+  logEnabled: true,
+  logLimit: 500,
+  logKeep: '30',
+  oldAuto: true,
+  oldDays: '90',
+  includeSubdomainsDefault: true,
+  wipeAllHistory: false,
+  listMode: 'allow',
+  lockEnabled: true,
+  lockHash: 'd4e5f6a1b2c3',
+  lockSalt: '0c0d0e0f',
+  lockIterations: 120000,
+  unlockMinutes: 'session',
+  extraCache: true,
+  extraCookies: true,
+  extraDownloads: false,
+  extraFormData: true,
+  extraSince: 'month',
+  extraTrigger: 'triggers',
+  popupLayout: 'classic',
+  advanced: true,
+  lang: 'pl',
+  preset: 'custom',
+  cookieKeep: ['keepme.example', 'stay-logged-in.test'],
+  cookiesOnStart: true,
+  cookiesOnTabClose: true,
+  theme: 'neon',
+};
+
+const RULES_208 = [
+  { id: 'm1', type: 'domain', value: 'old-fling.example', includeSubdomains: true, enabled: true, createdAt: 1760000000000 },
+  { id: 'm2', type: 'keyword', value: 'gift ideas', wholeWord: true, enabled: true, createdAt: 1760000001000 },
+];
+
+function freshProfile208() {
+  const bags = { local: {}, sync: {}, session: {} };
+  bags.local.settings = structuredClone(SETTINGS_208);
+  bags.local.rules = structuredClone(RULES_208);
+  bags.local.rulesMeta = { count: 2, at: 1760000002000 };
+  bags.local.log = [
+    { url: 'https://old-fling.example/inbox', rule: 'old-fling.example', at: 1760000003000, kind: 'rule' },
+  ];
+  bags.local.stats = {
+    wipedTotal: 777,
+    lastRunAt: 1760000004000,
+    lastRunCount: 5,
+    lastRunPhase: 'startup',
+    byRule: { m1: 9, m2: 4 },
+  };
+  bags.local.pending = [];
+  globalThis.chrome = {
+    storage: { local: area(bags.local), sync: area(bags.sync), session: area(bags.session) },
+  };
+  return bags;
+}
+
+console.log('an installed 2.0.8 profile, read by this build');
+
+{
+  const bags = freshProfile208();
+  const state = await store.getState();
+  const lost = Object.keys(SETTINGS_208).filter(
+    (k) => JSON.stringify(state.settings[k]) !== JSON.stringify(SETTINGS_208[k])
+  );
+  check(`all ${Object.keys(SETTINGS_208).length} settings from 2.0.8 survive the update`, () => {
+    if (lost.length) throw new Error(`changed or lost: ${lost.join(', ')}`);
+  });
+  check('the switches added after 2.0.8 all start off', () => {
+    for (const k of ['extraServiceWorkers', 'extraCacheStorage', 'extraIndexedDB']) {
+      if (state.settings[k] !== false) throw new Error(`${k} is ${JSON.stringify(state.settings[k])}`);
+    }
+    if (state.settings.oldIdleOn !== false) {
+      throw new Error(`oldIdleOn is ${JSON.stringify(state.settings.oldIdleOn)}`);
+    }
+    if (state.settings.oldIdleMin !== '30') {
+      throw new Error(`oldIdleMin is ${JSON.stringify(state.settings.oldIdleMin)}`);
+    }
+  });
+  check('the PIN, the keep lists and the language survive untouched', () => {
+    if (state.settings.lockEnabled !== true || state.settings.lockHash !== SETTINGS_208.lockHash) {
+      throw new Error('the PIN moved');
+    }
+    if (state.settings.cookieKeep.length !== 2) throw new Error('the cookie keep list shrank');
+    if (state.settings.lang !== 'pl') throw new Error(`lang is ${JSON.stringify(state.settings.lang)}`);
+  });
+  check('its rules, its counts and its log are all still there', () => {
+    if (JSON.stringify(state.rules) !== JSON.stringify(RULES_208)) throw new Error('the rules changed');
+    if (state.stats.byRule.m1 !== 9 || state.stats.byRule.m2 !== 4) {
+      throw new Error('the per-rule counts changed');
+    }
+    if (state.log.length !== 1 || state.stats.wipedTotal !== 777) throw new Error('the log or the counters changed');
+  });
+  check('and nothing was written into the synced area on the way', () => {
+    if (Object.keys(bags.sync).length) throw new Error(`synced items: ${Object.keys(bags.sync).join(', ')}`);
+  });
+}
+
 // 2. Rules: a profile from a build that kept the list in the synced area. The list is
 //    adopted once, copied into local storage, and taken back out of the synced area,
 //    because leaving it there is what the privacy claims are about.

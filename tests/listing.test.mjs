@@ -33,7 +33,7 @@ const paste = read('store-listing/dashboard-paste-en.txt');
 const pastePl = read('store-listing/dashboard-paste-pl.txt');
 
 // --- the fields, split out of the paste document ------------------------------
-const HEADINGS = /^(?:PERMISSION: (\w+) \((\d+)\)|SINGLE PURPOSE \((\d+)\)|DESCRIPTION \((\d+)\)|TITLE \([^)]*\)|SUMMARY \([^)]*\)|CATEGORY|REMOTE CODE|DATA USAGE checkboxes|ADULT CONTENT|GOOGLE ANALYTICS \(GA4\)|PRIVACY POLICY URL|HELP URL|HOME PAGE \/ PRODUCT PAGE URL)$/gm;
+const HEADINGS = /^(?:PERMISSION: (\w+) \((\d+)\)|SINGLE PURPOSE \((\d+)\)|DESCRIPTION \((\d+)\)|TITLE \([^)]*\)|SUMMARY \([^)]*\)|CATEGORY|WHAT'S NEW IN THIS VERSION \([^)]*\)|REMOTE CODE|DATA USAGE checkboxes|ADULT CONTENT|GOOGLE ANALYTICS \(GA4\)|PRIVACY POLICY URL|HELP URL|HOME PAGE \/ PRODUCT PAGE URL)$/gm;
 const marks = [...paste.matchAll(HEADINGS)].map((m) => ({
   label: m[0],
   at: m.index,

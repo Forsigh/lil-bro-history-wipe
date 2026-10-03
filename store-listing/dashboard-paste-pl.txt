@@ -41,6 +41,13 @@ KATEGORIA
 Prywatność i bezpieczeństwo.
 
 
+CO NOWEGO W TEJ WERSJI (opcjonalne, pole przy wgrywaniu nowej wersji)
+---------------------------------------------------------------------
+Trzy nowe rodzaje danych można czyścić osobno, a każdy przełącznik sam się tłumaczy: mały znak zapytania w środku otwiera proste zdanie o tym, co usuwa. Czyszczenie może też działać, gdy komputer stoi bezczynnie, a puste ekrany dostały swój dyskretny znaczek.
+
+Ten sam tekst, który raz po aktualizacji pokazuje okienko rozszerzenia.
+
+
 ZASOBY GRAFICZNE (pliki, nie tekst)
 ---------------------------------------------------------------------
 Ikona sklepu 128x128:        graphics\icons\icon128.png
