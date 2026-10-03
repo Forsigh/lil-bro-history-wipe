@@ -164,6 +164,9 @@
   "optNotify": {
     "message": "Powiedz mi, kiedy skończy czyścić"
   },
+  "notifyPermDenied": {
+    "message": "Przeglądarka nie pozwoliła na powiadomienia, nic się nie zmieniło."
+  },
   "optKeepLog": {
     "message": "Zapisuj, co zostało wyczyszczone"
   },
@@ -298,6 +301,27 @@
   },
   "optExtraFormData": {
     "message": "Tekst wpisany w formularzach"
+  },
+  "optExtraServiceWorkers": {
+    "message": "Service workery"
+  },
+  "optExtraCacheStorage": {
+    "message": "Zapisane pliki stron (cache storage)"
+  },
+  "optExtraIndexedDB": {
+    "message": "Bazy danych stron (IndexedDB)"
+  },
+  "optExtraDeepNote": {
+    "message": "Wyłączone, dopóki ich nie zaznaczysz, a przełącznik cookies powyżej i tak je zabiera. Same potrafią porządnie zapomnieć stronę: service worker albo baza strony pamięta cię bez żadnego cookies."
+  },
+  "extraServiceWorkers": {
+    "message": "Service workery"
+  },
+  "extraCacheStorage": {
+    "message": "Cache storage"
+  },
+  "extraIndexedDB": {
+    "message": "IndexedDB"
   },
   "optReachBack": {
     "message": "Jak daleko wstecz"
@@ -821,6 +845,21 @@
   "optOldAuto": {
     "message": "Rób to automatycznie przy każdym starcie przeglądarki"
   },
+  "optOldIdle": {
+    "message": "Także gdy komputer jest bezczynny przez"
+  },
+  "optIdle15": {
+    "message": "15 minut"
+  },
+  "optIdle30": {
+    "message": "30 minut"
+  },
+  "optIdle60": {
+    "message": "godzinę"
+  },
+  "optIdleDenied": {
+    "message": "Przeglądarka nie pozwoliła sprawdzać bezczynności, to zostaje wyłączone."
+  },
   "optOldLine": {
     "message": "Teraz oznacza to wszystko przed $1."
   },
@@ -864,7 +903,7 @@
     "message": "Cache, cookies, tekst formularzy, historia pobrań i cała historia, przy każdym wyzwalaczu."
   },
   "optPresetCustomNote": {
-    "message": "Twój własny zestaw z tych czterech przełączników, w zakładce Zaawansowane."
+    "message": "Twój własny zestaw przełączników, w zakładce Zaawansowane."
   },
   "optCookiesWarnOn": {
     "message": "Cookies są usuwane na każdej stronie poza listą poniżej, więc logowania wszędzie indziej się kończą."
@@ -1082,6 +1121,15 @@
   "lastRunAt": {
     "message": "Ostatnie czyszczenie: $1 ($2)"
   },
+  "phaseStartup": {
+    "message": "przy starcie"
+  },
+  "phaseManual": {
+    "message": "ręcznie"
+  },
+  "phaseIdle": {
+    "message": "bezczynność"
+  },
   "queueLine": {
     "message": "w kolejce: $1, wyczyszczone: $2"
   },
@@ -1158,7 +1206,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Czyszczenie starej historii jest teraz proste: wybierasz granicę, widzisz dokładną datę, a wszystko starsze znika. Może też robić to samo przy każdym starcie przeglądarki."
+    "message": "Trzy nowe rodzaje danych można czyścić osobno, każdy ma przełącznik w Zaawansowanych: service workery, zapisane pliki stron i bazy danych stron. Usuwanie starej historii może też działać, gdy komputer jest bezczynny, a powiadomienia pytają przeglądarkę dopiero, gdy je włączysz."
   },
   "whatsNewOk": {
     "message": "Rozumiem"

@@ -66,8 +66,9 @@ transmitted. The user can export the rules or clear the log at any time.
 
 PERMISSION: notifications (1000)
 ---------------------------------------------------------------------
-Shows one optional desktop notification after a clean, saying how many entries were removed.
-The user can switch it off in the extension's settings; with it off, no notification is shown.
+Optional, and only asked for when the user switches on the after-clean message. Shows one
+desktop notification after a clean, saying how many entries were removed. With the switch off no
+notification is shown, and the permission is never requested at install.
 
 
 PERMISSION: contextMenus (1000)
@@ -84,9 +85,9 @@ the current tab so it can offer to clean that site or that page. No page content
 
 PERMISSION: browsingData (1000)
 ---------------------------------------------------------------------
-Required to clear cache, download records, site storage and saved form text for the domains and
-keywords the user chose. These switches are off by default and only run for the list the user
-set up, at the times they picked.
+Required to clear cache, download records, saved form text and site storage (service workers,
+cache storage, IndexedDB) for the domains and keywords the user chose. Every one of these
+switches is off by default and only runs for the list the user set up, at the times they picked.
 
 
 PERMISSION: cookies (1000)
@@ -102,6 +103,14 @@ Optional, and only asked for when the user turns on clearing a site's cookies as
 closes. That feature needs the address of the tab being closed, which the extension keeps in
 session storage, in memory, until the tab is gone. The permission is not requested for any
 other feature, and is not requested at install.
+
+
+PERMISSION: idle (1000)
+---------------------------------------------------------------------
+Optional, and only asked for when the user switches on cleaning old history while the computer
+sits unused. The browser tells the extension when the machine has gone idle, so the chosen
+old-history window can be cleaned at that moment. With the switch off, the permission is never
+requested.
 
 
 REMOTE CODE

@@ -125,7 +125,6 @@ console.log(`  rule types: ui [${uiTypes.join(', ')}] vs engine [${engineTypes.j
 const EXPECTED_PERMISSIONS = [
   'history',
   'storage',
-  'notifications',
   'contextMenus',
   'activeTab',
   'browsingData',
@@ -150,6 +149,20 @@ if (!(manifest.optional_permissions || []).includes('tabs')) {
 }
 if (manifest.permissions.includes('tabs')) {
   console.log('  FAIL tabs must not be a required permission');
+  fail++;
+}
+// Same rail for the two runtime grants added later: the install prompt must not
+// grow because of them, and without the grant the feature stays off.
+if (!(manifest.optional_permissions || []).includes('notifications')) {
+  console.log('  FAIL notifications should be an optional permission, asked for when that switch is turned on');
+  fail++;
+}
+if (!(manifest.optional_permissions || []).includes('idle')) {
+  console.log('  FAIL idle should be an optional permission, requested only for the idle-time cleaning');
+  fail++;
+}
+if (manifest.permissions.includes('notifications') || manifest.permissions.includes('idle')) {
+  console.log('  FAIL notifications and idle must not be required permissions');
   fail++;
 }
 const workerSrc = readFileSync(join(root, 'src/service-worker.js'), 'utf8');
@@ -182,11 +195,18 @@ if (wipeOldStart === -1 || rangeCount !== 2 || !wipeOldBody.includes('chrome.his
   console.log(`  FAIL chrome.history.deleteRange appears ${rangeCount} time(s) — it must live only inside wipeOld()`);
   fail++;
 }
-// Two awaited callers by design (the settings message and the startup run); a third
-// would mean another destructive path grew without a gate.
+// Three awaited callers by design (the settings message, the startup run and the
+// idle run); a fourth would mean another destructive path grew without a gate.
 const oldLeftoverCalls = (workerCode.match(/await wipeOld\(/g) || []).length;
-if (oldLeftoverCalls !== 2) {
-  console.log(`  FAIL wipeOld() is awaited ${oldLeftoverCalls} times — expected the settings message and the startup run`);
+if (oldLeftoverCalls !== 3) {
+  console.log(`  FAIL wipeOld() is awaited ${oldLeftoverCalls} times — expected the settings message, the startup run and the idle run`);
+  fail++;
+}
+const idleStart = workerSrc.indexOf('async function runIdleOnce');
+const idleEnd = workerSrc.indexOf('async function', idleStart + 10);
+const idleBody = idleStart === -1 ? '' : workerSrc.slice(idleStart, idleEnd === -1 ? undefined : idleEnd);
+if (idleStart === -1 || !idleBody.includes('await wipeOld(')) {
+  console.log('  FAIL the idle run no longer goes through wipeOld()');
   fail++;
 }
 const browsingDataCalls = (workerCode.match(/chrome\.browsingData\.remove\(/g) || []).length;
@@ -280,7 +300,15 @@ console.log(
 
 // The extra clear is opt-in. A default that ships switched on would clear cookies
 // for someone who never asked, which is the one thing this build must not do.
-for (const key of ['extraCache', 'extraCookies', 'extraDownloads', 'extraFormData']) {
+for (const key of [
+  'extraCache',
+  'extraCookies',
+  'extraDownloads',
+  'extraFormData',
+  'extraServiceWorkers',
+  'extraCacheStorage',
+  'extraIndexedDB',
+]) {
   if (!new RegExp(`${key}: false`).test(storeSrc)) {
     console.log(`  FAIL ${key} does not default to false`);
     fail++;
@@ -294,7 +322,42 @@ if (!storeSrc.includes('extraSinceMs')) {
   console.log('  FAIL store.js lost extraSinceMs — the reach of a clear would be unbounded');
   fail++;
 }
-console.log('  extra clear: four kinds off by default, manual trigger, one funnel, no passwords');
+// The idle run is opt-in: off in a fresh install, and the worker asks the browser
+// for both runtime grants before it uses them. A refusal reads as silence, never
+// as a broken switch or a thrown error.
+if (!/oldIdleOn: false/.test(storeSrc)) {
+  console.log('  FAIL oldIdleOn does not default to false — the idle run could arm itself unasked');
+  fail++;
+}
+if (!/oldIdleMin: '30'/.test(storeSrc)) {
+  console.log("  FAIL oldIdleMin no longer defaults to '30'");
+  fail++;
+}
+if (!workerSrc.includes('chrome.idle.onStateChanged')) {
+  console.log('  FAIL service-worker.js no longer listens for the idle signal');
+  fail++;
+}
+if (!workerSrc.includes('chrome.idle.setDetectionInterval')) {
+  console.log('  FAIL the idle window is never handed to the browser');
+  fail++;
+}
+if (!workerSrc.includes("permissions.contains({ permissions: ['notifications'] })")) {
+  console.log('  FAIL the worker no longer checks the notifications grant before raising one');
+  fail++;
+}
+if (!workerSrc.includes("permissions.contains({ permissions: ['idle'] })")) {
+  console.log('  FAIL the worker no longer checks the idle grant before arming');
+  fail++;
+}
+if (!readFileSync(join(root, 'src/options.js'), 'utf8').includes("permissions.request({ permissions: ['notifications'] })")) {
+  console.log('  FAIL the notifications switch never asks for its permission');
+  fail++;
+}
+if (!readFileSync(join(root, 'src/options.js'), 'utf8').includes("permissions.request({ permissions: ['idle'] })")) {
+  console.log('  FAIL the idle switch never asks for its permission');
+  fail++;
+}
+console.log('  extra clear: seven kinds offered, all off by default, manual trigger, one funnel, no passwords');
 
 // The two switches that reach backwards come switched on in a fresh install, and stay
 // that way: an install that has to go find them first has already kept the visits it

@@ -23,6 +23,7 @@ import {
   trimLog,
   LOG_KEEP_CHOICES,
   OLD_AGE_CHOICES,
+  OLD_IDLE_CHOICES,
   ageCutoff,
   ageDate,
 } from './store.js';
@@ -257,6 +258,8 @@ function renderSettings() {
   $('logKeepPick').value = LOG_KEEP_CHOICES.includes(String(s.logKeep)) ? String(s.logKeep) : 'forever';
   $('oldPick').value = OLD_AGE_CHOICES.map(String).includes(String(s.oldDays)) ? String(s.oldDays) : '30';
   $('oldAuto').checked = !!s.oldAuto;
+  $('oldIdleOn').checked = !!s.oldIdleOn;
+  $('oldIdleMin').value = OLD_IDLE_CHOICES.map(String).includes(String(s.oldIdleMin)) ? String(s.oldIdleMin) : '30';
   renderOldLine();
   $('langPick').value = s.lang || 'auto';
   $('keepWarn').textContent = s.listMode === 'allow'
@@ -310,6 +313,9 @@ function renderExtras() {
   $('extraCookies').checked = !!s.extraCookies;
   $('extraDownloads').checked = !!s.extraDownloads;
   $('extraFormData').checked = !!s.extraFormData;
+  $('extraServiceWorkers').checked = !!s.extraServiceWorkers;
+  $('extraCacheStorage').checked = !!s.extraCacheStorage;
+  $('extraIndexedDB').checked = !!s.extraIndexedDB;
   $('extraSince').value = s.extraSince;
   $('extraTrigger').value = s.extraTrigger;
   $('extraNowBtn').disabled = !extraOn(s);
@@ -345,7 +351,7 @@ function renderPresets() {
     nuclear:
       t('optPresetNuclearNote') ||
       'Cache, cookies, saved form text, download history and all of your history, at every trigger.',
-    custom: t('optPresetCustomNote') || 'Your own mix of the four switches, in the Advanced tab.',
+    custom: t('optPresetCustomNote') || 'Your own mix of the switches, in the Advanced tab.',
   };
   setMsg($('presetNote'), notes[name] || '', name === 'nuclear' ? 'err' : 'mini');
 }
@@ -452,6 +458,12 @@ function renderRules() {
 
 function renderStats() {
   const st = state.stats;
+  // The phase word the last-run line shows, in the reader's language.
+  const phaseText = (phase) =>
+    ({ startup: 'phaseStartup', manual: 'phaseManual', idle: 'phaseIdle' }[phase] &&
+      t({ startup: 'phaseStartup', manual: 'phaseManual', idle: 'phaseIdle' }[phase])) ||
+    phase ||
+    'run';
   // The PIN hides the numbers too: a locked page shows the state, nothing countable.
   const quiet = isLocked();
   $('statTotal').textContent = quiet ? '–' : st.wipedTotal || 0;
@@ -459,8 +471,8 @@ function renderStats() {
   $('lastRun').textContent = quiet
     ? '–'
     : st.lastRunAt
-      ? t('lastRunAt', [fmtWhen(st.lastRunAt), st.lastRunPhase || 'run']) ||
-        `Last run: ${fmtWhen(st.lastRunAt)} (${st.lastRunPhase || 'run'})`
+      ? t('lastRunAt', [fmtWhen(st.lastRunAt), phaseText(st.lastRunPhase)]) ||
+        `Last run: ${fmtWhen(st.lastRunAt)} (${phaseText(st.lastRunPhase)})`
       : t('optLastRunNone') || 'No runs yet.';
 
   const last = $('glanceLast');
@@ -595,7 +607,24 @@ $('sweep').addEventListener('change', async () => {
   await saveState({ settings: state.settings });
 });
 $('notify').addEventListener('change', async () => {
-  state.settings.notifyOnWipe = $('notify').checked;
+  const want = $('notify').checked;
+  if (want) {
+    // The notifications permission is asked for here, on a real click, and only for
+    // people who want the messages. Without the grant nothing changes.
+    let granted = false;
+    try {
+      granted = await chrome.permissions.request({ permissions: ['notifications'] });
+    } catch {
+      granted = false;
+    }
+    if (!granted) {
+      $('notify').checked = false;
+      setMsg($('notifyMsg'), t('notifyPermDenied') || 'The browser did not allow notifications, so nothing changed.', 'warn');
+      return;
+    }
+  }
+  setMsg($('notifyMsg'), '');
+  state.settings.notifyOnWipe = want;
   await saveState({ settings: state.settings });
 });
 $('logEnabled').addEventListener('change', async () => {
@@ -662,6 +691,9 @@ for (const [id, key] of [
   ['extraCookies', 'extraCookies'],
   ['extraDownloads', 'extraDownloads'],
   ['extraFormData', 'extraFormData'],
+  ['extraServiceWorkers', 'extraServiceWorkers'],
+  ['extraCacheStorage', 'extraCacheStorage'],
+  ['extraIndexedDB', 'extraIndexedDB'],
 ]) {
   $(id).addEventListener('change', async () => {
     const wantsOn = $(id).checked;
@@ -1098,6 +1130,33 @@ $('oldPick').addEventListener('change', async () => {
 
 $('oldAuto').addEventListener('change', async () => {
   state.settings.oldAuto = $('oldAuto').checked;
+  await saveState({ settings: state.settings });
+});
+
+$('oldIdleOn').addEventListener('change', async () => {
+  const want = $('oldIdleOn').checked;
+  if (want) {
+    // Same deal as the notifications: the browser is asked on this click, and only
+    // for people who want the idle run. No grant, no change.
+    let granted = false;
+    try {
+      granted = await chrome.permissions.request({ permissions: ['idle'] });
+    } catch {
+      granted = false;
+    }
+    if (!granted) {
+      $('oldIdleOn').checked = false;
+      setMsg($('oldIdleMsg'), t('optIdleDenied') || 'The browser did not allow the idle check, so this stays off.', 'warn');
+      return;
+    }
+  }
+  setMsg($('oldIdleMsg'), '');
+  state.settings.oldIdleOn = want;
+  await saveState({ settings: state.settings });
+});
+
+$('oldIdleMin').addEventListener('change', async () => {
+  state.settings.oldIdleMin = $('oldIdleMin').value;
   await saveState({ settings: state.settings });
 });
 

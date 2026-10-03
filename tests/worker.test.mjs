@@ -23,6 +23,11 @@ function makeFakeChrome(seed = [], opts = {}) {
     cookieReads: [],
     permissionsGranted: false,
     permissionChecks: [],
+    // The two runtime grants. True unless a test turns one off, the way an install
+    // that answered yes, and only one that said no, reads.
+    notificationsGranted: true,
+    idleGranted: true,
+    idleIntervals: [],
   };
   const listeners = {
     onVisited: [],
@@ -33,6 +38,7 @@ function makeFakeChrome(seed = [], opts = {}) {
     commands: [],
     winCreated: [],
     winRemoved: [],
+    idleState: [],
   };
   const store = { local: {}, session: {}, sync: {} };
   const notifications = [];
@@ -148,6 +154,12 @@ function makeFakeChrome(seed = [], opts = {}) {
         notifications.push(opts);
       },
     },
+    idle: {
+      setDetectionInterval: (secs) => {
+        db.idleIntervals.push(secs);
+      },
+      onStateChanged: { addListener: (fn) => listeners.idleState.push(fn) },
+    },
     windows: {
       getAll: async () => [{ id: 1 }],
       onCreated: { addListener: (fn) => listeners.winCreated.push(fn) },
@@ -169,6 +181,9 @@ function makeFakeChrome(seed = [], opts = {}) {
     permissions: {
       contains: async (q) => {
         db.permissionChecks.push(q);
+        const perms = (q && q.permissions) || [];
+        if (perms.includes('notifications')) return db.notificationsGranted !== false;
+        if (perms.includes('idle')) return db.idleGranted !== false;
         return !!db.permissionsGranted;
       },
       request: async () => false,
@@ -465,6 +480,29 @@ function check(label, fn) {
     assert.equal(f.store.local.log[0].url, 'https://noisy.example/live4'));
   check('notify: instant wipes do not spam notifications', () =>
     assert.equal(f.notifications.length, 1));
+}
+
+// ---------------------------------------------------------------------------
+// 7b. notifications without the permission
+// ---------------------------------------------------------------------------
+{
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://noisy.example/1', title: '1', lastVisitTime: NOW },
+  ]);
+  f.store.local.rules = [{ id: 'r1', type: 'domain', value: 'noisy.example', enabled: true }];
+  f.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: true,
+    notifyOnWipe: true,
+  };
+  // The switch is on, but the browser never handed over the permission: silence,
+  // and no error anywhere.
+  f.db.notificationsGranted = false;
+  await boot(f.chrome, f.store);
+  await waitFor('wipe without the permission', () => f.db.deleted.length === 1);
+  await sleep(50);
+  check('notify: refused permission is silence, not an error', () =>
+    assert.equal(f.notifications.length, 0));
 }
 
 // ---------------------------------------------------------------------------
@@ -1765,6 +1803,100 @@ console.log('the age line, when it runs by itself');
     const urls = f.db.items.map((i) => i.url);
     assert.ok(!urls.includes('https://tenday.example/x'));
     assert.ok(urls.includes('https://fiveday.example/y'));
+  });
+}
+
+// ---------------------------------------------------------------------------
+// 14. the idle run
+// ---------------------------------------------------------------------------
+console.log('the idle run');
+{
+  const DAY = 24 * 60 * 60 * 1000;
+  const { OLD_IDLE_CHOICES } = await import('../src/store.js');
+  check('idle: the pick offers a quarter hour, half an hour, an hour', () =>
+    assert.deepEqual(OLD_IDLE_CHOICES, [15, 30, 60]));
+
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://ancient.example/x', title: 'x', lastVisitTime: NOW - 100 * DAY },
+    { id: 'b', url: 'https://fresh.example/z', title: 'z', lastVisitTime: NOW - 3 * DAY },
+  ]);
+  f.store.local.rules = [];
+  f.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    oldIdleOn: true,
+    oldIdleMin: '30',
+  };
+  await boot(f.chrome, f.store);
+  await waitFor('the alarm to be set for the chosen window', () => f.db.idleIntervals.includes(1800));
+  check('idle: nothing runs until the browser actually says idle', () =>
+    assert.ok(f.db.items.map((i) => i.url).includes('https://ancient.example/x')));
+
+  f.listeners.idleState[0]('active');
+  await sleep(60);
+  check('idle: an active signal is not an idle signal', () =>
+    assert.ok(f.db.items.map((i) => i.url).includes('https://ancient.example/x')));
+
+  f.listeners.idleState[0]('idle');
+  await waitFor('the idle run', () =>
+    !f.db.items.map((i) => i.url).includes('https://ancient.example/x'));
+  check('idle: everything before the line went', () => {
+    const urls = f.db.items.map((i) => i.url);
+    assert.ok(!urls.includes('https://ancient.example/x'));
+    assert.ok(urls.includes('https://fresh.example/z'));
+  });
+  check('idle: the log names the reason and the date', () => {
+    const row = (f.store.local.log || []).find((e) => e.why === 'old-range');
+    assert.ok(row && row.word, 'the row carries the readable date');
+  });
+  check('idle: the last run says it happened while idle', () =>
+    assert.equal(f.store.local.stats.lastRunPhase, 'idle'));
+  check('idle: the count lands in the stats', () =>
+    assert.equal(f.store.local.stats.wipedTotal, 1));
+}
+{
+  // With the feature off, an idle signal must change nothing at all.
+  const DAY = 24 * 60 * 60 * 1000;
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://ancient.example/x', title: 'x', lastVisitTime: NOW - 100 * DAY },
+  ]);
+  f.store.local.rules = [];
+  f.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    oldIdleOn: false,
+  };
+  await boot(f.chrome, f.store);
+  f.listeners.idleState[0]('idle');
+  await sleep(200);
+  check('idle: switched off, the signal does nothing', () => {
+    assert.ok(f.db.items.map((i) => i.url).includes('https://ancient.example/x'));
+    assert.equal(f.db.idleIntervals.length, 0);
+  });
+}
+{
+  // With the permission missing, the run refuses rather than throwing.
+  const DAY = 24 * 60 * 60 * 1000;
+  const f = makeFakeChrome([
+    { id: 'a', url: 'https://ancient.example/x', title: 'x', lastVisitTime: NOW - 100 * DAY },
+  ]);
+  f.store.local.rules = [];
+  f.store.local.settings = {
+    mode: 'realtime',
+    sweepExistingOnStartup: false,
+    notifyOnWipe: false,
+    oldIdleOn: true,
+    oldIdleMin: '15',
+  };
+  f.db.idleGranted = false;
+  await boot(f.chrome, f.store);
+  f.listeners.idleState[0]('idle');
+  await sleep(200);
+  check('idle: without the permission, nothing happens and nothing breaks', () => {
+    assert.ok(f.db.items.map((i) => i.url).includes('https://ancient.example/x'));
+    assert.equal(f.db.idleIntervals.length, 0);
   });
 }
 

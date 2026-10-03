@@ -17,6 +17,7 @@ import {
   describeExtras,
   trimLog,
   OLD_AGE_CHOICES,
+  OLD_IDLE_CHOICES,
   ageCutoff,
   ageDate,
 } from './store.js';
@@ -142,11 +143,22 @@ function countWord(count) {
   return t(form, [String(count)]) || countText(count);
 }
 
+/** The browser hands the notifications permission over at runtime, not at install;
+ *  without it every call here is a quiet no-op rather than a broken promise. */
+async function canNotify() {
+  try {
+    return await chrome.permissions.contains({ permissions: ['notifications'] });
+  } catch {
+    return false;
+  }
+}
+
 /** The one place a notification is raised, so the wording is decided by the caller. */
 async function tell(message) {
   if (!message) return;
   const { settings } = await getState();
   if (!settings.notifyOnWipe) return;
+  if (!(await canNotify())) return;
   try {
     await chrome.notifications.create('lilbro-' + Date.now(), {
       type: 'basic',
@@ -413,6 +425,69 @@ if (chrome.storage && chrome.storage.onChanged) {
     const before = changes.settings.oldValue && changes.settings.oldValue.lang;
     const after = changes.settings.newValue && changes.settings.newValue.lang;
     if (before !== after) ensureMenus().catch(() => {});
+    // A new idle window takes effect without a restart; a refused permission simply
+    // leaves the alarm unarmed.
+    const idleBefore = changes.settings.oldValue && `${changes.settings.oldValue.oldIdleOn}:${changes.settings.oldValue.oldIdleMin}`;
+    const idleAfter = changes.settings.newValue && `${changes.settings.newValue.oldIdleOn}:${changes.settings.newValue.oldIdleMin}`;
+    if (idleBefore !== idleAfter) armIdleAlarm().catch(() => {});
+  });
+}
+
+// The idle run: when the computer has been left alone for the chosen window, the
+// same age-line deletion the automatic run does, quietly. The state listener is
+// registered here at the top level so a worker that was asleep still hears it.
+async function canIdle() {
+  try {
+    return await chrome.permissions.contains({ permissions: ['idle'] });
+  } catch {
+    return false;
+  }
+}
+
+/** The idle window in seconds, or 0 when the feature is off. */
+function idleSeconds(settings) {
+  if (!settings || !settings.oldIdleOn) return 0;
+  const min = Number(settings.oldIdleMin);
+  return OLD_IDLE_CHOICES.includes(min) ? min * 60 : 1800;
+}
+
+/** Point the browser's idle detection at the chosen window. Harmless when the
+ *  feature is off or the permission was never granted. */
+async function armIdleAlarm() {
+  const { settings } = await getState();
+  const secs = idleSeconds(settings);
+  if (!secs) return;
+  if (!(await canIdle())) return;
+  try {
+    chrome.idle.setDetectionInterval(secs);
+  } catch (e) {
+    log('idle alarm not armed', e);
+  }
+}
+
+let idleInFlight = false;
+
+async function runIdleOnce() {
+  if (idleInFlight) return;
+  const { settings } = await getState();
+  if (!settings.enabled) return;
+  if (!idleSeconds(settings)) return;
+  if (!(await canIdle())) return;
+  idleInFlight = true;
+  try {
+    await useLang(); // the cutoff date goes into the log in the reader's language
+    const deleted = (await wipeOld(ageCutoff(Number(settings.oldDays) || 30), 'idle')).deleted;
+    await bumpStats(deleted, 'idle');
+    await notify(deleted);
+  } finally {
+    idleInFlight = false;
+  }
+}
+
+if (chrome.idle && chrome.idle.onStateChanged) {
+  chrome.idle.onStateChanged.addListener((state) => {
+    if (state !== 'idle' && state !== 'locked') return;
+    runIdleOnce().catch((e) => log('idle run failed', e));
   });
 }
 
@@ -887,6 +962,7 @@ async function runSessionStart(phase = 'startup') {
  * extension that was just enabled, a restored profile).
  */
 async function bootOnce() {
+  armIdleAlarm().catch(() => {});
   try {
     const flag = await chrome.storage.session.get('bootHandled');
     if (flag && flag.bootHandled) return;
@@ -958,6 +1034,7 @@ chrome.runtime.onInstalled.addListener((details) => {
 async function notifyLockedMenu() {
   try {
     await useLang();
+    if (!(await canNotify())) return;
     await chrome.notifications.create('lilbro-lock-' + Date.now(), {
       type: 'basic',
       iconUrl: chrome.runtime.getURL('src/icons/icon128.png'),

@@ -62,6 +62,8 @@ Everything ships inside the package: no remote code, no analytics, no network re
 The one link out is the support page, and your browser opens it in a new tab only if you click it.
 The long version is [the policy](https://forsigh.github.io/lil-bro-history-wipe/privacy.html).
 
-Permissions: `history` (the only one that shows a warning), `storage`, `notifications`,
-`contextMenus`, `activeTab`, `browsingData`, `cookies`. `tabs` is optional and asked for only by the
-cookie-on-tab-close setting. No host permissions, no content scripts.
+Permissions: `history` (the only one that shows a warning), `storage`, `contextMenus`,
+`activeTab`, `browsingData`, `cookies`. Three more are optional and asked for, at runtime, only
+when the matching switch is turned on: `tabs` (cookie-on-tab-close), `notifications` (the
+after-clean message), `idle` (cleaning old history while the computer sits unused). No host
+permissions, no content scripts.

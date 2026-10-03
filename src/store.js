@@ -34,6 +34,9 @@ export function trimLog(list, settings, now = Date.now()) {
 
 export const OLD_AGE_CHOICES = [7, 30, 90, 180, 365];
 
+// The idle windows the pick offers, in minutes.
+export const OLD_IDLE_CHOICES = [15, 30, 60];
+
 /** The moment the age line sits at: now minus the window, recomputed from the clock on
  *  every run, so it moves with the day and is never a frozen date. */
 export function ageCutoff(days, now = Date.now()) {
@@ -71,6 +74,11 @@ export const DEFAULT_SETTINGS = {
   // start, whatever the cleaning mode is.
   oldAuto: false,
   oldDays: '30',
+  // The same deletion, also on the idle alarm: when the computer has sat unused for
+  // this many minutes. Off by default; asks the browser for the idle permission the
+  // moment it is switched on.
+  oldIdleOn: false,
+  oldIdleMin: '30',
   // Remembers the "include subdomains" tick in the popup for next time.
   includeSubdomainsDefault: false,
   // DANGER: when true, every trigger erases the whole history instead of matching
@@ -95,6 +103,12 @@ export const DEFAULT_SETTINGS = {
   extraCookies: false,
   extraDownloads: false,
   extraFormData: false,
+  // Three more site-storage kinds, each on its own switch and off by default. The
+  // cookie switch already drags these along with it; these stand alone for people
+  // who want a site forgotten without being logged out everywhere.
+  extraServiceWorkers: false,
+  extraCacheStorage: false,
+  extraIndexedDB: false,
   // How far back a clear reaches: 'hour' | 'day' | 'week' | 'month' | 'all'.
   extraSince: 'day',
   // 'manual': the buttons only. 'triggers': also when the browser closes and when
@@ -133,6 +147,15 @@ export const EXTRA_LABELS = {
   get formData() {
     return t('extraFormData') || 'Saved form text';
   },
+  get serviceWorkers() {
+    return t('extraServiceWorkers') || 'Service workers';
+  },
+  get cacheStorage() {
+    return t('extraCacheStorage') || 'Cache storage';
+  },
+  get indexedDB() {
+    return t('extraIndexedDB') || 'IndexedDB';
+  },
 };
 
 export const EXTRA_SINCE_LABELS = {
@@ -157,7 +180,13 @@ export const EXTRA_SINCE_LABELS = {
 export function extraOn(settings) {
   return !!(
     settings &&
-    (settings.extraCache || settings.extraCookies || settings.extraDownloads || settings.extraFormData)
+    (settings.extraCache ||
+      settings.extraCookies ||
+      settings.extraDownloads ||
+      settings.extraFormData ||
+      settings.extraServiceWorkers ||
+      settings.extraCacheStorage ||
+      settings.extraIndexedDB)
   );
 }
 
@@ -169,6 +198,9 @@ export function extraKinds(settings) {
   if (settings.extraCookies) out.push('cookies');
   if (settings.extraDownloads) out.push('downloads');
   if (settings.extraFormData) out.push('formData');
+  if (settings.extraServiceWorkers) out.push('serviceWorkers');
+  if (settings.extraCacheStorage) out.push('cacheStorage');
+  if (settings.extraIndexedDB) out.push('indexedDB');
   return out;
 }
 
@@ -185,7 +217,8 @@ export const PRESETS = {
   nuclear: { extras: { cache: true, cookies: true, downloads: true, formData: true }, wipeAll: true },
 };
 
-/** The settings a preset stands for. */
+/** The settings a preset stands for. The three site-storage kinds are not part of any
+ *  preset, so applying one resets them to off; the switches stay the truth. */
 export function presetPatch(name) {
   const p = PRESETS[name];
   if (!p) return null;
@@ -195,6 +228,9 @@ export function presetPatch(name) {
     extraCookies: p.extras.cookies,
     extraDownloads: p.extras.downloads,
     extraFormData: p.extras.formData,
+    extraServiceWorkers: false,
+    extraCacheStorage: false,
+    extraIndexedDB: false,
     wipeAllHistory: p.wipeAll,
   };
 }
@@ -207,6 +243,9 @@ export function presetName(settings) {
       !!settings.extraCookies === p.extras.cookies &&
       !!settings.extraDownloads === p.extras.downloads &&
       !!settings.extraFormData === p.extras.formData &&
+      !settings.extraServiceWorkers &&
+      !settings.extraCacheStorage &&
+      !settings.extraIndexedDB &&
       !!settings.wipeAllHistory === p.wipeAll;
     if (same) return name;
   }
@@ -247,9 +286,9 @@ export function extraSelection(settings) {
     downloads: !!settings.extraDownloads,
     formData: !!settings.extraFormData,
     localStorage: withCookies,
-    indexedDB: withCookies,
-    cacheStorage: withCookies,
-    serviceWorkers: withCookies,
+    indexedDB: withCookies || !!settings.extraIndexedDB,
+    cacheStorage: withCookies || !!settings.extraCacheStorage,
+    serviceWorkers: withCookies || !!settings.extraServiceWorkers,
     fileSystems: withCookies,
   };
 }

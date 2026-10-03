@@ -65,6 +65,7 @@
           <div class="row sep">
             <label class="pill"><input type="checkbox" id="sweep" /> <span data-i18n="optSweep">Also clean the history that is already saved, at browser start</span></label>
             <label class="pill"><input type="checkbox" id="notify" /> <span data-i18n="optNotify">Tell me when it has cleaned</span></label>
+            <span id="notifyMsg" class="mini"></span>
           </div>
         </div>
 
@@ -158,6 +159,15 @@
           </div>
           <div class="row">
             <label class="pill"><input type="checkbox" id="oldAuto" /> <span data-i18n="optOldAuto">Do it automatically at every browser start</span></label>
+          </div>
+          <div class="row">
+            <label class="pill"><input type="checkbox" id="oldIdleOn" /> <span data-i18n="optOldIdle">Also when the computer has been idle for</span></label>
+            <select id="oldIdleMin" class="lang-select">
+              <option value="15" data-i18n="optIdle15">15 minutes</option>
+              <option value="30" data-i18n="optIdle30">30 minutes</option>
+              <option value="60" data-i18n="optIdle60">an hour</option>
+            </select>
+            <span id="oldIdleMsg" class="mini"></span>
           </div>
           <div class="row mini" data-i18n="optOldNote">Everything older than the line is deleted: all sites, whole entries, and it reaches entries Chrome hides from other cleanups.</div>
           <div class="row mini" id="oldLine">Right now that means everything before 30 August 2026.</div>
@@ -315,6 +325,13 @@
               <label class="pill"><input type="checkbox" id="extraFormData" /> <span data-i18n="optExtraFormData">Text I typed in forms</span></label>
             </div>
           </div>
+
+          <div class="row" style="margin-top: 12px">
+            <label class="pill"><input type="checkbox" id="extraServiceWorkers" /> <span data-i18n="optExtraServiceWorkers">Service workers</span></label>
+            <label class="pill"><input type="checkbox" id="extraCacheStorage" /> <span data-i18n="optExtraCacheStorage">Saved site files (cache storage)</span></label>
+            <label class="pill"><input type="checkbox" id="extraIndexedDB" /> <span data-i18n="optExtraIndexedDB">Site databases (IndexedDB)</span></label>
+          </div>
+          <div class="row mini" data-i18n="optExtraDeepNote">Off until you tick them, and the cookie switch above takes them along anyway. On their own they forget a site properly: a service worker or a site database can remember you without any cookie.</div>
 
           <div class="row" style="margin-top: 12px">
             <label class="pill">

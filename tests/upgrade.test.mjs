@@ -158,6 +158,11 @@ console.log('an installed 1.3.5 profile, read by this build');
     if (settings.logKeep !== 'forever') throw new Error(`logKeep is ${JSON.stringify(settings.logKeep)}`);
     if (settings.oldAuto !== false) throw new Error(`oldAuto is ${JSON.stringify(settings.oldAuto)}`);
     if (settings.oldDays !== '30') throw new Error(`oldDays is ${JSON.stringify(settings.oldDays)}`);
+    if (settings.extraServiceWorkers !== false) throw new Error(`extraServiceWorkers is ${JSON.stringify(settings.extraServiceWorkers)}`);
+    if (settings.extraCacheStorage !== false) throw new Error(`extraCacheStorage is ${JSON.stringify(settings.extraCacheStorage)}`);
+    if (settings.extraIndexedDB !== false) throw new Error(`extraIndexedDB is ${JSON.stringify(settings.extraIndexedDB)}`);
+    if (settings.oldIdleOn !== false) throw new Error(`oldIdleOn is ${JSON.stringify(settings.oldIdleOn)}`);
+    if (settings.oldIdleMin !== '30') throw new Error(`oldIdleMin is ${JSON.stringify(settings.oldIdleMin)}`);
   });
   check('nothing in the old blob was dropped on the way through', () => {
     const keys = Object.keys(settings);

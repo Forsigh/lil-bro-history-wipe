@@ -204,7 +204,7 @@ try {
     `${m.version}, newest in VERSIONS.md ${newestOnTable}`
   );
   record(
-    'permission set is the documented seven',
+    'permission set is the documented six, with the three optional rail ones separate',
     JSON.stringify([...m.permissions].sort()) ===
       JSON.stringify([
         'activeTab',
@@ -212,7 +212,6 @@ try {
         'contextMenus',
         'cookies',
         'history',
-        'notifications',
         'storage',
       ]),
     m.permissions.join(', ')
@@ -2245,6 +2244,15 @@ try {
         autoOff: !!(off.settings && off.settings.oldAuto),
         days: picked.settings && picked.settings.oldDays,
         lineAfter,
+        idleOn: document.getElementById('oldIdleOn').checked,
+        idleMin: (() => {
+          const el = document.getElementById('oldIdleMin');
+          return el ? { value: el.value, options: [...el.options].map((o) => o.value) } : null;
+        })(),
+        deep: ['extraServiceWorkers', 'extraCacheStorage', 'extraIndexedDB'].map((id) => {
+          const el = document.getElementById(id);
+          return el ? el.checked : null;
+        }),
       });
     })()`)
   );
@@ -2258,7 +2266,42 @@ try {
   record('changing the pick moves the line and remembers the choice',
     oldView.lineAfter !== oldView.line && oldView.days === '90',
     `${oldView.days}: ${oldView.lineAfter}`);
+  record('the idle switch is there, off, over 15/30/60 minutes',
+    oldView.idleOn === false && oldView.idleMin && oldView.idleMin.value === '30' &&
+      JSON.stringify(oldView.idleMin.options) === JSON.stringify(['15', '30', '60']),
+    `${JSON.stringify(oldView.idleMin)} on=${oldView.idleOn}`);
+  record('the three site-storage switches ship off',
+    JSON.stringify(oldView.deep) === JSON.stringify([false, false, false]),
+    JSON.stringify(oldView.deep));
   await closePage(oldPage.id);
+
+  // The three site-storage switches: flipping one lands in storage and back, and the
+  // deep note under them has real words in it.
+  const deepPage = await openPage(`chrome-extension://${id}/src/options.html`);
+  await sleep(800);
+  const deepView = JSON.parse(
+    await deepPage.evaluate(`(async()=>{
+      const note = document.querySelector('[data-i18n="optExtraDeepNote"]');
+      const box = document.getElementById('extraIndexedDB');
+      box.checked = true;
+      box.dispatchEvent(new Event('change'));
+      await new Promise((r) => setTimeout(r, 500));
+      const on = await chrome.storage.local.get('settings');
+      box.checked = false;
+      box.dispatchEvent(new Event('change'));
+      await new Promise((r) => setTimeout(r, 500));
+      const off = await chrome.storage.local.get('settings');
+      return JSON.stringify({
+        note: note ? note.textContent.trim().length : 0,
+        on: !!(on.settings && on.settings.extraIndexedDB),
+        off: !!(off.settings && off.settings.extraIndexedDB),
+      });
+    })()`)
+  );
+  record('the site-database switch saves on and off for real',
+    deepView.on && !deepView.off, `on ${deepView.on} / off ${deepView.off}`);
+  record('the deep note under them has words in it', deepView.note > 40, `${deepView.note} chars`);
+  await closePage(deepPage.id);
 } catch (e) {
   record('probe ran to the end', false, String(e.message || e));
 } finally {

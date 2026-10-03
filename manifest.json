@@ -18,13 +18,12 @@
   "permissions": [
     "history",
     "storage",
-    "notifications",
     "contextMenus",
     "activeTab",
     "browsingData",
     "cookies"
   ],
-  "optional_permissions": ["tabs"],
+  "optional_permissions": ["tabs", "notifications", "idle"],
   "background": {
     "service_worker": "src/service-worker.js",
     "type": "module"

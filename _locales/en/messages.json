@@ -164,6 +164,9 @@
   "optNotify": {
     "message": "Tell me when it has cleaned"
   },
+  "notifyPermDenied": {
+    "message": "The browser did not allow notifications, so nothing changed."
+  },
   "optKeepLog": {
     "message": "Keep a list of what was cleaned"
   },
@@ -298,6 +301,18 @@
   },
   "optExtraFormData": {
     "message": "Text I typed in forms"
+  },
+  "optExtraServiceWorkers": {
+    "message": "Service workers"
+  },
+  "optExtraCacheStorage": {
+    "message": "Saved site files (cache storage)"
+  },
+  "optExtraIndexedDB": {
+    "message": "Site databases (IndexedDB)"
+  },
+  "optExtraDeepNote": {
+    "message": "Off until you tick them, and the cookie switch above takes them along anyway. On their own they forget a site properly: a service worker or a site database can remember you without any cookie."
   },
   "optReachBack": {
     "message": "Reach back"
@@ -599,6 +614,15 @@
   "extraFormData": {
     "message": "Saved form text"
   },
+  "extraServiceWorkers": {
+    "message": "Service workers"
+  },
+  "extraCacheStorage": {
+    "message": "Cache storage"
+  },
+  "extraIndexedDB": {
+    "message": "IndexedDB"
+  },
   "sinceHour": {
     "message": "the last hour"
   },
@@ -821,6 +845,21 @@
   "optOldAuto": {
     "message": "Do it automatically at every browser start"
   },
+  "optOldIdle": {
+    "message": "Also when the computer has been idle for"
+  },
+  "optIdle15": {
+    "message": "15 minutes"
+  },
+  "optIdle30": {
+    "message": "30 minutes"
+  },
+  "optIdle60": {
+    "message": "an hour"
+  },
+  "optIdleDenied": {
+    "message": "The browser did not allow the idle check, so this stays off."
+  },
   "optOldLine": {
     "message": "Right now that means everything before $1."
   },
@@ -864,7 +903,7 @@
     "message": "Cache, cookies, saved form text, download history and all of your history, at every trigger."
   },
   "optPresetCustomNote": {
-    "message": "Your own mix of the four switches, in the Advanced tab."
+    "message": "Your own mix of the switches, in the Advanced tab."
   },
   "optCookiesWarnOn": {
     "message": "Cookies are deleted for every site except the list below, so logins everywhere else end."
@@ -1082,6 +1121,15 @@
   "lastRunAt": {
     "message": "Last clean: $1 ($2)"
   },
+  "phaseStartup": {
+    "message": "at start"
+  },
+  "phaseManual": {
+    "message": "by hand"
+  },
+  "phaseIdle": {
+    "message": "while idle"
+  },
   "queueLine": {
     "message": "in the queue: $1, cleaned $2"
   },
@@ -1158,7 +1206,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "Old history is simple now: pick a line, see the exact date it means, and everything older is deleted. It can also do that by itself at every browser start."
+    "message": "Three more kinds can be cleaned on their own, each a switch in Advanced: service workers, saved site files and site databases. The old-history delete can also run when the computer sits idle, and the notifications switch asks the browser only when you turn it on."
   },
   "whatsNewOk": {
     "message": "Got it"
