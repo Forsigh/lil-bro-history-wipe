@@ -30,7 +30,7 @@ in one place so there is only one copy to keep honest.
 ### 3a. Single purpose description (max 1000 characters)
 
 ```
-Deletes the browsing history entries a user chooses, and optionally clears the browser data the user explicitly switches on. The user lists sites, subdomains, keywords, URLs or patterns; the extension matches those against browsing history and erases the matching entries, either as the user browses, when the browser closes, or at the next start. Cache, cookies and site data, download history and saved form text are cleared only when the user picks a preset or turns a switch on and asks for it. The history permission is used for nothing else, apart from one read the user triggers from the settings page, which lists the sites visited most often that no rule covers so a rule can be added; that read is worked out on the page and stores nothing.
+Deletes the browsing history entries a user chooses, and optionally clears the browser data the user explicitly switches on. The user lists sites, subdomains, keywords, URLs or patterns; the extension matches those against browsing history and erases the matching entries, either as the user browses, when the browser closes, or at the next start. Cache, cookies and site data, download history, saved form text and site storage (service workers, cache storage and IndexedDB) are cleared only when the user picks a preset or turns a switch on and asks for it. The history permission is used for nothing else, apart from one read the user triggers from the settings page, which lists the sites visited most often that no rule covers so a rule can be added; that read is worked out on the page and stores nothing.
 ```
 
 ### 3b. Permission justifications (max 1000 characters each)
@@ -68,7 +68,7 @@ Used only after the user clicks the toolbar button. The popup reads the address 
 **browsingData**
 
 ```
-Used only by the optional clear presets (cache, cookies and site data, download history, saved form text). They are off by default; with them off the API is never called. When the user turns one on and presses the clear button, the extension calls chrome.browsingData.remove for the data types and time span the user selected. Nothing read from this API is stored or transmitted; the reply carries no data, so no count is shown. Passwords are not requested through this API.
+Used only by the optional clear presets (cache, cookies and site data, download history, saved form text, service workers, cache storage, IndexedDB). They are off by default; with them off the API is never called. When the user turns one on and presses the clear button, the extension calls chrome.browsingData.remove for the data types and time span the user selected. Nothing read from this API is stored or transmitted; the reply carries no data, so no count is shown. Passwords are not requested through this API.
 ```
 
 **cookies**

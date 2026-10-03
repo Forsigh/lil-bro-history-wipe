@@ -27,11 +27,11 @@ Lil Bro usuwa z historii przeglądania to, czego nie chcesz tam trzymać. Dajesz
 
 Dodanie zajmuje chwilę: kliknij ikonę na pasku i dodaj stronę, na której jesteś, albo kliknij prawym przyciskiem myszy i wybierz ją z menu. Na start nie ma nic do ustawiania.
 
-Decydujesz, kiedy ma działać: może czyścić w trakcie przeglądania – wtedy wpis znika, gdy strona się ładuje. Może czekać do następnego uruchomienia – wtedy wizyta zostaje, dopóki nie zamkniesz laptopa. A gdy dodajesz coś nowego, przełącznik „starsze wizyty też” pod polem dodawania (domyślnie włączony) zabiera je z historii od razu i mówi, ile ich było.
+Decydujesz, kiedy ma działać: może czyścić w trakcie przeglądania – wtedy wpis znika, gdy strona się ładuje. Może czekać do następnego uruchomienia – wtedy wizyta zostaje, dopóki nie zamkniesz laptopa. A gdy dodajesz coś nowego, przełącznik „starsze wizyty też” pod polem dodawania (domyślnie włączony) zabiera je z historii od razu i mówi, ile ich było. Jest też drugie ustawienie na starą historię: wybierasz zakres od tygodnia do roku i usuwa wszystko starsze od tej daty. Dokładną datę widzisz, zanim cokolwiek zniknie. Czyszczenie uruchomisz przyciskiem, ustawisz na każdy start przeglądarki albo na czas bezczynności komputera.
 
-Historia to główna rzecz, ale poza nią może czyścić też pamięć podręczną, ciasteczka, pobrane pliki i tekst wpisany w formularze. Wszystko to jest domyślnie wyłączone. Jedna uwaga: ciasteczka znikają z całej strony, więc wylogujesz się z niej. Twoja lista zachowanych stron zostaje nietknięta.
+Historia to główna rzecz, ale poza nią może czyścić też pamięć podręczną, ciasteczka, pobrane pliki i tekst wpisany w formularze, a także to, czym strony pamiętają cię bez ciasteczek: service workery, zapisane pliki stron i bazy danych stron. Wszystko to jest domyślnie wyłączone. Jedna uwaga: ciasteczka znikają z całej strony, więc wylogujesz się z niej. Twoja lista zachowanych stron zostaje nietknięta.
 
-Wszystko dzieje się na twoim komputerze: bez konta, serwera i analityki, sam nie wysyła ani nie pobiera niczego. Historia czyszczenia zostaje u ciebie i możesz ją wyczyścić w każdej chwili. Na listę możesz też założyć PIN, żeby nikt inny przy tym komputerze jej nie przeczytał.
+Wszystko dzieje się na twoim komputerze: bez konta, serwera i analityki, sam nie wysyła ani nie pobiera niczego. Historia czyszczenia zostaje u ciebie i sam wybierasz, jak długo ją trzymać: od tygodnia aż po „bezterminowo". Możesz ją wyczyścić w każdej chwili. Na listę możesz też założyć PIN, żeby nikt inny przy tym komputerze jej nie przeczytał.
 
 Żeby nic cię nie zaskoczyło: haseł nie rusza, bo przeglądarka na to rozszerzeniom nie pozwala. Czyszczenie przy zamknięciu przeglądarki nie włączy się w dokładnej sekundzie zamknięcia – zrobi to przy następnym otwarciu. A pobrane pliki i tekst z formularzy czyści dla wybranego zakresu czasu – nie dla pojedynczych stron.
 

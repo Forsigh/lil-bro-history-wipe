@@ -17,11 +17,11 @@ Lil Bro usuwa z historii przeglądania to, czego nie chcesz tam trzymać. Dajesz
 
 Dodanie zajmuje chwilę: kliknij ikonę na pasku i dodaj stronę, na której jesteś, albo kliknij prawym przyciskiem myszy i wybierz ją z menu. Na start nie ma nic do ustawiania.
 
-Decydujesz, kiedy ma działać: może czyścić w trakcie przeglądania – wtedy wpis znika, gdy strona się ładuje. Może czekać do następnego uruchomienia – wtedy wizyta zostaje, dopóki nie zamkniesz laptopa. A gdy dodajesz coś nowego, przełącznik „starsze wizyty też” pod polem dodawania (domyślnie włączony) zabiera je z historii od razu i mówi, ile ich było.
+Decydujesz, kiedy ma działać: może czyścić w trakcie przeglądania – wtedy wpis znika, gdy strona się ładuje. Może czekać do następnego uruchomienia – wtedy wizyta zostaje, dopóki nie zamkniesz laptopa. A gdy dodajesz coś nowego, przełącznik „starsze wizyty też” pod polem dodawania (domyślnie włączony) zabiera je z historii od razu i mówi, ile ich było. Jest też drugie ustawienie na starą historię: wybierasz zakres od tygodnia do roku i usuwa wszystko starsze od tej daty. Dokładną datę widzisz, zanim cokolwiek zniknie. Czyszczenie uruchomisz przyciskiem, ustawisz na każdy start przeglądarki albo na czas bezczynności komputera.
 
-Historia to główna rzecz, ale poza nią może czyścić też pamięć podręczną, ciasteczka, pobrane pliki i tekst wpisany w formularze. Wszystko to jest domyślnie wyłączone. Jedna uwaga: ciasteczka znikają z całej strony, więc wylogujesz się z niej. Twoja lista zachowanych stron zostaje nietknięta.
+Historia to główna rzecz, ale poza nią może czyścić też pamięć podręczną, ciasteczka, pobrane pliki i tekst wpisany w formularze, a także to, czym strony pamiętają cię bez ciasteczek: service workery, zapisane pliki stron i bazy danych stron. Wszystko to jest domyślnie wyłączone. Jedna uwaga: ciasteczka znikają z całej strony, więc wylogujesz się z niej. Twoja lista zachowanych stron zostaje nietknięta.
 
-Wszystko dzieje się na twoim komputerze: bez konta, serwera i analityki, sam nie wysyła ani nie pobiera niczego. Historia czyszczenia zostaje u ciebie i możesz ją wyczyścić w każdej chwili. Na listę możesz też założyć PIN, żeby nikt inny przy tym komputerze jej nie przeczytał.
+Wszystko dzieje się na twoim komputerze: bez konta, serwera i analityki, sam nie wysyła ani nie pobiera niczego. Historia czyszczenia zostaje u ciebie i sam wybierasz, jak długo ją trzymać: od tygodnia aż po „bezterminowo". Możesz ją wyczyścić w każdej chwili. Na listę możesz też założyć PIN, żeby nikt inny przy tym komputerze jej nie przeczytał.
 
 Żeby nic cię nie zaskoczyło: haseł nie rusza, bo przeglądarka na to rozszerzeniom nie pozwala. Czyszczenie przy zamknięciu przeglądarki nie włączy się w dokładnej sekundzie zamknięcia – zrobi to przy następnym otwarciu. A pobrane pliki i tekst z formularzy czyści dla wybranego zakresu czasu – nie dla pojedynczych stron.
 ```
@@ -73,8 +73,8 @@ Nic. W pakiecie nie ma kodu analitycznego.
 Usuwa z historii przeglądania wpisy, które wybierze użytkownik. Użytkownik wpisuje na listę
 strony, subdomeny, słowa, początki adresów albo wzory; rozszerzenie dopasowuje je do historii i
 usuwa pasujące wpisy, w trakcie przeglądania albo przy następnym otwarciu przeglądarki. Po
-włączeniu dodatkowych przełączników może też czyścić cache, cookies, listę pobranych plików i
-tekst z formularzy dla tej samej listy. Nie robi nic więcej.
+włączeniu dodatkowych przełączników może też czyścić cache, cookies, listę pobranych plików, tekst z formularzy oraz dane witryn (service workery, cache storage i IndexedDB)
+dla tej samej listy. Nie robi nic więcej.
 ```
 
 Obecny tekst mówi o czyszczeniu „przy zamknięciu przeglądarki", którego już nie ma, i pomija
@@ -100,8 +100,8 @@ chwili.
 
 notifications (1000)
 ```
-Pokazuje jedno, opcjonalne powiadomienie po czyszczeniu, z liczbą usuniętych wpisów.
-Użytkownik może je wyłączyć w ustawieniach; przy wyłączonym nic się nie pokazuje.
+Opcjonalne, proszone tylko wtedy, gdy użytkownik włączy powiadomienie po czyszczeniu. Pokazuje jedno powiadomienie z liczbą usuniętych wpisów.
+Przy wyłączonym przełączniku nic się nie pokazuje, a uprawnienie nie jest proszone przy instalacji.
 ```
 
 contextMenus (1000)
@@ -119,7 +119,7 @@ jest czytana.
 
 browsingData (1000)
 ```
-Potrzebne do czyszczenia cache, listy pobranych plików, danych witryny i tekstu z formularzy
+Potrzebne do czyszczenia cache, listy pobranych plików, tekstu z formularzy i danych witryn (service workery, cache storage i IndexedDB)
 dla domen i słów wybranych przez użytkownika. Te przełączniki są domyślnie wyłączone i działają
 tylko na liście użytkownika, w wybranych przez niego momentach.
 ```
@@ -139,6 +139,14 @@ pamięci sesji, czyli w RAM, do momentu jej zamknięcia. To uprawnienie nie jest
 instalacji i nie służy do niczego innego.
 ```
 
+idle (1000)
+```
+Opcjonalne, proszone tylko wtedy, gdy użytkownik włączy czyszczenie starej historii, gdy
+komputer jest bezczynny. Przeglądarka mówi rozszerzeniu, kiedy komputer przeszedł w bezczynność,
+żeby wybrany zakres starej historii mógł zostać wyczyszczony w tym momencie. Przy wyłączonym
+przełączniku uprawnienie nie jest proszone.
+```
+
 ## Kod zdalny
 
 Nie. Wszystko jest w pakiecie: żadnych skryptów z sieci, żadnego eval, żadnego Wasm z zewnątrz.
@@ -154,16 +162,16 @@ Zaznacz wszystkie trzy oświadczenia: nie sprzedaję i nie przekazuję danych u�
 trzecim, nie używam ich do celów innych niż jedyne przeznaczenie, nie używam ich do ustalania
 zdolności kredytowej ani udzielania pożyczek.
 
-Polityka prywatności wspomina PIN od aktualizacji z 19 września 2026 („A PIN you set yourself,
+Polityka prywatności wspomina PIN („A PIN you set yourself,
 if you switch the list lock on..."), więc opis i polityka się zgadzają. Nie ma tu nic do
 dopisania.
 
 ## Gdzie stoją liczby
 
-- Limity pól zachowane: opis 1624/16000, jedno przeznaczenie 433/1000, najdłuższe uzasadnienie
-  uprawnienia 321/1000.
+- Limity pól zachowane: opis 2082/16000, jedno przeznaczenie 494/1000, najdłuższe uzasadnienie
+  uprawnienia 322/1000.
 - Opis przechodzi polską bramkę stylu (`pl_check.py --register pl-ui`): 0 błędów, 1 ostrzeżenie
-  o łańcuchach przecinków (1,11 przy progu 1,2). Zdania mają średnio 13,8 słowa (czysta polska
-  prasa: 18,0), najdłuższe 25 (tam 55), a pauzy en 16,1 na 1000 słów (tam 15,3).
+  o łańcuchach przecinków (1,18 przy progu 1,2). Zdania mają średnio 14,4 słowa (czysta polska
+  prasa: 18,0), najdłuższe 38 (tam 55), a pauzy en 12,62 na 1000 słów (tam 15,3).
 - Wszystkie trzy oświadczenia w zakładce prywatności muszą być zaznaczone, inaczej formularz się
   nie wyśle.

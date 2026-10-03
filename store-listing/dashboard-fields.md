@@ -19,11 +19,11 @@ Lil Bro clears the parts of your browsing history you would rather not keep. You
 
 Adding something takes two clicks. Click the toolbar icon and add the page you are on, or right-click any page and pick it from the menu. There is nothing to set up first.
 
-Then you decide when it works. It can clear as you browse, so an entry is gone the moment the page loads. Or it can wait until your next start, so the visit stays until you close the laptop. And when you add something new, a small switch under the add row (on by default) also takes out the older visits you already have for it, then tells you how many went.
+Then you decide when it works. It can clear as you browse, so an entry is gone the moment the page loads. Or it can wait until your next start, so the visit stays until you close the laptop. And when you add something new, a small switch under the add row (on by default) also takes out the older visits you already have for it, then tells you how many went. There is a second control for the history you already have: pick a window, a week up to a year, and it clears everything older than that. The exact date is shown before anything is touched, and it can run when you press it, by itself at every browser start, or while the computer sits idle.
 
-History is the main thing, but if you want more, it can also clear cache, cookies, downloads and text you typed into forms. All of that is off until you turn it on. One thing to know: cookies go for the whole site, so you will be signed out of it. Anything on your keep list is never touched.
+History is the main thing, but if you want more, it can also clear cache, cookies, downloads and text you typed into forms, plus the things sites leave behind to remember you without cookies: their service workers, saved site files and site databases. All of that is off until you turn it on. One thing to know: cookies go for the whole site, so you will be signed out of it. Anything on your keep list is never touched.
 
-Everything happens on your computer. No account, no server, no analytics, nothing sent anywhere. The log of what was cleaned stays local and can be wiped any time, and you can put a PIN on the list so nobody else using this computer can read it.
+Everything happens on your computer. No account, no server, no analytics, nothing sent anywhere. The log of what was cleaned stays local, you choose how long it is kept, from a week to forever, and it can be wiped any time. You can put a PIN on the list so nobody else using this computer can read it.
 
 A couple of things it can't do, so nothing surprises you later: passwords are off the table, the browser doesn't let any extension touch them. A clean set for browser close can't run at the exact second you close it, so it runs when you next open the browser. And downloads or form text clear for a time span, not per site, because the browser gives no finer way.
 ```
@@ -74,7 +74,7 @@ Nothing. There is no analytics code in the package.
 Deletes the browsing history entries a user chooses. The user lists sites, subdomains,
 keywords, address beginnings or patterns; the extension matches those against browsing history
 and erases the matching entries, as the user browses or at the start of the next session. With
-the extra switches on it can also clear cache, cookies, download records and saved form text
+the extra switches on it can also clear cache, cookies, download records, saved form text and site storage (service workers, cache storage and IndexedDB)
 for the same list. It has no other function.
 ```
 
@@ -100,8 +100,8 @@ transmitted. The user can export the rules or clear the log at any time.
 
 notifications (1000)
 ```
-Shows one optional desktop notification after a clean, saying how many entries were removed.
-The user can switch it off in the extension's settings; with it off, no notification is shown.
+Optional, and only asked for when the user switches on the after-clean message. Shows one desktop notification after a clean, saying how many entries were removed.
+With the switch off no notification is shown, and the permission is never requested at install.
 ```
 
 contextMenus (1000)
@@ -118,8 +118,8 @@ the current tab so it can offer to clean that site or that page. No page content
 
 browsingData (1000)
 ```
-Required to clear cache, download records, site storage and saved form text for the domains and
-keywords the user chose. These switches are off by default and only run for the list the user
+Required to clear cache, download records, saved form text and site storage (service workers, cache storage and IndexedDB) for the domains and
+keywords the user chose. Every one of these switches is off by default and only runs for the list the user
 set up, at the times they picked.
 ```
 
@@ -138,6 +138,14 @@ session storage, in memory, until the tab is gone. The permission is not request
 other feature, and is not requested at install.
 ```
 
+idle (1000)
+```
+Optional, and only asked for when the user switches on cleaning old history while the computer
+sits unused. The browser tells the extension when the machine has gone idle, so the chosen
+old-history window can be cleaned at that moment. With the switch off, the permission is never
+requested.
+```
+
 ## Remote code
 
 No. Everything ships in the package: no remote scripts, no eval, no remote Wasm.
@@ -152,13 +160,13 @@ keys, has no location code, no accounts, no messages, no payment or health data.
 Check all three declarations: no selling or transferring data to third parties, no use beyond
 the single purpose, nothing used for creditworthiness or lending.
 
-The policy covers the PIN as of the 19 September 2026 update ("A PIN you set yourself, if you
+The policy covers the PIN ("A PIN you set yourself, if you
 switch the list lock on..."), so the description and the policy agree. Nothing left to add.
 
 ## Where the numbers stand
 
 - The description passes the English style gate (`style_check.py --register docs`): 0 fails,
   one advisory warning.
-- Field limits respected: description 1698/16000, single purpose 414/1000, longest permission
+- Field limits respected: description 2168/16000, single purpose 475/1000, longest permission
   justification 320/1000.
 - The three statements in the privacy tab must all be checked or the form will not submit.

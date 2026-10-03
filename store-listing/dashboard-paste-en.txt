@@ -22,11 +22,11 @@ Lil Bro clears the parts of your browsing history you would rather not keep. You
 
 Adding something takes two clicks. Click the toolbar icon and add the page you are on, or right-click any page and pick it from the menu. There is nothing to set up first.
 
-Then you decide when it works. It can clear as you browse, so an entry is gone the moment the page loads. Or it can wait until your next start, so the visit stays until you close the laptop. And when you add something new, a small switch under the add row (on by default) also takes out the older visits you already have for it, then tells you how many went.
+Then you decide when it works. It can clear as you browse, so an entry is gone the moment the page loads. Or it can wait until your next start, so the visit stays until you close the laptop. And when you add something new, a small switch under the add row (on by default) also takes out the older visits you already have for it, then tells you how many went. There is a second control for the history you already have: pick a window, a week up to a year, and it clears everything older than that. The exact date is shown before anything is touched, and it can run when you press it, by itself at every browser start, or while the computer sits idle.
 
-History is the main thing, but if you want more, it can also clear cache, cookies, downloads and text you typed into forms. All of that is off until you turn it on. One thing to know: cookies go for the whole site, so you will be signed out of it. Anything on your keep list is never touched.
+History is the main thing, but if you want more, it can also clear cache, cookies, downloads and text you typed into forms, plus the things sites leave behind to remember you without cookies: their service workers, saved site files and site databases. All of that is off until you turn it on. One thing to know: cookies go for the whole site, so you will be signed out of it. Anything on your keep list is never touched.
 
-Everything happens on your computer. No account, no server, no analytics, nothing sent anywhere. The log of what was cleaned stays local and can be wiped any time, and you can put a PIN on the list so nobody else using this computer can read it.
+Everything happens on your computer. No account, no server, no analytics, nothing sent anywhere. The log of what was cleaned stays local, you choose how long it is kept, from a week to forever, and it can be wiped any time. You can put a PIN on the list so nobody else using this computer can read it.
 
 A couple of things it can't do, so nothing surprises you later: passwords are off the table, the browser doesn't let any extension touch them. A clean set for browser close can't run at the exact second you close it, so it runs when you next open the browser. And downloads or form text clear for a time span, not per site, because the browser gives no finer way.
 
@@ -45,7 +45,7 @@ SINGLE PURPOSE (1000)
 Deletes the browsing history entries a user chooses. The user lists sites, subdomains,
 keywords, address beginnings or patterns; the extension matches those against browsing history
 and erases the matching entries, as the user browses or at the start of the next session. With
-the extra switches on it can also clear cache, cookies, download records and saved form text
+the extra switches on it can also clear cache, cookies, download records, saved form text and site storage (service workers, cache storage and IndexedDB)
 for the same list. It has no other function.
 
 
@@ -163,7 +163,7 @@ field takes the URL above, and the page at that URL already says all of this.
 
 
 Lil Bro Wipe – History Cleaner privacy policy
-Last updated: 19 September 2026
+Last updated: 3 October 2026
 
 Lil Bro Wipe – History Cleaner deletes chosen entries from your browsing history. Everything happens
 on your device. There is no server behind it.
@@ -183,7 +183,7 @@ WHAT IT ACCESSES
   you did not keep, and keeps the site of an open tab in session storage (memory, gone when the
   browser closes) so a closed tab's cookies can go with it. Tab access is an optional
   permission, asked for only when you switch that feature on.
-- Other stored browsing data: cache, download history and saved form text, cleared through the
+- Other stored browsing data: cache, download history, saved form text and site storage (service workers, cache storage and IndexedDB), cleared through the
   browsing-data permission and only with those switches on.
 
 WHAT IT DOES NOT DO
@@ -198,8 +198,8 @@ WHAT IT DOES NOT DO
 COOKIES, CACHE AND THE REST
 
 Clearing is off by default. With it on, cache, cookies, site storage, download history and
-saved form text go for the span you pick, when you press a button, and at startup if you ask
-for that. Cookies are removed for the whole site, so being signed out of it is the normal
+saved form text go for the span you pick: when you press a button, at startup if you ask
+for that, or while the computer sits idle. Cookies are removed for the whole site, so being signed out of it is the normal
 result. The keep list is the exception: those sites are never touched. The browser cannot narrow
 history, download history or form text to one site, so those are all-or-nothing for the span
 you choose.
