@@ -3,10 +3,11 @@
 One version number is one build. Any change to a shipped file means a new number,
 and the old zip is never overwritten. That rule broke on 1.3.0: six commits landed
 after it was built and the zip was rebuilt under the same name three times, so three
-different builds called themselves 1.3.0. The current code is numbered 2.0.11.
+different builds called themselves 1.3.0. The current code is numbered 2.0.12.
 
 | Version | Built | Commit | Zip sha256 (16) | Note |
 |---|---|---|---|---|
+| 2.0.12 | 3 Oct | `3498dbb` | `fa1f3a1f928df67b` | The question mark on the three storage switches sits inside the switch now, at the right |
 | 2.0.11 | 3 Oct | `33170f6` | `deb7b751805069e3` | The three storage switches in Advanced wear a question mark now. One click next to the switch |
 | 2.0.10 | 3 Oct | `6345b6b` | `c95758e48441b5f3` | The empty list and the empty log wear a small mark now, coloured by whichever of the eight themes |
 | 2.0.9 | 3 Oct | `3e692fb` | `b12944b4b6989a69` | Three more kinds can be cleared on their own: service workers, saved site files, and site |
