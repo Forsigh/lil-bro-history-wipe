@@ -1215,7 +1215,7 @@
     "message": "Co się zmieniło w tej wersji"
   },
   "whatsNewBody": {
-    "message": "Trzy nowe rodzaje danych można czyścić osobno, a każdy przełącznik sam się tłumaczy: mały znak zapytania w środku otwiera proste zdanie o tym, co usuwa. Czyszczenie może też działać, gdy komputer stoi bezczynnie, a puste ekrany dostały swój dyskretny znaczek."
+    "message": "Przyciski i zakładki dostały małe znaczki, które podpowiadają, co robią. A gdy strona się jeszcze budzi, obok słowa obraca się mały łuk."
   },
   "whatsNewOk": {
     "message": "Rozumiem"

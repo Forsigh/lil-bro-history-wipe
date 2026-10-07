@@ -353,6 +353,146 @@ h2::after {
   --empty-icon: url('icons/ui/history.svg');
 }
 
+/* Small leading marks on the controls that matter, and the arc that turns while a page
+   is still waking up. Same machinery as the empty screens above: the shape is a file
+   from icons/ui, the colour comes from the control itself, so all eight themes paint
+   these right with no extra rules. */
+#wipeBtn::before,
+#wipeNowBtn::before,
+#extraNowBtn::before,
+#previewBtn::before,
+#insightsBtn::before,
+#addDomainBtn::before,
+#addBtn::before,
+#rulesEmptyAdd::before,
+#openOptions::before,
+#confirmPhraseBtn::before,
+#oldBtn::before,
+#clearLog::before,
+#exportBtn::before,
+#lockSave::before,
+#lockUnlock::before,
+#logPinGo::before,
+#lockNowBtn::before,
+#cookieNowBtn::before {
+  content: '';
+  display: inline-block;
+  width: 17px;
+  height: 17px;
+  margin-right: 7px;
+  vertical-align: -0.2em;
+  background: currentColor;
+  -webkit-mask: var(--ico) center / contain no-repeat;
+  mask: var(--ico) center / contain no-repeat;
+}
+
+#wipeBtn,
+#wipeNowBtn,
+#extraNowBtn {
+  --ico: url('icons/ui/cleaning_services.svg');
+}
+
+#previewBtn,
+#insightsBtn {
+  --ico: url('icons/ui/search.svg');
+}
+
+#addDomainBtn,
+#addBtn,
+#rulesEmptyAdd {
+  --ico: url('icons/ui/list-add.svg');
+}
+
+#openOptions {
+  --ico: url('icons/ui/tune.svg');
+}
+
+#confirmPhraseBtn,
+#oldBtn {
+  --ico: url('icons/ui/delete_forever.svg');
+}
+
+#clearLog {
+  --ico: url('icons/ui/delete_sweep.svg');
+}
+
+#exportBtn {
+  --ico: url('icons/ui/download.svg');
+}
+
+#lockSave {
+  --ico: url('icons/ui/lock.svg');
+}
+
+#lockUnlock,
+#logPinGo {
+  --ico: url('icons/ui/lock_open.svg');
+}
+
+#lockNowBtn {
+  --ico: url('icons/ui/visibility_off.svg');
+}
+
+#cookieNowBtn {
+  --ico: url('icons/ui/cookie.svg');
+}
+
+/* The tabs keep the same idea at a slightly smaller size. */
+.tabs .tab::before {
+  content: '';
+  display: inline-block;
+  width: 15px;
+  height: 15px;
+  margin-right: 6px;
+  vertical-align: -0.18em;
+  background: currentColor;
+  -webkit-mask: var(--ico) center / contain no-repeat;
+  mask: var(--ico) center / contain no-repeat;
+}
+
+#tabCleaning {
+  --ico: url('icons/ui/cleaning_services.svg');
+}
+
+#tabLogs {
+  --ico: url('icons/ui/list.svg');
+}
+
+#tabPrivacy {
+  --ico: url('icons/ui/shield.svg');
+}
+
+#tabAdvanced {
+  --ico: url('icons/ui/tune.svg');
+}
+
+/* While a page is still waking up, the word sits beside a little turning arc instead
+   of appearing alone. It leaves the moment the page has something to say. */
+.spin {
+  display: inline-block;
+  flex: none;
+  width: 14px;
+  height: 14px;
+  margin-right: 7px;
+  vertical-align: -0.14em;
+  background: currentColor;
+  -webkit-mask: url('icons/ui/progress_activity.svg') center / contain no-repeat;
+  mask: url('icons/ui/progress_activity.svg') center / contain no-repeat;
+  animation: lb-turn 0.9s linear infinite;
+}
+
+@keyframes lb-turn {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spin {
+    animation: none;
+  }
+}
+
 .err {
   color: var(--danger);
   font-size: 13px;

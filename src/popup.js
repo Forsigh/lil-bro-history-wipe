@@ -161,6 +161,7 @@ function render() {
       : keep
         ? t('statusKeep') || 'Wiping all but your keep list'
         : t('statusActive') || 'Active';
+  $('statusSpin')?.classList.add('hidden');
 
   // The switch carries the state and the control, so there is nothing to read twice.
   const toggle = $('toggleBtn');
@@ -553,6 +554,8 @@ $('whatsNewOk').addEventListener('click', () => {
 function fail(err) {
   const status = $('status');
   if (status) status.textContent = t('startFailed') || 'Could not start';
+  const spin = $('statusSpin');
+  if (spin) spin.classList.add('hidden');
   const dot = $('dot');
   if (dot) dot.className = 'dot danger';
   setMsg(t('startFailedHint') || 'Reload the extension on the extensions page.', 'err');

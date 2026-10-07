@@ -1215,7 +1215,7 @@
     "message": "What changed in this version"
   },
   "whatsNewBody": {
-    "message": "Three more kinds of data can be cleared on their own, and each switch explains itself now: a small question mark inside it opens a plain line about what it removes. Cleaning can also run while the computer sits idle, and the empty screens picked up a quiet mark."
+    "message": "The buttons and the tabs picked up small marks that hint at what they do. While a page is still waking up, a little arc turns beside the word."
   },
   "whatsNewOk": {
     "message": "Got it"

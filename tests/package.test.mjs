@@ -139,6 +139,19 @@ const ADDED_IN = {
   'src/icons/ui/list-add.svg': '2.1.0',
   'src/icons/ui/history.svg': '2.1.0',
   'src/icons/ui/LICENSE.txt': '2.1.0',
+  'src/icons/ui/cleaning_services.svg': '2.0.13',
+  'src/icons/ui/delete_forever.svg': '2.0.13',
+  'src/icons/ui/delete_sweep.svg': '2.0.13',
+  'src/icons/ui/search.svg': '2.0.13',
+  'src/icons/ui/download.svg': '2.0.13',
+  'src/icons/ui/lock.svg': '2.0.13',
+  'src/icons/ui/lock_open.svg': '2.0.13',
+  'src/icons/ui/shield.svg': '2.0.13',
+  'src/icons/ui/progress_activity.svg': '2.0.13',
+  'src/icons/ui/tune.svg': '2.0.13',
+  'src/icons/ui/list.svg': '2.0.13',
+  'src/icons/ui/visibility_off.svg': '2.0.13',
+  'src/icons/ui/cookie.svg': '2.0.13',
 };
 
 const cmpVersion = (a, b) => {
@@ -150,7 +163,7 @@ const cmpVersion = (a, b) => {
 check('the files added after a build shipped are named one at a time', () => {
   const entries = Object.entries(ADDED_IN).map(([name, v]) => `${name}@${v}`);
   if (entries.join(',') !==
-    'src/bmc.png@1.8.0,src/icons/ui/list-add.svg@2.1.0,src/icons/ui/history.svg@2.1.0,src/icons/ui/LICENSE.txt@2.1.0') {
+    'src/bmc.png@1.8.0,src/icons/ui/list-add.svg@2.1.0,src/icons/ui/history.svg@2.1.0,src/icons/ui/LICENSE.txt@2.1.0,src/icons/ui/cleaning_services.svg@2.0.13,src/icons/ui/delete_forever.svg@2.0.13,src/icons/ui/delete_sweep.svg@2.0.13,src/icons/ui/search.svg@2.0.13,src/icons/ui/download.svg@2.0.13,src/icons/ui/lock.svg@2.0.13,src/icons/ui/lock_open.svg@2.0.13,src/icons/ui/shield.svg@2.0.13,src/icons/ui/progress_activity.svg@2.0.13,src/icons/ui/tune.svg@2.0.13,src/icons/ui/list.svg@2.0.13,src/icons/ui/visibility_off.svg@2.0.13,src/icons/ui/cookie.svg@2.0.13') {
     throw new Error(`the added-file list changed: ${entries.join(', ')}`);
   }
 });

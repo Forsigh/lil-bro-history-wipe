@@ -514,7 +514,13 @@ try {
         dot: document.getElementById('dot').className,
         versionLine: !!document.getElementById('version'),
         noteShown: !document.getElementById('newInThisVersion').classList.contains('hidden'),
-        message: document.getElementById('wipeMsg').textContent.trim()
+        message: document.getElementById('wipeMsg').textContent.trim(),
+        spinAnim: getComputedStyle(document.getElementById('statusSpin')).animationName,
+        spinHidden: document.getElementById('statusSpin').classList.contains('hidden'),
+        wipeMask: (() => {
+          const st = getComputedStyle(document.getElementById('wipeBtn'), '::before');
+          return String(st.webkitMaskImage || st.maskImage || '');
+        })()
       })`)
     );
     await closePage(fresh.id);
@@ -526,6 +532,19 @@ try {
         state: document.getElementById('stateText').textContent.trim(),
         dot: document.getElementById('stateDot').className,
         rules: document.getElementById('rulesBody').textContent.trim().length,
+        stateSpinHidden: document.getElementById('stateSpin').classList.contains('hidden'),
+        wipeMark: (() => {
+          const st = getComputedStyle(document.getElementById('wipeNowBtn'), '::before');
+          return { mask: String(st.webkitMaskImage || st.maskImage || ''), w: st.width };
+        })(),
+        scanMark: (() => {
+          const st = getComputedStyle(document.getElementById('previewBtn'), '::before');
+          return { mask: String(st.webkitMaskImage || st.maskImage || ''), w: st.width };
+        })(),
+        tabMark: (() => {
+          const st = getComputedStyle(document.getElementById('tabCleaning'), '::before');
+          return { mask: String(st.webkitMaskImage || st.maskImage || ''), w: st.width };
+        })(),
         emptyRules: (() => {
           const el = document.getElementById('rulesEmpty');
           const st = getComputedStyle(el, '::before');
@@ -550,6 +569,19 @@ try {
       page.emptyRules.vis && /list-add\.svg/.test(page.emptyRules.mask) && page.emptyRules.w === '20px' &&
         page.emptyLog.vis && /history\.svg/.test(page.emptyLog.mask) && page.emptyLog.w === '20px',
       `list "${page.emptyRules.mask}" ${page.emptyRules.w}, log "${page.emptyLog.mask}" ${page.emptyLog.w}`
+    );
+    record(
+      'the controls and the tabs wear their marks',
+      /cleaning_services\.svg/.test(page.wipeMark.mask) && page.wipeMark.w === '17px' &&
+        /search\.svg/.test(page.scanMark.mask) && page.scanMark.w === '17px' &&
+        /cleaning_services\.svg/.test(page.tabMark.mask) && page.tabMark.w === '15px' &&
+        /cleaning_services\.svg/.test(pop.wipeMask),
+      `wipe "${page.wipeMark.mask}" ${page.wipeMark.w}, scan "${page.scanMark.mask}", tab "${page.tabMark.mask}" ${page.tabMark.w}, popup "${pop.wipeMask}"`
+    );
+    record(
+      'the waking-up arc is there, turns, and goes once a page can talk',
+      pop.spinAnim === 'lb-turn' && pop.spinHidden === true && page.stateSpinHidden === true,
+      `popup anim ${pop.spinAnim}, hidden popup ${pop.spinHidden}, hidden settings ${page.stateSpinHidden}`
     );
     record(
       'a fresh install gets no note about what changed, and no version line',

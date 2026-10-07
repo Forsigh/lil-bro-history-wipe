@@ -294,6 +294,7 @@ function renderSettings() {
   // The same line twice on purpose: once at the top where it answers the question
   // someone came with, once in the status card beside the counters.
   $('stateText').textContent = stateLine;
+  $('stateSpin')?.classList.add('hidden');
   $('glanceState').textContent = stateLine;
   // While the PIN is on, the glance keeps the state and drops the numbers.
   const quiet = isLocked();
@@ -1607,6 +1608,8 @@ for (const btn of document.querySelectorAll('.theme')) {
   // failure that has a name.
   const text = $('stateText');
   if (text) text.textContent = t('startFailed') || 'Could not start';
+  const spin = $('stateSpin');
+  if (spin) spin.classList.add('hidden');
   const glance = $('glanceState');
   if (glance) glance.textContent = t('startFailedHint') || 'Reload the extension on the extensions page.';
   const dot = $('stateDot');
